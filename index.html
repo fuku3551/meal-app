@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>食事管理アプリ Ver.2</title>
+  <title>食事管理アプリ Ver.3</title>
   <style>
     :root{
       --bg1:#f0f5f2; --bg2:#e8ede9; --card:#ffffff; --text:#1a2e23; --sub:#6d8176;
@@ -11,8 +11,10 @@
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{
-      margin:0; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
-      background:linear-gradient(180deg,var(--bg1),var(--bg2)); color:var(--text);
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
     }
     .wrap{max-width:460px; margin:0 auto; padding:18px 14px 96px; min-height:100vh;}
     .hero{background:linear-gradient(135deg,var(--green),var(--green2)); color:#fff; border-radius:20px; padding:20px 18px; box-shadow:0 8px 24px rgba(45,138,110,.22);}
@@ -21,6 +23,7 @@
     .card{background:var(--card); border-radius:18px; padding:16px; margin-top:14px; box-shadow:0 2px 14px rgba(0,0,0,.05)}
     .title{font-size:13px; font-weight:800; color:var(--green); margin:0 0 12px}
     .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px}
     .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
     label{display:block; font-size:12px; font-weight:700; color:#5a6e62; margin-bottom:6px}
     input, select, button, textarea{font:inherit}
@@ -30,6 +33,7 @@
     .btn-main{background:linear-gradient(135deg,var(--green),var(--green2)); color:#fff; box-shadow:0 6px 18px rgba(45,138,110,.22)}
     .btn-sub{background:#fff; color:#6f7f76; border:2px solid var(--line)}
     .btn-red{background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff}
+    .btn-blue{background:linear-gradient(135deg,#3498db,#5dade2); color:#fff}
     .btn-small{padding:10px 12px; border-radius:12px; font-size:13px}
     .pill-row{display:flex; flex-wrap:wrap; gap:8px}
     .pill{padding:10px 12px; border-radius:999px; border:2px solid var(--line); background:#fff; font-weight:700; font-size:13px; cursor:pointer}
@@ -53,14 +57,25 @@
     .drink{background:#fff8e9; color:#d68910}
     .summary-line{display:flex; justify-content:space-between; font-size:12px; margin:8px 0}
     .empty{font-size:12px; color:#9aa6a0; text-align:center; padding:12px 0}
+    .week-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+    .day-box{background:#f8faf9; border-radius:12px; padding:8px 6px; text-align:center}
+    .day-box .day{font-size:10px; color:#6e7f77; font-weight:700; margin-bottom:4px}
+    .day-box .kc{font-size:13px; font-weight:800}
+    .day-box.good{background:#edf7f2}
+    .day-box.over{background:#fff4f3}
+    .day-box.none{background:#f8faf9}
+    .water-row{display:flex; gap:4px; margin:10px 0}
+    .water-cup{flex:1; height:24px; border-radius:8px; background:#e3e8e5; cursor:pointer; transition:.2s}
+    .water-cup.on{background:linear-gradient(180deg,#5bc0de,#3498db)}
+    .record-row{display:flex; gap:8px; align-items:flex-end}
     .footer-space{height:10px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
-      <h1>🍽️ 食事管理アプリ Ver.2</h1>
-      <p>食べたものを追加して、その日の合計カロリーと PFC を確認できます。まずは「記録しやすく、毎日使える」実用版です。</p>
+      <h1>🍽️ 食事管理アプリ Ver.3</h1>
+      <p>食事記録に加えて、水分・体重・週間管理まで使える版です。毎日の継続をしやすくするための実用アップデートです。</p>
     </div>
 
     <div class="card">
@@ -102,6 +117,38 @@
         <div class="progress"><div id="rateBar" class="bar"></div></div>
       </div>
       <div class="summary-line"><span>目標との差</span><strong id="diffLabel">0 kcal</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="title">💧 水分記録</div>
+      <div class="summary-line"><span>今日の水分</span><strong id="waterLabel">0 / 8 杯（0.0L）</strong></div>
+      <div class="water-row" id="waterCups"></div>
+      <div class="grid2">
+        <button class="btn btn-blue btn-small" id="waterMinus">− 1杯</button>
+        <button class="btn btn-blue btn-small" id="waterPlus">＋ 1杯</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">⚖️ 体重・体脂肪記録</div>
+      <div class="record-row">
+        <div style="flex:1;">
+          <label>体重（kg）</label>
+          <input id="bodyWeight" type="number" inputmode="decimal" placeholder="例：72.5">
+        </div>
+        <div style="flex:1;">
+          <label>体脂肪率（%）</label>
+          <input id="bodyFat" type="number" inputmode="decimal" placeholder="例：18.5">
+        </div>
+      </div>
+      <div class="grid2" style="margin-top:10px;">
+        <button class="btn btn-main" id="saveBody">記録する</button>
+        <button class="btn btn-sub" id="clearBodyForm">クリア</button>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="tiny muted" style="margin-bottom:6px;">最新の記録</div>
+        <div id="latestBody" class="muted" style="font-size:13px;">まだ記録がありません。</div>
+      </div>
     </div>
 
     <div class="card">
@@ -160,6 +207,12 @@
     </div>
 
     <div class="card">
+      <div class="title">📊 週間管理</div>
+      <div class="week-grid" id="weekGrid"></div>
+      <div style="margin-top:10px;" class="tiny muted">目安：目標カロリーに近い日は緑、オーバー日は赤っぽく表示されます。</div>
+    </div>
+
+    <div class="card">
       <div class="title">💡 ひとことアドバイス</div>
       <div id="advice" class="muted" style="font-size:13px; line-height:1.8;">まずは1日の記録を始めましょう。</div>
     </div>
@@ -168,7 +221,8 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'meal-app-ver2-data';
+    const STORAGE_KEY = 'meal-app-ver3-data';
+
     const mealLabels = {
       breakfast:'🌅 朝食',
       lunch:'☀️ 昼食',
@@ -176,6 +230,7 @@
       snack:'🍌 間食'
     };
     const mealKeys = Object.keys(mealLabels);
+
     const quickFoods = [
       {name:'サラダチキン', kcal:115, p:24, f:1.5, c:1, type:'normal'},
       {name:'ゆで卵 1個', kcal:76, p:6.2, f:5.2, c:0.3, type:'normal'},
@@ -190,13 +245,16 @@
     let state = {
       activeMeal:'breakfast',
       target:{ kcal:2000, p:120, f:50, c:220 },
-      logs:{}
+      logs:{},
+      water:{},
+      bodyLogs:[]
     };
 
-    const todayKey = (() => {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    })();
+    function getDateKey(date = new Date()){
+      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    }
+
+    const todayKey = getDateKey();
 
     function load(){
       try {
@@ -204,15 +262,35 @@
         if(raw) state = JSON.parse(raw);
       } catch(e) {}
       if(!state.logs) state.logs = {};
+      if(!state.water) state.water = {};
+      if(!state.bodyLogs) state.bodyLogs = [];
       if(!state.logs[todayKey]) state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
       mealKeys.forEach(k => { if(!state.logs[todayKey][k]) state.logs[todayKey][k] = []; });
+      if(typeof state.water[todayKey] !== 'number') state.water[todayKey] = 0;
     }
 
     function save(){
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function num(v){ return Math.round((Number(v||0))*10)/10; }
+    function num(v){
+      return Math.round((Number(v||0))*10)/10;
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function ensureToday(){
+      if(!state.logs[todayKey]) state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
+      mealKeys.forEach(k => { if(!state.logs[todayKey][k]) state.logs[todayKey][k] = []; });
+      if(typeof state.water[todayKey] !== 'number') state.water[todayKey] = 0;
+    }
 
     function renderMealTabs(){
       const el = document.getElementById('mealTabs');
@@ -220,7 +298,10 @@
         <button class="meal-tab ${state.activeMeal===k?'active':''}" data-meal="${k}">${mealLabels[k]}</button>
       `).join('');
       el.querySelectorAll('[data-meal]').forEach(btn => {
-        btn.onclick = () => { state.activeMeal = btn.dataset.meal; renderMealTabs(); };
+        btn.onclick = () => {
+          state.activeMeal = btn.dataset.meal;
+          renderMealTabs();
+        };
       });
     }
 
@@ -248,7 +329,8 @@
     }
 
     function getTodayAll(){
-      const day = state.logs[todayKey] || { breakfast:[], lunch:[], dinner:[], snack:[] };
+      ensureToday();
+      const day = state.logs[todayKey];
       return mealKeys.flatMap(k => (day[k]||[]).map(item => ({...item, meal:k})));
     }
 
@@ -274,7 +356,11 @@
       const rate = tk > 0 ? Math.round((t.kcal / tk) * 100) : 0;
       rateLabel.textContent = `${rate}%`;
       rateBar.style.width = `${Math.min(rate,100)}%`;
-      rateBar.style.background = rate > 110 ? 'linear-gradient(90deg,#e74c3c,#c0392b)' : rate >= 90 ? 'linear-gradient(90deg,#2d8a6e,#3aaf8a)' : 'linear-gradient(90deg,#f39c12,#f1c40f)';
+      rateBar.style.background =
+        rate > 110 ? 'linear-gradient(90deg,#e74c3c,#c0392b)'
+        : rate >= 90 ? 'linear-gradient(90deg,#2d8a6e,#3aaf8a)'
+        : 'linear-gradient(90deg,#f39c12,#f1c40f)';
+
       const diff = Math.round(t.kcal - tk);
       diffLabel.textContent = `${diff>0?'+':''}${diff} kcal`;
       diffLabel.style.color = diff > 0 ? '#c0392b' : '#2d8a6e';
@@ -284,8 +370,10 @@
 
     function renderList(){
       const list = document.getElementById('todayList');
+      ensureToday();
       const day = state.logs[todayKey];
       const hasAny = mealKeys.some(k => (day[k]||[]).length > 0);
+
       if(!hasAny){
         list.innerHTML = '<div class="empty">まだ記録がありません。下の入力欄から追加してください。</div>';
         return;
@@ -297,8 +385,11 @@
         if(!arr.length) return;
         html += `<div class="tag">${mealLabels[meal]}</div>`;
         arr.forEach((item,idx) => {
-          const cls = item.type === 'sweet' ? 'danger' : item.type === 'drink' ? 'drink' : '';
-          const badge = item.type === 'sweet' ? '<span class="tag danger">お菓子</span>' : item.type === 'drink' ? '<span class="tag drink">飲み物/お酒</span>' : '';
+          const badge = item.type === 'sweet'
+            ? '<span class="tag danger">お菓子</span>'
+            : item.type === 'drink'
+            ? '<span class="tag drink">飲み物/お酒</span>'
+            : '';
           html += `
             <div class="item">
               <div>
@@ -311,15 +402,74 @@
           `;
         });
       });
+
       list.innerHTML = html;
       list.querySelectorAll('[data-del-meal]').forEach(btn => {
         btn.onclick = () => {
           const meal = btn.dataset.delMeal;
           const idx = Number(btn.dataset.delIdx);
           state.logs[todayKey][meal].splice(idx,1);
-          save(); renderAll();
+          save();
+          renderAll();
         };
       });
+    }
+
+    function renderWater(){
+      ensureToday();
+      const cups = state.water[todayKey] || 0;
+      waterLabel.textContent = `${cups} / 8 杯（${(cups * 0.25).toFixed(1)}L）`;
+      waterCups.innerHTML = Array.from({length:8}).map((_,i)=>`
+        <div class="water-cup ${i < cups ? 'on' : ''}" data-cup="${i+1}"></div>
+      `).join('');
+      waterCups.querySelectorAll('[data-cup]').forEach(el => {
+        el.onclick = () => {
+          state.water[todayKey] = Number(el.dataset.cup);
+          save();
+          renderWater();
+        };
+      });
+    }
+
+    function renderLatestBody(){
+      if(!state.bodyLogs.length){
+        latestBody.textContent = 'まだ記録がありません。';
+        return;
+      }
+      const last = state.bodyLogs[state.bodyLogs.length - 1];
+      latestBody.innerHTML = `${last.date}：<strong>${last.weight}kg</strong>${last.bodyFat ? ` / 体脂肪 ${last.bodyFat}%` : ''}`;
+    }
+
+    function renderWeek(){
+      const box = document.getElementById('weekGrid');
+      const labels = ['日','月','火','水','木','金','土'];
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(today.getDate() - 6);
+
+      let html = '';
+      for(let i=0;i<7;i++){
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const key = getDateKey(d);
+        const dayLogs = state.logs[key] || { breakfast:[], lunch:[], dinner:[], snack:[] };
+        const items = mealKeys.flatMap(k => dayLogs[k] || []);
+        const t = totals(items);
+        const target = Number(state.target.kcal || 0);
+        let cls = 'none';
+        if(t.kcal > 0){
+          cls = Math.abs(t.kcal - target) <= 150 ? 'good' : (t.kcal > target ? 'over' : 'none');
+        }
+        html += `
+          <div class="day-box ${cls}">
+            <div class="day">${labels[d.getDay()]}</div>
+            <div class="tiny muted">${d.getMonth()+1}/${d.getDate()}</div>
+            <div class="kc">${Math.round(t.kcal)}</div>
+            <div class="tiny muted">kcal</div>
+          </div>
+        `;
+      }
+      box.innerHTML = html;
     }
 
     function renderAdvice(t){
@@ -331,6 +481,7 @@
       const cDiff = num(t.c - Number(tg.c||0));
       const sweets = getTodayAll().filter(x => x.type === 'sweet').length;
       const drinks = getTodayAll().filter(x => x.type === 'drink').length;
+      const waterCount = state.water[todayKey] || 0;
 
       if(t.kcal === 0) msgs.push('まずは今日食べたものを1つ追加して、記録の習慣を作りましょう。');
       else if(Math.abs(kcalDiff) <= 100) msgs.push('カロリーはかなり良い範囲です。この調子です。');
@@ -344,6 +495,8 @@
       if(cDiff > 30) msgs.push('炭水化物が多めです。夜は主食を少し軽くするとバランスが取りやすいです。');
       if(sweets > 0) msgs.push(`お菓子・スイーツが ${sweets} 件あります。次回はヨーグルトやプロテイン系に置き換えるのもおすすめです。`);
       if(drinks > 0) msgs.push(`飲み物・お酒の記録が ${drinks} 件あります。糖質の少ない選択にすると調整しやすいです。`);
+      if(waterCount < 6) msgs.push(`水分が ${waterCount} 杯です。あと少し増やして 2L に近づけましょう。`);
+      else msgs.push('水分もしっかり取れています。良い流れです。');
 
       advice.innerHTML = msgs.map(m => `・${escapeHtml(m)}`).join('<br>');
     }
@@ -359,16 +512,21 @@
       eatTime.value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     }
 
-    function renderAll(){
-      renderMealTabs();
-      renderTargets();
-      renderQuickFoods();
-      renderSummary();
-      renderList();
+    function clearBody(){
+      bodyWeight.value = '';
+      bodyFat.value = '';
     }
 
-    function escapeHtml(str){
-      return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+    function renderAll(){
+      ensureToday();
+      renderMealTabs();
+      renderQuickFoods();
+      renderTargets();
+      renderSummary();
+      renderList();
+      renderWater();
+      renderLatestBody();
+      renderWeek();
     }
 
     document.getElementById('saveTarget').onclick = () => {
@@ -378,18 +536,24 @@
         f: Number(targetF.value || 0),
         c: Number(targetC.value || 0)
       };
-      save(); renderAll();
+      save();
+      renderAll();
       alert('目標を保存しました。');
     };
 
     document.getElementById('fillExample').onclick = () => {
       state.target = { kcal:2000, p:120, f:50, c:220 };
-      save(); renderAll();
+      save();
+      renderAll();
     };
 
     document.getElementById('addFood').onclick = () => {
+      ensureToday();
       const name = foodName.value.trim();
-      if(!name){ alert('食べ物の名前を入れてください。'); return; }
+      if(!name){
+        alert('食べ物の名前を入れてください。');
+        return;
+      }
       const item = {
         name,
         kcal: Number(foodKcal.value || 0),
@@ -410,12 +574,17 @@
     document.getElementById('clearToday').onclick = () => {
       if(!confirm('今日の記録をすべて削除しますか？')) return;
       state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
-      save(); renderAll();
+      state.water[todayKey] = 0;
+      save();
+      renderAll();
     };
 
     document.getElementById('exportText').onclick = () => {
       const all = getTodayAll();
-      if(!all.length){ alert('まだ記録がありません。'); return; }
+      if(!all.length){
+        alert('まだ記録がありません。');
+        return;
+      }
       const t = totals(all);
       let txt = `【今日の食事記録】\n`;
       mealKeys.forEach(k => {
@@ -427,8 +596,47 @@
         });
       });
       txt += `\n合計: ${Math.round(t.kcal)}kcal / P${num(t.p)} / F${num(t.f)} / C${num(t.c)}`;
+      txt += `\n水分: ${(state.water[todayKey]||0)}杯`;
       alert(txt);
     };
+
+    document.getElementById('waterMinus').onclick = () => {
+      ensureToday();
+      state.water[todayKey] = Math.max((state.water[todayKey] || 0) - 1, 0);
+      save();
+      renderWater();
+      renderSummary();
+    };
+
+    document.getElementById('waterPlus').onclick = () => {
+      ensureToday();
+      state.water[todayKey] = Math.min((state.water[todayKey] || 0) + 1, 12);
+      save();
+      renderWater();
+      renderSummary();
+    };
+
+    document.getElementById('saveBody').onclick = () => {
+      const w = Number(bodyWeight.value || 0);
+      const bf = Number(bodyFat.value || 0);
+      if(!w){
+        alert('体重を入力してください。');
+        return;
+      }
+      state.bodyLogs.push({
+        date: `${new Date().getMonth()+1}/${new Date().getDate()}`,
+        key: todayKey,
+        weight: num(w),
+        bodyFat: bf ? num(bf) : ''
+      });
+      if(state.bodyLogs.length > 30) state.bodyLogs = state.bodyLogs.slice(-30);
+      save();
+      clearBody();
+      renderLatestBody();
+      alert('体重を記録しました。');
+    };
+
+    document.getElementById('clearBodyForm').onclick = clearBody;
 
     load();
     clearForm();
