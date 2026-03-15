@@ -1,9 +1,9 @@
-<!doctype html>
+doctype html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>食事管理アプリ Ver.3</title>
+  <title>食事管理アプリ Ver.4</title>
   <style>
     :root{
       --bg1:#f0f5f2; --bg2:#e8ede9; --card:#ffffff; --text:#1a2e23; --sub:#6d8176;
@@ -19,7 +19,7 @@
     .wrap{max-width:460px; margin:0 auto; padding:18px 14px 96px; min-height:100vh;}
     .hero{background:linear-gradient(135deg,var(--green),var(--green2)); color:#fff; border-radius:20px; padding:20px 18px; box-shadow:0 8px 24px rgba(45,138,110,.22);}
     .hero h1{margin:0 0 6px; font-size:24px}
-    .hero p{margin:0; font-size:12px; opacity:.9; line-height:1.6}
+    .hero p{margin:0; font-size:12px; opacity:.92; line-height:1.6}
     .card{background:var(--card); border-radius:18px; padding:16px; margin-top:14px; box-shadow:0 2px 14px rgba(0,0,0,.05)}
     .title{font-size:13px; font-weight:800; color:var(--green); margin:0 0 12px}
     .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
@@ -27,7 +27,10 @@
     .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
     label{display:block; font-size:12px; font-weight:700; color:#5a6e62; margin-bottom:6px}
     input, select, button, textarea{font:inherit}
-    input, select{width:100%; border:2px solid var(--line); background:#f8faf9; border-radius:14px; padding:13px 14px; font-size:16px; outline:none}
+    input, select{
+      width:100%; border:2px solid var(--line); background:#f8faf9; border-radius:14px;
+      padding:13px 14px; font-size:16px; outline:none
+    }
     input:focus, select:focus{border-color:#a7cfbf; background:#fff}
     .btn{border:none; border-radius:14px; padding:14px 16px; font-weight:800; cursor:pointer}
     .btn-main{background:linear-gradient(135deg,var(--green),var(--green2)); color:#fff; box-shadow:0 6px 18px rgba(45,138,110,.22)}
@@ -68,14 +71,122 @@
     .water-cup{flex:1; height:24px; border-radius:8px; background:#e3e8e5; cursor:pointer; transition:.2s}
     .water-cup.on{background:linear-gradient(180deg,#5bc0de,#3498db)}
     .record-row{display:flex; gap:8px; align-items:flex-end}
+    .calc-box{background:linear-gradient(135deg,#edf7f2,#e6f3ed); border-radius:16px; padding:14px; margin-top:10px}
+    .calc-main{font-size:28px; font-weight:800; color:var(--green); text-align:center}
+    .calc-sub{font-size:11px; color:#5f7367; text-align:center}
     .footer-space{height:10px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
-      <h1>🍽️ 食事管理アプリ Ver.3</h1>
-      <p>食事記録に加えて、水分・体重・週間管理まで使える版です。毎日の継続をしやすくするための実用アップデートです。</p>
+      <h1>🍽️ 食事管理アプリ Ver.4</h1>
+      <p>基本情報と活動量から、基礎代謝・消費カロリー・目標摂取カロリー・PFCを自動計算できる版です。記録機能、水分、体重、週間管理も引き続き使えます。</p>
+    </div>
+
+    <div class="card">
+      <div class="title">🧠 自動カロリー計算</div>
+      <div class="grid2">
+        <div>
+          <label>性別</label>
+          <select id="calcGender">
+            <option value="">選択してください</option>
+            <option value="male">男性</option>
+            <option value="female">女性</option>
+          </select>
+        </div>
+        <div>
+          <label>年齢</label>
+          <input id="calcAge" type="number" inputmode="decimal" placeholder="例：35">
+        </div>
+        <div>
+          <label>身長（cm）</label>
+          <input id="calcHeight" type="number" inputmode="decimal" placeholder="例：170">
+        </div>
+        <div>
+          <label>体重（kg）</label>
+          <input id="calcWeight" type="number" inputmode="decimal" placeholder="例：72">
+        </div>
+        <div>
+          <label>体脂肪率（%）</label>
+          <input id="calcBodyFat" type="number" inputmode="decimal" placeholder="例：20">
+        </div>
+        <div>
+          <label>目標</label>
+          <select id="calcGoal">
+            <option value="maintain">維持</option>
+            <option value="cut">減量</option>
+            <option value="bulk">増量</option>
+          </select>
+        </div>
+        <div>
+          <label>仕事内容</label>
+          <select id="calcJob">
+            <option value="1.15">ゆったり生活・在宅中心</option>
+            <option value="1.20">デスクワーク中心</option>
+            <option value="1.375">立ち仕事（販売・接客）</option>
+            <option value="1.55">体を動かす仕事（介護・配送）</option>
+            <option value="1.725">肉体労働（建設・農業）</option>
+          </select>
+        </div>
+        <div>
+          <label>運動習慣</label>
+          <select id="calcExercise">
+            <option value="0">ほぼなし</option>
+            <option value="0.025">週1回</option>
+            <option value="0.05">週2〜3回</option>
+            <option value="0.10">週4〜5回</option>
+            <option value="0.15">ほぼ毎日</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2" style="margin-top:10px;">
+        <button class="btn btn-main" id="runCalc">自動計算する</button>
+        <button class="btn btn-sub" id="useCalcResult">結果を目標に反映</button>
+      </div>
+
+      <div class="calc-box">
+        <div class="grid2">
+          <div class="stat">
+            <div class="tiny muted">基礎代謝</div>
+            <div id="calcBmr" class="n">0</div>
+            <div class="tiny muted">kcal</div>
+          </div>
+          <div class="stat">
+            <div class="tiny muted">推定消費</div>
+            <div id="calcTdee" class="n">0</div>
+            <div class="tiny muted">kcal</div>
+          </div>
+          <div class="stat">
+            <div class="tiny muted">目標摂取</div>
+            <div id="calcTargetKcal" class="n" style="color:#2d8a6e">0</div>
+            <div class="tiny muted">kcal</div>
+          </div>
+          <div class="stat">
+            <div class="tiny muted">除脂肪体重</div>
+            <div id="calcLBM" class="n">0</div>
+            <div class="tiny muted">kg</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;" class="grid3">
+          <div class="stat">
+            <div class="tiny" style="color:#e74c3c">P</div>
+            <div id="calcP" class="n" style="color:#e74c3c">0</div>
+            <div class="tiny muted">g</div>
+          </div>
+          <div class="stat">
+            <div class="tiny" style="color:#f39c12">F</div>
+            <div id="calcF" class="n" style="color:#f39c12">0</div>
+            <div class="tiny muted">g</div>
+          </div>
+          <div class="stat">
+            <div class="tiny" style="color:#2ecc71">C</div>
+            <div id="calcC" class="n" style="color:#2ecc71">0</div>
+            <div class="tiny muted">g</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;" id="calcMemo" class="calc-sub">まずは情報を入れて「自動計算する」を押してください。</div>
+      </div>
     </div>
 
     <div class="card">
@@ -221,7 +332,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'meal-app-ver3-data';
+    const STORAGE_KEY = 'meal-app-ver4-data';
 
     const mealLabels = {
       breakfast:'🌅 朝食',
@@ -247,7 +358,24 @@
       target:{ kcal:2000, p:120, f:50, c:220 },
       logs:{},
       water:{},
-      bodyLogs:[]
+      bodyLogs:[],
+      calc:{
+        gender:'',
+        age:'',
+        height:'',
+        weight:'',
+        bodyFat:'',
+        goal:'maintain',
+        job:'1.20',
+        exercise:'0',
+        bmr:0,
+        tdee:0,
+        targetKcal:0,
+        p:0,
+        f:0,
+        c:0,
+        lbm:0
+      }
     };
 
     function getDateKey(date = new Date()){
@@ -264,9 +392,13 @@
       if(!state.logs) state.logs = {};
       if(!state.water) state.water = {};
       if(!state.bodyLogs) state.bodyLogs = [];
-      if(!state.logs[todayKey]) state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
-      mealKeys.forEach(k => { if(!state.logs[todayKey][k]) state.logs[todayKey][k] = []; });
-      if(typeof state.water[todayKey] !== 'number') state.water[todayKey] = 0;
+      if(!state.calc) {
+        state.calc = {
+          gender:'', age:'', height:'', weight:'', bodyFat:'', goal:'maintain',
+          job:'1.20', exercise:'0', bmr:0, tdee:0, targetKcal:0, p:0, f:0, c:0, lbm:0
+        };
+      }
+      ensureToday();
     }
 
     function save(){
@@ -311,12 +443,12 @@
       box.querySelectorAll('[data-idx]').forEach(btn => {
         btn.onclick = () => {
           const f = quickFoods[Number(btn.dataset.idx)];
-          document.getElementById('foodName').value = f.name;
-          document.getElementById('foodKcal').value = f.kcal;
-          document.getElementById('foodP').value = f.p;
-          document.getElementById('foodF').value = f.f;
-          document.getElementById('foodC').value = f.c;
-          document.getElementById('foodType').value = f.type;
+          foodName.value = f.name;
+          foodKcal.value = f.kcal;
+          foodP.value = f.p;
+          foodF.value = f.f;
+          foodC.value = f.c;
+          foodType.value = f.type;
         };
       });
     }
@@ -326,6 +458,24 @@
       targetP.value = state.target.p || '';
       targetF.value = state.target.f || '';
       targetC.value = state.target.c || '';
+    }
+
+    function renderCalcInputs(){
+      calcGender.value = state.calc.gender || '';
+      calcAge.value = state.calc.age || '';
+      calcHeight.value = state.calc.height || '';
+      calcWeight.value = state.calc.weight || '';
+      calcBodyFat.value = state.calc.bodyFat || '';
+      calcGoal.value = state.calc.goal || 'maintain';
+      calcJob.value = state.calc.job || '1.20';
+      calcExercise.value = state.calc.exercise || '0';
+      calcBmr.textContent = Math.round(state.calc.bmr || 0);
+      calcTdee.textContent = Math.round(state.calc.tdee || 0);
+      calcTargetKcal.textContent = Math.round(state.calc.targetKcal || 0);
+      calcLBM.textContent = num(state.calc.lbm || 0);
+      calcP.textContent = Math.round(state.calc.p || 0);
+      calcF.textContent = Math.round(state.calc.f || 0);
+      calcC.textContent = Math.round(state.calc.c || 0);
     }
 
     function getTodayAll(){
@@ -342,6 +492,93 @@
         acc.c += Number(it.c||0);
         return acc;
       }, {kcal:0,p:0,f:0,c:0});
+    }
+
+    function runAutoCalc(){
+      const gender = calcGender.value;
+      const age = Number(calcAge.value || 0);
+      const height = Number(calcHeight.value || 0);
+      const weight = Number(calcWeight.value || 0);
+      const bodyFat = Number(calcBodyFat.value || 0);
+      const goal = calcGoal.value;
+      const job = Number(calcJob.value || 1.2);
+      const exercise = Number(calcExercise.value || 0);
+
+      if(!gender || !age || !height || !weight){
+        alert('性別・年齢・身長・体重を入力してください。');
+        return;
+      }
+
+      const lbm = bodyFat > 0 ? weight * (1 - bodyFat / 100) : 0;
+      const bmrMsj = gender === 'male'
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+      const bmrKatch = lbm > 0 ? 370 + 21.6 * lbm : 0;
+      const bmr = bmrKatch > 0 ? Math.round((bmrMsj + bmrKatch) / 2) : Math.round(bmrMsj);
+      const tdee = Math.round(bmr * (job + exercise));
+
+      let targetKcal = tdee;
+      if(goal === 'cut') targetKcal = Math.round(tdee - 500);
+      if(goal === 'bulk') targetKcal = Math.round(tdee + 300);
+
+      const minFloor = gender === 'male' ? 1400 : 1200;
+      if(targetKcal < minFloor) targetKcal = minFloor;
+
+      let p = 0, f = 0, c = 0;
+      if(goal === 'cut'){
+        p = Math.round((lbm > 0 ? lbm * 2.2 : weight * 1.8));
+        f = Math.round(weight * 0.8);
+      } else if(goal === 'bulk'){
+        p = Math.round((lbm > 0 ? lbm * 2.0 : weight * 1.6));
+        f = Math.round(weight * 0.9);
+      } else {
+        p = Math.round((lbm > 0 ? lbm * 1.6 : weight * 1.2));
+        f = Math.round(weight * 0.8);
+      }
+      c = Math.round(Math.max((targetKcal - p * 4 - f * 9) / 4, 50));
+
+      state.calc = {
+        gender,
+        age,
+        height,
+        weight,
+        bodyFat,
+        goal,
+        job:String(job),
+        exercise:String(exercise),
+        bmr,
+        tdee,
+        targetKcal,
+        p,
+        f,
+        c,
+        lbm:num(lbm)
+      };
+
+      save();
+      renderCalcInputs();
+
+      const goalText = goal === 'cut' ? '減量' : goal === 'bulk' ? '増量' : '維持';
+      calcMemo.textContent = `${goalText}向けに自動計算しました。基礎代謝と活動量から、無理の少ない目安を出しています。`;
+    }
+
+    function applyCalcToTargets(){
+      if(!state.calc.targetKcal){
+        alert('先に自動計算をしてください。');
+        return;
+      }
+      state.target = {
+        kcal: state.calc.targetKcal,
+        p: state.calc.p,
+        f: state.calc.f,
+        c: state.calc.c
+      };
+      save();
+      renderTargets();
+      renderSummary();
+      renderWeek();
+      alert('自動計算の結果を目標設定へ反映しました。');
     }
 
     function renderSummary(){
@@ -427,6 +664,7 @@
           state.water[todayKey] = Number(el.dataset.cup);
           save();
           renderWater();
+          renderSummary();
         };
       });
     }
@@ -498,6 +736,11 @@
       if(waterCount < 6) msgs.push(`水分が ${waterCount} 杯です。あと少し増やして 2L に近づけましょう。`);
       else msgs.push('水分もしっかり取れています。良い流れです。');
 
+      if(state.calc.targetKcal){
+        const goalText = state.calc.goal === 'cut' ? '減量' : state.calc.goal === 'bulk' ? '増量' : '維持';
+        msgs.unshift(`現在の自動計算設定は「${goalText}」で、目標摂取カロリーは ${Math.round(state.calc.targetKcal)} kcal です。`);
+      }
+
       advice.innerHTML = msgs.map(m => `・${escapeHtml(m)}`).join('<br>');
     }
 
@@ -522,6 +765,7 @@
       renderMealTabs();
       renderQuickFoods();
       renderTargets();
+      renderCalcInputs();
       renderSummary();
       renderList();
       renderWater();
@@ -529,7 +773,7 @@
       renderWeek();
     }
 
-    document.getElementById('saveTarget').onclick = () => {
+    saveTarget.onclick = () => {
       state.target = {
         kcal: Number(targetKcal.value || 0),
         p: Number(targetP.value || 0),
@@ -541,13 +785,21 @@
       alert('目標を保存しました。');
     };
 
-    document.getElementById('fillExample').onclick = () => {
+    fillExample.onclick = () => {
       state.target = { kcal:2000, p:120, f:50, c:220 };
       save();
       renderAll();
     };
 
-    document.getElementById('addFood').onclick = () => {
+    runCalc.onclick = () => {
+      runAutoCalc();
+    };
+
+    useCalcResult.onclick = () => {
+      applyCalcToTargets();
+    };
+
+    addFood.onclick = () => {
       ensureToday();
       const name = foodName.value.trim();
       if(!name){
@@ -569,9 +821,9 @@
       renderAll();
     };
 
-    document.getElementById('clearForm').onclick = clearForm;
+    clearForm.onclick = clearForm;
 
-    document.getElementById('clearToday').onclick = () => {
+    clearToday.onclick = () => {
       if(!confirm('今日の記録をすべて削除しますか？')) return;
       state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
       state.water[todayKey] = 0;
@@ -579,7 +831,7 @@
       renderAll();
     };
 
-    document.getElementById('exportText').onclick = () => {
+    exportText.onclick = () => {
       const all = getTodayAll();
       if(!all.length){
         alert('まだ記録がありません。');
@@ -600,7 +852,7 @@
       alert(txt);
     };
 
-    document.getElementById('waterMinus').onclick = () => {
+    waterMinus.onclick = () => {
       ensureToday();
       state.water[todayKey] = Math.max((state.water[todayKey] || 0) - 1, 0);
       save();
@@ -608,7 +860,7 @@
       renderSummary();
     };
 
-    document.getElementById('waterPlus').onclick = () => {
+    waterPlus.onclick = () => {
       ensureToday();
       state.water[todayKey] = Math.min((state.water[todayKey] || 0) + 1, 12);
       save();
@@ -616,7 +868,7 @@
       renderSummary();
     };
 
-    document.getElementById('saveBody').onclick = () => {
+    saveBody.onclick = () => {
       const w = Number(bodyWeight.value || 0);
       const bf = Number(bodyFat.value || 0);
       if(!w){
@@ -636,7 +888,7 @@
       alert('体重を記録しました。');
     };
 
-    document.getElementById('clearBodyForm').onclick = clearBody;
+    clearBodyForm.onclick = clearBody;
 
     load();
     clearForm();
