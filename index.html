@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>食事管理アプリ Ver.5</title>
+  <title>食事管理アプリ Ver.6</title>
   <style>
     :root{
       --bg1:#f0f5f2; --bg2:#e8ede9; --card:#ffffff; --text:#1a2e23; --sub:#6d8176;
@@ -72,14 +72,16 @@
     .calc-box{background:linear-gradient(135deg,#edf7f2,#e6f3ed);border-radius:16px;padding:14px;margin-top:10px}
     .suggest{background:#f8faf9;border-radius:14px;padding:12px;margin-top:10px}
     .suggest h4{margin:0 0 8px;font-size:13px;color:#1a2e23}
+    .plan-day{background:#f8faf9;border-radius:14px;padding:12px;margin-top:10px}
+    .plan-day h4{margin:0 0 8px;font-size:13px;color:#1a2e23}
     .footer-space{height:10px}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
-      <h1>🍽️ 食事管理アプリ Ver.5</h1>
-      <p>Ver.4 の自動計算に加えて、コンビニ・外食の食事提案を追加した版です。目標に合わせて、買いやすい候補をすぐ見られます。</p>
+      <h1>🍽️ 食事管理アプリ Ver.6</h1>
+      <p>Ver.5 の自動計算・食事提案に加えて、1週間メニュー自動作成機能を追加した版です。目標に合った食事の組み立てを見やすくしました。</p>
     </div>
 
     <div class="card">
@@ -186,10 +188,19 @@
         <button class="btn btn-main" id="runSuggest">提案を見る</button>
         <button class="btn btn-sub" id="pickSuggestion">1件目を入力欄へ</button>
       </div>
-      <div id="suggestWrap" class="suggest">
+      <div class="suggest">
         <h4>提案結果</h4>
         <div id="suggestList" class="muted tiny">まだ提案していません。</div>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="title">🗓️ 1週間メニュー自動作成</div>
+      <div class="grid2">
+        <button class="btn btn-main" id="generateWeeklyPlan">週間プランを作成</button>
+        <button class="btn btn-sub" id="clearWeeklyPlan">プランを消去</button>
+      </div>
+      <div id="weeklyPlanWrap" class="muted tiny" style="margin-top:10px;">まだ週間プランは作成されていません。</div>
     </div>
 
     <div class="card">
@@ -292,7 +303,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'meal-app-ver5-data';
+    const STORAGE_KEY = 'meal-app-ver6-data';
 
     const FOOD_DB = {
       'セブンイレブン': {
@@ -385,6 +396,7 @@
 
     const mealLabels = { breakfast:'🌅 朝食', lunch:'☀️ 昼食', dinner:'🌙 夕食', snack:'🍌 間食' };
     const mealKeys = Object.keys(mealLabels);
+    const dayLabels = ['月曜日','火曜日','水曜日','木曜日','金曜日','土曜日','日曜日'];
 
     const quickFoodsData = [
       {name:'サラダチキン', kcal:115, p:24, f:1.5, c:1, type:'normal'},
@@ -404,6 +416,7 @@
       water:{},
       bodyLogs:[],
       lastSuggestions:[],
+      weeklyPlan:[],
       calc:{ gender:'', age:'', height:'', weight:'', bodyFat:'', goal:'maintain', job:'1.20', exercise:'0', bmr:0, tdee:0, targetKcal:0, p:0, f:0, c:0, lbm:0 }
     };
 
@@ -422,6 +435,7 @@
       if(!state.water) state.water = {};
       if(!state.bodyLogs) state.bodyLogs = [];
       if(!state.lastSuggestions) state.lastSuggestions = [];
+      if(!state.weeklyPlan) state.weeklyPlan = [];
       if(!state.calc){
         state.calc = { gender:'', age:'', height:'', weight:'', bodyFat:'', goal:'maintain', job:'1.20', exercise:'0', bmr:0, tdee:0, targetKcal:0, p:0, f:0, c:0, lbm:0 };
       }
@@ -586,6 +600,7 @@
     }
 
     function renderSuggestions(){
+      const suggestList = document.getElementById('suggestList');
       if(!state.lastSuggestions.length){
         suggestList.innerHTML = 'まだ提案していません。';
         return;
@@ -607,8 +622,9 @@
 
       if(!pool.length){
         state.lastSuggestions = [];
+        save();
         renderSuggestions();
-        suggestList.innerHTML = 'この組み合わせの提案データはまだありません。';
+        document.getElementById('suggestList').innerHTML = 'この組み合わせの提案データはまだありません。';
         return;
       }
 
@@ -643,6 +659,71 @@
       state.activeMeal = suggestMeal.value;
       renderMealTabs();
       alert('1件目の提案を入力欄へ入れました。');
+    }
+
+    function pickBestItem(store, meal, goal){
+      const pool = ((FOOD_DB[store] || {})[meal] || []).slice();
+      if(!pool.length) return null;
+      let sorted = pool.slice();
+      if(goal === 'cut'){
+        sorted.sort((a,b)=> (b.p - a.p) || (a.kcal - b.kcal));
+      } else if(goal === 'bulk'){
+        sorted.sort((a,b)=> (b.kcal - a.kcal) || (b.p - a.p));
+      } else {
+        sorted.sort((a,b)=> Math.abs(a.kcal - 350) - Math.abs(b.kcal - 350));
+      }
+      return sorted[0];
+    }
+
+    function generateWeeklyPlanAction(){
+      const goal = state.calc.goal || 'maintain';
+      const stores = ['セブンイレブン','ファミリーマート','ローソン'];
+      const restaurantStores = ['吉野家','松屋','すき家'];
+
+      const plan = dayLabels.map((day, idx) => {
+        const conv = stores[idx % stores.length];
+        const rest = restaurantStores[idx % restaurantStores.length];
+
+        const breakfast = pickBestItem(conv, 'breakfast', goal);
+        const lunch = idx % 2 === 0 ? pickBestItem(conv, 'lunch', goal) : pickBestItem(rest, 'lunch', goal);
+        const dinner = idx % 2 === 0 ? pickBestItem(rest, 'dinner', goal) : pickBestItem(conv, 'dinner', goal);
+        const snack = pickBestItem(conv, 'snack', goal);
+
+        const items = [breakfast,lunch,dinner,snack].filter(Boolean);
+        const total = totals(items);
+
+        return {
+          day,
+          breakfast,
+          lunch,
+          dinner,
+          snack,
+          total
+        };
+      });
+
+      state.weeklyPlan = plan;
+      save();
+      renderWeeklyPlan();
+    }
+
+    function renderWeeklyPlan(){
+      const wrap = document.getElementById('weeklyPlanWrap');
+      if(!state.weeklyPlan || !state.weeklyPlan.length){
+        wrap.innerHTML = 'まだ週間プランは作成されていません。';
+        return;
+      }
+
+      wrap.innerHTML = state.weeklyPlan.map(d => `
+        <div class="plan-day">
+          <h4>${d.day} / 合計 ${Math.round(d.total.kcal)}kcal</h4>
+          ${d.breakfast ? `<div class="tiny">🌅 朝食：${escapeHtml(d.breakfast.name)} (${Math.round(d.breakfast.kcal)}kcal)</div>` : ''}
+          ${d.lunch ? `<div class="tiny" style="margin-top:4px;">☀️ 昼食：${escapeHtml(d.lunch.name)} (${Math.round(d.lunch.kcal)}kcal)</div>` : ''}
+          ${d.dinner ? `<div class="tiny" style="margin-top:4px;">🌙 夕食：${escapeHtml(d.dinner.name)} (${Math.round(d.dinner.kcal)}kcal)</div>` : ''}
+          ${d.snack ? `<div class="tiny" style="margin-top:4px;">🍌 間食：${escapeHtml(d.snack.name)} (${Math.round(d.snack.kcal)}kcal)</div>` : ''}
+          <div class="macro" style="margin-top:6px;">P ${num(d.total.p)}g / F ${num(d.total.f)}g / C ${num(d.total.c)}g</div>
+        </div>
+      `).join('');
     }
 
     function renderSummary(){
@@ -818,6 +899,7 @@
       renderTargets();
       renderCalcInputs();
       renderSuggestions();
+      renderWeeklyPlan();
       renderSummary();
       renderList();
       renderWater();
@@ -847,6 +929,13 @@
     useCalcResult.onclick = applyCalcToTargets;
     runSuggest.onclick = runSuggestAction;
     pickSuggestion.onclick = pickSuggestionAction;
+    generateWeeklyPlan.onclick = generateWeeklyPlanAction;
+
+    clearWeeklyPlan.onclick = () => {
+      state.weeklyPlan = [];
+      save();
+      renderWeeklyPlan();
+    };
 
     addFood.onclick = () => {
       ensureToday();
