@@ -1,1553 +1,470 @@
-import { useState, useEffect } from “react”;
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>食事管理アプリ</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: linear-gradient(180deg, #f0f5f2 0%, #e8ede9 100%);
+      color: #1a2e23;
+    }
+    .wrap {
+      max-width: 440px;
+      margin: 0 auto;
+      padding: 20px 16px 90px;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      text-align: center;
+    }
+    .sub {
+      text-align: center;
+      color: #6f8578;
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+    h2 {
+      font-size: 15px;
+      margin: 0 0 10px;
+      color: #2d8a6e;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5a6e62;
+      margin-bottom: 6px;
+      margin-top: 10px;
+    }
+    input, select, button {
+      font-family: inherit;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid #e8ece9;
+      background: #f8faf9;
+      font-size: 16px;
+      outline: none;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+    .row > * {
+      flex: 1;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2d8a6e, #3aaf8a);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .btn.subbtn {
+      background: #fff;
+      color: #666;
+      border: 2px solid #e0e5e2;
+      box-shadow: none;
+    }
+    .meal-item {
+      background: #f8faf9;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .meal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .meal-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .meal-meta {
+      font-size: 12px;
+      color: #6f8578;
+      margin-top: 4px;
+    }
+    .delete-btn {
+      border: none;
+      background: #f5f5f5;
+      color: #999;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .totals {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .total-box {
+      flex: 1;
+      background: linear-gradient(135deg,#edf7f2,#e3f1ec);
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .total-label {
+      font-size: 10px;
+      color: #5a6e62;
+      font-weight: 700;
+    }
+    .total-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: #2d8a6e;
+      margin-top: 2px;
+    }
+    .small {
+      font-size: 11px;
+      color: #8a9a91;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1a2e23;
+      margin-bottom: 8px;
+    }
+    .hint {
+      font-size: 11px;
+      color: #8a9a91;
+      margin-top: 6px;
+    }
+    .empty {
+      text-align: center;
+      color: #b0bab4;
+      font-size: 13px;
+      padding: 16px 0;
+    }
+    .footer-space {
+      height: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🍽️ 食事管理アプリ</h1>
+      <div class="sub">カロリー・PFC・体重をシンプルに管理</div>
 
-const FOOD_DB = {
-“セブンイレブン”: {
-breakfast: [
-{ name: “鶏むね肉サラダ”, kcal: 152, p: 21.3, f: 5.2, c: 5.8 },
-{ name: “味付き半熟ゆでたまご”, kcal: 65, p: 5.8, f: 4.3, c: 0.6 },
-{ name: “手巻おにぎり 鮭”, kcal: 183, p: 5.1, f: 1.5, c: 38.2 },
-{ name: “サラダチキンバー”, kcal: 98, p: 16.5, f: 2.8, c: 2.1 },
-{ name: “ギリシャヨーグルト”, kcal: 59, p: 10.6, f: 0, c: 4.8 },
-{ name: “たまごサンド”, kcal: 302, p: 11.5, f: 18.2, c: 22.8 },
-{ name: “手巻おにぎり 昆布”, kcal: 170, p: 3.8, f: 0.8, c: 37.5 },
-{ name: “7P バナナ”, kcal: 86, p: 1.1, f: 0.2, c: 20.5 },
-{ name: “豆腐バー 枝豆と塩昆布”, kcal: 108, p: 11.2, f: 5.5, c: 3.8 },
-],
-lunch: [
-{ name: “サラダチキン プレーン”, kcal: 108, p: 23.8, f: 1.2, c: 0.3 },
-{ name: “1/2日分野菜の鶏塩鍋”, kcal: 218, p: 19.2, f: 8.5, c: 14.3 },
-{ name: “手巻おにぎり ツナマヨ”, kcal: 232, p: 5.8, f: 7.2, c: 36.8 },
-{ name: “鶏むね肉のサラダ”, kcal: 128, p: 18.5, f: 3.8, c: 5.2 },
-{ name: “もち麦おにぎり 枝豆”, kcal: 172, p: 4.5, f: 1.8, c: 35.2 },
-{ name: “たんぱく質が摂れるチリチキン”, kcal: 265, p: 24.5, f: 8.1, c: 23.2 },
-{ name: “海鮮ネバネバサラダ”, kcal: 86, p: 8.2, f: 1.5, c: 10.1 },
-{ name: “幕の内弁当”, kcal: 528, p: 18.5, f: 14.2, c: 78.5 },
-{ name: “鶏五目ごはん”, kcal: 395, p: 12.8, f: 5.5, c: 72.5 },
-],
-dinner: [
-{ name: “炭火焼きチキン”, kcal: 145, p: 22.1, f: 5.8, c: 0.8 },
-{ name: “さばの味噌煮”, kcal: 246, p: 16.8, f: 15.2, c: 10.5 },
-{ name: “直火焼き 紅しゃけ”, kcal: 142, p: 21.5, f: 6.2, c: 0.2 },
-{ name: “豚しゃぶサラダ”, kcal: 168, p: 14.2, f: 9.5, c: 6.8 },
-{ name: “10品目ミックスサラダ”, kcal: 52, p: 1.8, f: 0.3, c: 10.5 },
-{ name: “おでん たまご”, kcal: 80, p: 6.5, f: 5.2, c: 1.8 },
-{ name: “おでん 大根”, kcal: 12, p: 0.5, f: 0.1, c: 2.5 },
-{ name: “おでん こんにゃく”, kcal: 8, p: 0.3, f: 0, c: 1.8 },
-{ name: “銀だらの西京焼き”, kcal: 185, p: 14.5, f: 12.2, c: 4.8 },
-],
-snack: [
-{ name: “プロテインバー”, kcal: 183, p: 15.9, f: 8.5, c: 12.1 },
-{ name: “素焼きアーモンド”, kcal: 118, p: 4.1, f: 10.2, c: 1.8 },
-{ name: “ギリシャヨーグルト ブルーベリー”, kcal: 68, p: 10.2, f: 0, c: 6.5 },
-{ name: “茎わかめ”, kcal: 22, p: 0.8, f: 0.2, c: 4.5 },
-{ name: “サラダチキンスティック”, kcal: 62, p: 13.2, f: 0.5, c: 0.8 },
-],
-},
-“ファミリーマート”: {
-breakfast: [
-{ name: “グリルチキン タンドリー”, kcal: 118, p: 20.5, f: 3.8, c: 1.2 },
-{ name: “おにぎり 紀州南高梅”, kcal: 171, p: 3.5, f: 0.8, c: 37.8 },
-{ name: “全粒粉サンド チキン&たまご”, kcal: 226, p: 16.2, f: 8.5, c: 22.8 },
-{ name: “味付け半熟ゆでたまご 2個”, kcal: 130, p: 11.6, f: 8.6, c: 1.2 },
-{ name: “RIZAP サラダチキンバー”, kcal: 83, p: 14.8, f: 2.1, c: 1.5 },
-{ name: “おにぎり 明太子”, kcal: 178, p: 4.2, f: 1.2, c: 37.5 },
-{ name: “ハムチーズたまごサンド”, kcal: 285, p: 12.8, f: 15.5, c: 24.2 },
-{ name: “スムージー グリーン”, kcal: 92, p: 1.5, f: 0.2, c: 21.8 },
-],
-lunch: [
-{ name: “グリルチキン ブラックペッパー”, kcal: 120, p: 21.2, f: 3.5, c: 1.5 },
-{ name: “スーパー大麦 枝豆こんぶ”, kcal: 185, p: 4.8, f: 1.5, c: 38.5 },
-{ name: “10品目の豚汁”, kcal: 128, p: 6.5, f: 5.8, c: 12.2 },
-{ name: “パリパリ麺のサラダ”, kcal: 245, p: 8.5, f: 12.2, c: 25.8 },
-{ name: “1/3日分野菜の焼ビーフン”, kcal: 298, p: 8.2, f: 9.5, c: 44.8 },
-{ name: “たんぱく質が摂れるチキンステーキ弁当”, kcal: 468, p: 32.5, f: 12.8, c: 52.5 },
-{ name: “おにぎり ツナマヨ”, kcal: 225, p: 5.5, f: 6.8, c: 36.5 },
-],
-dinner: [
-{ name: “鶏の炭火焼 柚子こしょう”, kcal: 152, p: 23.5, f: 6.2, c: 0.5 },
-{ name: “銀鮭の塩焼き”, kcal: 168, p: 19.8, f: 9.5, c: 0.8 },
-{ name: “海藻サラダ”, kcal: 42, p: 1.5, f: 0.2, c: 8.8 },
-{ name: “炙り焼 鯖”, kcal: 228, p: 18.2, f: 16.5, c: 1.2 },
-{ name: “チキンと野菜のグリル”, kcal: 195, p: 22.8, f: 8.5, c: 5.8 },
-{ name: “枝豆”, kcal: 62, p: 5.8, f: 2.5, c: 4.2 },
-{ name: “豆腐の味噌汁”, kcal: 45, p: 3.2, f: 1.5, c: 4.8 },
-],
-snack: [
-{ name: “素焼きミックスナッツ”, kcal: 132, p: 4.2, f: 11.5, c: 2.8 },
-{ name: “RIZAP チョコチップスコーン”, kcal: 155, p: 8.2, f: 8.5, c: 14.2 },
-{ name: “ファミチキ”, kcal: 252, p: 12.8, f: 16.2, c: 14.5 },
-{ name: “プロテインバー キャラメル”, kcal: 175, p: 15.5, f: 7.8, c: 13.5 },
-],
-},
-“ローソン”: {
-breakfast: [
-{ name: “ブランパン 2個入”, kcal: 120, p: 10.4, f: 3.6, c: 10.8 },
-{ name: “蒸し鶏のサラダ”, kcal: 138, p: 20.5, f: 4.2, c: 5.8 },
-{ name: “おにぎり 焼さけハラミ”, kcal: 192, p: 6.2, f: 3.5, c: 35.8 },
-{ name: “味付たまご 2個入”, kcal: 128, p: 11.2, f: 8.5, c: 1.5 },
-{ name: “たまごドッグ”, kcal: 278, p: 9.8, f: 14.5, c: 26.8 },
-{ name: “おにぎり 鮭”, kcal: 185, p: 5.5, f: 1.8, c: 37.2 },
-{ name: “グリーンスムージー”, kcal: 78, p: 1.2, f: 0.2, c: 18.5 },
-],
-lunch: [
-{ name: “サラダチキン スモーク”, kcal: 112, p: 22.8, f: 2.1, c: 0.5 },
-{ name: “もち麦おにぎり 枝豆塩昆布”, kcal: 175, p: 4.2, f: 1.5, c: 36.8 },
-{ name: “1食分野菜のちゃんぽん”, kcal: 345, p: 15.2, f: 11.8, c: 42.5 },
-{ name: “サラダチキン ハーブ”, kcal: 105, p: 21.5, f: 1.8, c: 1.2 },
-{ name: “玉子を楽しむサンド”, kcal: 312, p: 12.5, f: 18.8, c: 22.5 },
-{ name: “1/2日分野菜のビビンバ”, kcal: 435, p: 16.8, f: 11.2, c: 65.5 },
-],
-dinner: [
-{ name: “さばの味噌煮”, kcal: 235, p: 15.8, f: 14.5, c: 11.2 },
-{ name: “焼鮭”, kcal: 148, p: 20.2, f: 7.2, c: 0.5 },
-{ name: “大根サラダ”, kcal: 35, p: 0.8, f: 0.2, c: 7.5 },
-{ name: “豚の角煮”, kcal: 268, p: 15.5, f: 18.2, c: 8.5 },
-{ name: “鶏のから揚げ”, kcal: 285, p: 18.5, f: 18.8, c: 10.2 },
-{ name: “ポテトサラダ”, kcal: 122, p: 2.2, f: 7.8, c: 11.5 },
-],
-snack: [
-{ name: “プロテインヨーグルト”, kcal: 75, p: 12.5, f: 0, c: 6.2 },
-{ name: “素焼きくるみ”, kcal: 145, p: 3.2, f: 13.5, c: 2.1 },
-{ name: “からあげクン レギュラー”, kcal: 220, p: 14.2, f: 14.5, c: 8.8 },
-],
-},
-“自炊”: {
-breakfast: [
-{ name: “鶏むね肉100g＋味噌汁”, kcal: 175, p: 24.5, f: 4.2, c: 7.5 },
-{ name: “オートミール＋プロテイン”, kcal: 248, p: 26.5, f: 4.8, c: 28.2 },
-{ name: “卵2個＋全粒粉トースト”, kcal: 328, p: 18.2, f: 14.5, c: 30.8 },
-{ name: “納豆ごはん＋味噌汁”, kcal: 385, p: 14.8, f: 6.5, c: 62.5 },
-{ name: “ゆで卵2個＋ブロッコリー”, kcal: 165, p: 14.2, f: 10.5, c: 3.2 },
-{ name: “プロテインスムージー（バナナ＋豆乳）”, kcal: 215, p: 22.5, f: 3.8, c: 24.5 },
-{ name: “ツナ缶サラダ＋玄米おにぎり”, kcal: 312, p: 18.5, f: 8.2, c: 40.2 },
-{ name: “目玉焼き＋ウインナー＋食パン”, kcal: 395, p: 16.5, f: 20.2, c: 35.8 },
-{ name: “鮭フレークごはん＋味噌汁”, kcal: 362, p: 16.2, f: 5.8, c: 58.5 },
-],
-lunch: [
-{ name: “鶏むねソテー＋サラダ＋玄米”, kcal: 452, p: 35.2, f: 8.5, c: 55.8 },
-{ name: “豚もも生姜焼き＋キャベツ＋ご飯”, kcal: 520, p: 28.5, f: 12.8, c: 68.5 },
-{ name: “サバ缶のっけ丼”, kcal: 445, p: 24.8, f: 14.2, c: 52.5 },
-{ name: “ささみと野菜のパスタ”, kcal: 425, p: 28.2, f: 8.5, c: 58.8 },
-{ name: “豆腐ハンバーグ＋サラダ＋雑穀米”, kcal: 418, p: 22.5, f: 12.2, c: 52.8 },
-{ name: “鶏そぼろ弁当”, kcal: 485, p: 26.5, f: 10.8, c: 65.2 },
-{ name: “親子丼”, kcal: 520, p: 25.8, f: 12.5, c: 72.5 },
-{ name: “ツナと卵のチャーハン”, kcal: 485, p: 20.5, f: 15.2, c: 62.8 },
-{ name: “牛肉とブロッコリーの炒め＋ご飯”, kcal: 545, p: 30.2, f: 16.8, c: 62.5 },
-],
-dinner: [
-{ name: “鶏むね蒸し焼き＋温野菜”, kcal: 225, p: 32.5, f: 5.8, c: 10.2 },
-{ name: “刺身盛り＋味噌汁＋ご飯少なめ”, kcal: 382, p: 28.5, f: 8.2, c: 42.5 },
-{ name: “豚しゃぶサラダ＋ポン酢”, kcal: 285, p: 22.8, f: 15.2, c: 12.5 },
-{ name: “サーモンのホイル焼き＋サラダ”, kcal: 245, p: 26.2, f: 12.8, c: 5.5 },
-{ name: “豆腐と野菜の鍋”, kcal: 298, p: 25.8, f: 12.5, c: 18.2 },
-{ name: “鶏もも肉の照り焼き＋ブロッコリー”, kcal: 320, p: 28.5, f: 15.8, c: 12.5 },
-{ name: “カツオのたたき＋薬味”, kcal: 145, p: 25.2, f: 2.8, c: 3.5 },
-{ name: “麻婆豆腐＋ご飯少なめ”, kcal: 415, p: 18.5, f: 18.2, c: 42.8 },
-{ name: “肉じゃが”, kcal: 255, p: 12.8, f: 8.5, c: 32.5 },
-{ name: “焼き魚（ほっけ）＋大根おろし”, kcal: 168, p: 22.5, f: 8.2, c: 0.5 },
-],
-snack: [
-{ name: “プロテインシェイク”, kcal: 105, p: 21.5, f: 1.2, c: 2.8 },
-{ name: “ゆで卵＋ナッツ少々”, kcal: 128, p: 8.5, f: 9.2, c: 1.5 },
-{ name: “ギリシャヨーグルト＋はちみつ”, kcal: 95, p: 12.5, f: 0.5, c: 9.8 },
-{ name: “バナナ＋ピーナッツバター”, kcal: 185, p: 5.2, f: 8.5, c: 24.8 },
-{ name: “プロテインバー（自前）”, kcal: 170, p: 20.5, f: 6.5, c: 10.8 },
-{ name: “カッテージチーズ＋フルーツ”, kcal: 115, p: 14.2, f: 2.5, c: 8.8 },
-],
-},
-“吉野家”: {
-lunch: [
-{ name: “牛丼（小盛）”, kcal: 488, p: 15.5, f: 15.2, c: 69.5 },
-{ name: “ライザップ牛サラダ”, kcal: 398, p: 28.2, f: 25.5, c: 14.8 },
-{ name: “牛丼（並）”, kcal: 635, p: 20.2, f: 20.5, c: 89.8 },
-{ name: “鶏すき丼（並）”, kcal: 548, p: 25.8, f: 12.5, c: 78.5 },
-{ name: “サラダ牛丼”, kcal: 545, p: 18.5, f: 18.8, c: 72.5 },
-],
-dinner: [
-{ name: “ライザップ牛サラダ”, kcal: 398, p: 28.2, f: 25.5, c: 14.8 },
-{ name: “牛丼（小盛）＋サラダ”, kcal: 528, p: 17.8, f: 16.5, c: 72.5 },
-{ name: “牛鮭定食”, kcal: 620, p: 28.5, f: 16.2, c: 82.5 },
-],
-},
-“松屋”: {
-lunch: [
-{ name: “牛めし（ミニ）”, kcal: 505, p: 16.8, f: 16.5, c: 69.8 },
-{ name: “鶏の甘辛味噌定食”, kcal: 620, p: 32.5, f: 18.2, c: 72.8 },
-{ name: “牛めし（並）”, kcal: 692, p: 22.5, f: 22.8, c: 95.2 },
-{ name: “ネギたっぷり旨辛牛めし”, kcal: 725, p: 24.8, f: 26.5, c: 92.5 },
-],
-dinner: [
-{ name: “牛めし（ミニ）＋生野菜”, kcal: 535, p: 17.5, f: 17.2, c: 72.5 },
-{ name: “豚肩ロースの生姜焼定食”, kcal: 685, p: 28.5, f: 25.2, c: 75.8 },
-],
-},
-“すき家”: {
-lunch: [
-{ name: “牛丼ライト”, kcal: 356, p: 24.5, f: 20.8, c: 18.2 },
-{ name: “牛丼（ミニ）”, kcal: 496, p: 14.8, f: 17.2, c: 68.5 },
-{ name: “鶏そぼろ丼（並）”, kcal: 558, p: 22.5, f: 10.8, c: 88.5 },
-],
-dinner: [
-{ name: “鮭定食”, kcal: 548, p: 28.5, f: 12.2, c: 72.8 },
-{ name: “牛丼ライト＋みそ汁”, kcal: 395, p: 25.8, f: 21.5, c: 21.8 },
-],
-},
-“サイゼリヤ”: {
-lunch: [
-{ name: “若鶏のグリル＋サラダ”, kcal: 438, p: 35.2, f: 22.8, c: 20.5 },
-{ name: “ほうれん草のソテー”, kcal: 128, p: 5.2, f: 8.5, c: 7.8 },
-{ name: “ミラノ風ドリア”, kcal: 521, p: 15.8, f: 22.5, c: 62.8 },
-],
-dinner: [
-{ name: “若鶏のグリル＋青豆サラダ”, kcal: 478, p: 38.5, f: 24.2, c: 18.5 },
-{ name: “チキンとブロッコリーサラダ”, kcal: 252, p: 22.8, f: 14.5, c: 8.2 },
-],
-},
-“大戸屋”: {
-lunch: [
-{ name: “しまほっけ炭火焼き定食”, kcal: 540, p: 32.5, f: 15.8, c: 58.2 },
-{ name: “鶏むね黒酢あん定食”, kcal: 605, p: 28.8, f: 14.2, c: 78.5 },
-{ name: “チキン南蛮定食”, kcal: 685, p: 25.5, f: 28.2, c: 75.8 },
-],
-dinner: [
-{ name: “ばくだん丼”, kcal: 518, p: 28.5, f: 8.2, c: 75.8 },
-{ name: “鶏の竜田揚げ野菜定食”, kcal: 580, p: 25.2, f: 18.5, c: 68.2 },
-],
-},
-“マクドナルド”: {
-lunch: [
-{ name: “チキンクリスプ”, kcal: 345, p: 15.5, f: 15.8, c: 35.2 },
-{ name: “エッグマックマフィン”, kcal: 311, p: 19.2, f: 13.5, c: 27.8 },
-{ name: “サラダ（サイド）”, kcal: 10, p: 0.5, f: 0.1, c: 1.8 },
-],
-dinner: [
-{ name: “チキンマックナゲット5個”, kcal: 270, p: 15.8, f: 16.2, c: 13.5 },
-],
-},
-“CoCo壱番屋”: {
-lunch: [
-{ name: “ハーフカレー＋サラダ”, kcal: 425, p: 8.5, f: 10.2, c: 72.5 },
-{ name: “手仕込ささみカツカレー”, kcal: 825, p: 28.5, f: 22.8, c: 118.5 },
-],
-dinner: [
-{ name: “低糖質カレー（カリフラワー）”, kcal: 352, p: 12.5, f: 18.2, c: 32.5 },
-],
-},
-};
+      <label for="goalKcal">1日の目標カロリー</label>
+      <input id="goalKcal" type="number" placeholder="例：2000" />
 
-// ── 一般食品DB ──
-const COMMON_FOODS = [
-// 主食
-{ name: “白米ご飯 少なめ（100g）”, kcal: 156, p: 2.5, f: 0.3, c: 35.6, cat: “主食” },
-{ name: “白米ご飯 1膳（150g）”, kcal: 234, p: 3.8, f: 0.5, c: 53.4, cat: “主食” },
-{ name: “白米ご飯 大盛り（200g）”, kcal: 312, p: 5.0, f: 0.6, c: 71.2, cat: “主食” },
-{ name: “玄米ご飯 1膳（150g）”, kcal: 228, p: 4.2, f: 1.5, c: 49.5, cat: “主食” },
-{ name: “食パン 6枚切り1枚”, kcal: 158, p: 5.6, f: 2.6, c: 28.0, cat: “主食” },
-{ name: “うどん 1玉”, kcal: 252, p: 6.5, f: 1.0, c: 52.0, cat: “主食” },
-{ name: “そば 1玉”, kcal: 264, p: 9.6, f: 1.5, c: 50.5, cat: “主食” },
-{ name: “パスタ 乾麺100g”, kcal: 378, p: 13.0, f: 2.0, c: 72.0, cat: “主食” },
-{ name: “オートミール 40g”, kcal: 152, p: 5.5, f: 2.3, c: 27.5, cat: “主食” },
-// 高タンパク食品
-{ name: “鶏ハム 100g”, kcal: 115, p: 24.5, f: 1.5, c: 0, cat: “高タンパク” },
-{ name: “鶏むね肉（皮なし）100g”, kcal: 108, p: 22.3, f: 1.5, c: 0, cat: “高タンパク” },
-{ name: “鶏もも肉（皮なし）100g”, kcal: 116, p: 18.8, f: 3.9, c: 0, cat: “高タンパク” },
-{ name: “ささみ 1本（50g）”, kcal: 52, p: 11.5, f: 0.4, c: 0, cat: “高タンパク” },
-{ name: “ゆで卵 1個”, kcal: 76, p: 6.2, f: 5.2, c: 0.3, cat: “高タンパク” },
-{ name: “納豆 1パック”, kcal: 95, p: 8.3, f: 5.0, c: 6.1, cat: “高タンパク” },
-{ name: “豆腐（木綿）半丁”, kcal: 108, p: 9.9, f: 6.3, c: 2.4, cat: “高タンパク” },
-{ name: “ツナ缶（水煮）1缶”, kcal: 71, p: 16.0, f: 0.7, c: 0.1, cat: “高タンパク” },
-{ name: “ツナ缶（油漬）1缶”, kcal: 200, p: 14.5, f: 15.8, c: 0.1, cat: “高タンパク” },
-{ name: “プロテインパウダー 1杯”, kcal: 100, p: 21.0, f: 1.0, c: 2.5, cat: “高タンパク” },
-// 魚介
-{ name: “鯖の塩焼き 1切”, kcal: 248, p: 20.5, f: 17.8, c: 0.2, cat: “魚介” },
-{ name: “鮭の塩焼き 1切”, kcal: 165, p: 22.8, f: 7.8, c: 0.1, cat: “魚介” },
-{ name: “刺身盛り合わせ 1人前”, kcal: 180, p: 28.5, f: 6.5, c: 1.2, cat: “魚介” },
-{ name: “マグロ刺身 5切”, kcal: 85, p: 18.5, f: 0.5, c: 0, cat: “魚介” },
-{ name: “サーモン刺身 5切”, kcal: 125, p: 15.2, f: 6.8, c: 0, cat: “魚介” },
-{ name: “サバ缶（水煮）1缶”, kcal: 280, p: 26.8, f: 18.5, c: 0.2, cat: “魚介” },
-// 汁物・野菜
-{ name: “味噌汁 1杯”, kcal: 40, p: 2.8, f: 1.2, c: 4.2, cat: “汁物” },
-{ name: “豚汁 1杯”, kcal: 120, p: 6.5, f: 5.8, c: 10.5, cat: “汁物” },
-{ name: “サラダ（ドレッシング付き）”, kcal: 85, p: 1.5, f: 5.8, c: 6.2, cat: “野菜” },
-{ name: “ブロッコリー 100g”, kcal: 33, p: 4.3, f: 0.5, c: 3.5, cat: “野菜” },
-{ name: “枝豆 小鉢”, kcal: 68, p: 5.8, f: 3.2, c: 4.5, cat: “野菜” },
-// 家庭料理
-{ name: “生姜焼き定食”, kcal: 650, p: 28.5, f: 22.8, c: 72.5, cat: “家庭料理” },
-{ name: “唐揚げ 5個”, kcal: 380, p: 22.5, f: 22.8, c: 18.5, cat: “家庭料理” },
-{ name: “肉じゃが 1人前”, kcal: 255, p: 12.8, f: 8.5, c: 32.5, cat: “家庭料理” },
-{ name: “カレーライス 1人前”, kcal: 685, p: 18.5, f: 20.2, c: 98.5, cat: “家庭料理” },
-{ name: “ハンバーグ 1個”, kcal: 340, p: 20.5, f: 22.8, c: 12.5, cat: “家庭料理” },
-{ name: “麻婆豆腐 1人前”, kcal: 295, p: 15.8, f: 18.2, c: 15.5, cat: “家庭料理” },
-// フィットネス食品
-{ name: “冷凍フィットネス弁当 1食”, kcal: 380, p: 32.0, f: 10.5, c: 35.8, cat: “フィットネス食品” },
-{ name: “MRP（ミールリプレイスメント）1杯”, kcal: 380, p: 40.0, f: 5.0, c: 42.0, cat: “フィットネス食品” },
-{ name: “プロテインバー 1本”, kcal: 180, p: 16.0, f: 7.5, c: 15.0, cat: “フィットネス食品” },
-{ name: “BCAA ドリンク 1杯”, kcal: 20, p: 5.0, f: 0, c: 0, cat: “フィットネス食品” },
-// 🚨 お菓子・スイーツ
-{ name: “ポテトチップス 1袋（60g）”, kcal: 336, p: 3.1, f: 21.5, c: 32.8, cat: “🚨お菓子” },
-{ name: “チョコレート 板チョコ1枚”, kcal: 390, p: 5.0, f: 22.8, c: 42.5, cat: “🚨お菓子” },
-{ name: “クッキー 3枚”, kcal: 210, p: 2.5, f: 10.2, c: 28.5, cat: “🚨お菓子” },
-{ name: “アイスクリーム 1個”, kcal: 270, p: 4.5, f: 14.2, c: 32.5, cat: “🚨スイーツ” },
-{ name: “ショートケーキ 1切”, kcal: 345, p: 4.8, f: 18.5, c: 40.2, cat: “🚨スイーツ” },
-{ name: “シュークリーム 1個”, kcal: 228, p: 5.2, f: 12.8, c: 24.5, cat: “🚨スイーツ” },
-{ name: “大福もち 1個”, kcal: 235, p: 4.5, f: 0.5, c: 52.8, cat: “🚨スイーツ” },
-{ name: “どら焼き 1個”, kcal: 285, p: 6.2, f: 2.5, c: 58.5, cat: “🚨スイーツ” },
-{ name: “コンビニスイーツ（プリン等）”, kcal: 245, p: 4.2, f: 12.5, c: 30.8, cat: “🚨スイーツ” },
-{ name: “菓子パン 1個”, kcal: 385, p: 7.5, f: 12.8, c: 58.5, cat: “🚨お菓子” },
-{ name: “ドーナツ 1個”, kcal: 302, p: 4.2, f: 16.5, c: 35.8, cat: “🚨スイーツ” },
-{ name: “たい焼き 1個”, kcal: 225, p: 5.8, f: 2.2, c: 45.5, cat: “🚨スイーツ” },
-// 🚨 飲み物
-{ name: “コーラ 500ml”, kcal: 225, p: 0, f: 0, c: 56.5, cat: “🚨飲み物” },
-{ name: “タピオカミルクティー”, kcal: 380, p: 2.5, f: 8.5, c: 72.5, cat: “🚨飲み物” },
-{ name: “缶コーヒー（微糖）”, kcal: 65, p: 1.2, f: 1.0, c: 12.5, cat: “飲み物” },
-{ name: “ブラックコーヒー”, kcal: 6, p: 0.3, f: 0, c: 1.0, cat: “飲み物” },
-{ name: “プロテインドリンク 紙パック”, kcal: 105, p: 15.5, f: 0.8, c: 10.2, cat: “飲み物” },
-// 🍺 お酒
-{ name: “ビール 350ml缶”, kcal: 140, p: 1.0, f: 0, c: 10.5, cat: “🍺お酒” },
-{ name: “ビール 500ml缶”, kcal: 200, p: 1.5, f: 0, c: 15.0, cat: “🍺お酒” },
-{ name: “ビール 中ジョッキ（400ml）”, kcal: 160, p: 1.2, f: 0, c: 12.4, cat: “🍺お酒” },
-{ name: “チューハイ 350ml缶（5%）”, kcal: 150, p: 0, f: 0, c: 18.5, cat: “🍺お酒” },
-{ name: “チューハイ 500ml缶（5%）”, kcal: 215, p: 0, f: 0, c: 26.5, cat: “🍺お酒” },
-{ name: “ストロング系チューハイ 500ml（9%）”, kcal: 265, p: 0, f: 0, c: 10.5, cat: “🚨お酒” },
-{ name: “ハイボール 1杯”, kcal: 70, p: 0, f: 0, c: 0, cat: “🍺お酒” },
-{ name: “日本酒 1合（180ml）”, kcal: 185, p: 0.7, f: 0, c: 6.5, cat: “🍺お酒” },
-{ name: “ワイン グラス1杯（125ml）”, kcal: 90, p: 0.1, f: 0, c: 2.0, cat: “🍺お酒” },
-{ name: “ワイン ボトル半分”, kcal: 270, p: 0.3, f: 0, c: 6.0, cat: “🚨お酒” },
-{ name: “焼酎ロック 1杯（60ml）”, kcal: 85, p: 0, f: 0, c: 0, cat: “🍺お酒” },
-{ name: “ウイスキー シングル（30ml）”, kcal: 70, p: 0, f: 0, c: 0, cat: “🍺お酒” },
-{ name: “レモンサワー 1杯”, kcal: 150, p: 0, f: 0, c: 10.5, cat: “🍺お酒” },
-{ name: “梅酒ロック 1杯（90ml）”, kcal: 140, p: 0, f: 0, c: 18.5, cat: “🍺お酒” },
-{ name: “カクテル（甘め）1杯”, kcal: 160, p: 0.2, f: 0, c: 20.0, cat: “🚨お酒” },
-];
-
-const DRINK_TYPES = [
-{ label: “ビール（350ml缶）”, kcal: 140, unit: “缶” },
-{ label: “ビール（500ml缶）”, kcal: 200, unit: “缶” },
-{ label: “チューハイ（350ml缶）”, kcal: 150, unit: “缶” },
-{ label: “ストロング系（500ml缶）”, kcal: 265, unit: “缶” },
-{ label: “ハイボール（1杯）”, kcal: 70, unit: “杯” },
-{ label: “日本酒（1合）”, kcal: 185, unit: “合” },
-{ label: “ワイン（グラス1杯）”, kcal: 90, unit: “杯” },
-{ label: “焼酎ロック（1杯）”, kcal: 85, unit: “杯” },
-{ label: “レモンサワー（1杯）”, kcal: 150, unit: “杯” },
-];
-const DFM = { “毎日”: 7, “週5〜6回”: 5.5, “週3〜4回”: 3.5, “週1〜2回”: 1.5, “月2〜3回”: 0.6, “飲まない”: 0 };
-const DF = Object.keys(DFM);
-const JOBS = [{ label: “ゆったり生活（定年後・在宅中心）”, factor: 1.15 }, { label: “デスクワーク中心”, factor: 1.2 }, { label: “立ち仕事（販売・接客）”, factor: 1.375 }, { label: “体を動かす仕事（介護・配送）”, factor: 1.55 }, { label: “肉体労働（建設・農業）”, factor: 1.725 }];
-const EX = [“ウォーキング”, “ジョギング”, “筋トレ（自重）”, “筋トレ（ジム）”, “ヨガ・ピラティス”, “水泳”, “サイクリング”, “ダンス・エアロビクス”, “格闘技”, “球技（サッカー等）”, “なし”];
-const FRQ = [{ label: “週1回”, add: 0.025 }, { label: “週2〜3回”, add: 0.05 }, { label: “週4〜5回”, add: 0.1 }, { label: “ほぼ毎日”, add: 0.15 }];
-const GLS = [{ id: “cut”, label: “減量（しぼる）”, icon: “🔥”, desc: “体脂肪を減らしてスッキリ” }, { id: “maintain”, label: “維持（キープ）”, icon: “⚖️”, desc: “今の体型を健康的にキープ” }, { id: “bulk”, label: “増量（バルクアップ）”, icon: “💪”, desc: “筋肉を増やしてたくましく” }];
-const PC = [{ label: “月0.5kg（ゆっくり）”, value: 0.5 }, { label: “月1kg（標準）”, value: 1 }, { label: “月1.5kg（ハイペース）”, value: 1.5 }, { label: “月2kg（短期集中）”, value: 2 }];
-const PB2 = [{ label: “月0.5kg（リーンバルク）”, value: 0.5 }, { label: “月1kg（標準）”, value: 1 }, { label: “月1.5kg（しっかり）”, value: 1.5 }, { label: “月2kg（ハイペース）”, value: 2 }];
-const MS = [{ id: “3meals”, label: “朝・昼・夜の3食”, icon: “🍽️” }, { id: “3meals1snack”, label: “3食＋間食1回”, icon: “🥤” }, { id: “3meals2snack”, label: “3食＋間食2回”, icon: “🍌” }];
-const CVS = [“セブンイレブン”, “ファミリーマート”, “ローソン”, “ミニストップ”, “使わない”];
-
-function genMealLocal(plan, d, alDK) {
-const foodCal = plan.dailyCal - alDK;
-const srcs = [];
-if (d.canCook === “yes” || d.canCook === “some”) srcs.push(“自炊”);
-[d.conv1, d.conv2].filter(s => s && s !== “使わない” && FOOD_DB[s]).forEach(s => srcs.push(s));
-[d.restaurant1, d.restaurant2].filter(Boolean).forEach(r => { if (FOOD_DB[r]) srcs.push(r); });
-if (srcs.length === 0) srcs.push(“セブンイレブン”);
-const dis = (d.dislikedFoods || “”).split(/[,、，]/).map(s => s.trim().toLowerCase()).filter(Boolean);
-const ok = item => !dis.some(x => item.name.toLowerCase().includes(x));
-
-function poolBySrc(mt) {
-const byS = {};
-// ユーザー選択ソースを優先
-srcs.forEach(s => {
-if (FOOD_DB[s]?.[mt]) {
-const items = FOOD_DB[s][mt].filter(ok).map(i => ({ …i, src: s }));
-if (items.length) byS[s] = items;
-}
-});
-// フォールバック：コンビニ3社
-[“セブンイレブン”, “ファミリーマート”, “ローソン”].forEach(s => {
-if (!byS[s] && FOOD_DB[s]?.[mt]) {
-const items = FOOD_DB[s][mt].filter(ok).map(i => ({ …i, src: s }));
-if (items.length) byS[s] = items;
-}
-});
-return byS;
-}
-
-const hasS1 = d.mealSplit !== “3meals”, hasS2 = d.mealSplit === “3meals2snack”;
-const sn = (hasS1 ? 1 : 0) + (hasS2 ? 1 : 0);
-const se = sn > 0 ? Math.round(foodCal * 0.08) : 0;
-const mc = foodCal - se * sn;
-const bC = Math.round(mc * 0.28), lC = Math.round(mc * 0.40), dC = mc - bC - lC;
-const w = parseInt(d.wakeTime) || 7, sl = parseInt(d.sleepTime) || 23;
-const bT = `${String(w + 1).padStart(2, "0")}:00`;
-const lT = `${String(Math.max(w + 5, 12)).padStart(2, "0")}:00`;
-const dT = `${String(Math.min(sl - 2, 20)).padStart(2, "0")}:00`;
-const s1T = `${String(Math.max(w + 3, 10)).padStart(2, "0")}:00`;
-const s2T = `${String(Math.round((parseInt(lT) + parseInt(dT)) / 2)).padStart(2, "0")}:00`;
-const tips = [“野菜→タンパク質→炭水化物の順で”, “よく噛んでゆっくり食べましょう”, “食前にコップ1杯の水を”, “タンパク質は毎食バランスよく”, “食物繊維を先に食べると血糖値◎”, “夜は炭水化物控えめに”, “間食はタンパク質系がおすすめ”];
-
-function pickFromSrc(srcItems, tgt) {
-if (!srcItems.length) return [];
-const sh = […srcItems].sort(() => Math.random() - 0.5);
-const sel = [];
-let rem = tgt;
-// まず高タンパク品を1つ
-const hp = sh.filter(i => i.p >= 10 && i.kcal <= rem + 100);
-if (hp.length) { const p = hp[Math.floor(Math.random() * hp.length)]; sel.push(p); rem -= p.kcal; }
-// 残りを同じソースから埋める（最大5品）
-for (let i = 0; i < 20 && sel.length < 5 && rem > 50; i++) {
-const c = sh.filter(x => !sel.find(s => s.name === x.name) && x.kcal <= rem + 80 && x.kcal >= 15);
-if (!c.length) break;
-const p = c[Math.floor(Math.random() * c.length)]; sel.push(p); rem -= p.kcal;
-}
-// まだ100kcal以上足りなければ「ご飯」で補充
-if (rem > 100) {
-const rice = Math.round(rem / 235);
-if (rice >= 1) {
-sel.push({ name: `白米ご飯${rice > 1 ? rice + "杯" : "1杯"}`, kcal: rice * 235, p: rice * 4.0, f: rice * 0.5, c: rice * 53.4, src: sel[0]?.src || “自炊” });
-rem -= rice * 235;
-}
-} else if (rem > 50) {
-sel.push({ name: “白米ご飯（小）”, kcal: 118, p: 2.0, f: 0.3, c: 26.7, src: sel[0]?.src || “自炊” });
-rem -= 118;
-}
-return sel;
-}
-
-// 1食ごとにランダムにソースを1つ選び、そのソースから組み合わせ
-function pickMeal(mt, tgt) {
-const byS = poolBySrc(mt);
-const srcKeys = Object.keys(byS);
-if (!srcKeys.length) return [];
-const chosen = srcKeys[Math.floor(Math.random() * srcKeys.length)];
-return pickFromSrc(byS[chosen], tgt);
-}
-
-const drDays = new Set();
-const dpw = DFM[d.drinkAllowFreq] || 0;
-if (dpw >= 7) { for (let i = 0; i < 7; i++) drDays.add(i); }
-else if (dpw > 0) { [4, 5, 6, 3, 2, 1, 0].slice(0, Math.round(dpw)).forEach(i => drDays.add(i)); }
-
-const DAYS = [“月曜日”, “火曜日”, “水曜日”, “木曜日”, “金曜日”, “土曜日”, “日曜日”];
-const sm = items => ({
-kcal: items.reduce((s, i) => s + i.kcal, 0),
-p: Math.round(items.reduce((s, i) => s + i.p, 0) * 10) / 10,
-f: Math.round(items.reduce((s, i) => s + i.f, 0) * 10) / 10,
-c: Math.round(items.reduce((s, i) => s + i.c, 0) * 10) / 10,
-});
-const fmtItems = (items) => {
-if (!items.length) return [];
-const src = items[0]?.src;
-const srcLabel = src && src !== “自炊” ? `📍 ${src}` : src === “自炊” ? “📍 自炊” : “”;
-const names = items.map(i => i.name);
-return srcLabel ? [srcLabel, …names] : names;
-};
-
-const wp = DAYS.map((day, idx) => {
-const bI = pickMeal(“breakfast”, bC), lI = pickMeal(“lunch”, lC), dI = pickMeal(“dinner”, dC);
-const meals = {
-breakfast: { time: bT, items: fmtItems(bI), …sm(bI), tip: tips[idx % 7] },
-lunch: { time: lT, items: fmtItems(lI), …sm(lI), tip: tips[(idx + 1) % 7] },
-dinner: { time: dT, items: fmtItems(dI), …sm(dI), tip: tips[(idx + 2) % 7] },
-};
-if (hasS1) { const s = pickMeal(“snack”, se); meals.snack1 = { time: s1T, items: fmtItems(s), …sm(s), tip: “タンパク質系の間食がおすすめ” }; }
-if (hasS2) { const s = pickMeal(“snack”, se); meals.snack2 = { time: s2T, items: fmtItems(s), …sm(s), tip: “ナッツや果物でエネルギー補給” }; }
-let alcohol = null, ak = 0;
-if (drDays.has(idx) && d.drinkAllowType) {
-const dt = DRINK_TYPES.find(t => t.label === d.drinkAllowType);
-const amt = parseInt(d.drinkAllowAmount) || 1;
-if (dt) { ak = dt.kcal * amt; alcohol = { items: [`${d.drinkAllowType} × ${amt}${dt.unit}`], kcal: ak }; }
-}
-const tK = Object.values(meals).reduce((s, m) => s + m.kcal, 0) + ak;
-const tP = Math.round(Object.values(meals).reduce((s, m) => s + m.p, 0) * 10) / 10;
-const tF = Math.round(Object.values(meals).reduce((s, m) => s + m.f, 0) * 10) / 10;
-const tC = Math.round(Object.values(meals).reduce((s, m) => s + m.c, 0) * 10) / 10;
-return { day, meals, alcohol, totalKcal: tK, totalP: tP, totalF: tF, totalC: tC };
-});
-
-return {
-weeklyPlan: wp,
-generalTips: [
-plan.isCut ? “タンパク質をしっかり摂って筋肉キープ” : plan.isBulk ? “炭水化物を恐れずトレーニング前後に” : “バランスの良い食事で体調維持”,
-“水分は1日2L以上。代謝アップに効果的”,
-“食べる順番は「野菜→タンパク質→炭水化物」”,
-],
-alcoholAdvice: dpw > 0 && d.drinkAllowType
-? `お酒は週${Math.round(dpw)}回程度に。ハイボールや焼酎は糖質少なめでおすすめ。おつまみは枝豆・刺身・サラダなど高タンパクなものを。`
-: “禁酒で目標達成を加速！全カロリーを栄養ある食事に使えます。”
-};
-}
-
-export default function App() {
-const [step, setStep] = useState(0);
-const [d, setD] = useState({
-gender: “”, age: “”, height: “”, weight: “”, bodyFat: “”,
-job: “”, exercise: “”, exerciseFreq: “”,
-goal: “”, targetWeight: “”, targetBf: “”, pace: “”,
-wakeTime: “07”, sleepTime: “23”, mealSplit: “”,
-drinkType: “”, drinkAmount: “0”, drinkFreq: “”,
-drinkAllowType: “”, drinkAllowAmount: “0”, drinkAllowFreq: “”,
-dislikedFoods: “”, conv1: “”, conv2: “”, super1: “”, super2: “”,
-restaurant1: “”, restaurant2: “”, canCook: “”,
-});
-const [plan, setPlan] = useState(null);
-const [meal, setMeal] = useState(null);
-const [selDay, setSelDay] = useState(0);
-const [tab, setTab] = useState(“today”);
-const [log, setLog] = useState({});
-const [addMode, setAddMode] = useState(false);
-const [addCat, setAddCat] = useState(””);
-const [addTime, setAddTime] = useState(””);
-const [foodSearch, setFoodSearch] = useState(””);
-const [customName, setCustomName] = useState(””);
-const [customKcal, setCustomKcal] = useState(””);
-const [customP, setCustomP] = useState(””);
-const [customF, setCustomF] = useState(””);
-const [customC, setCustomC] = useState(””);
-const [dailyDone, setDailyDone] = useState({});
-const [water, setWater] = useState({});
-const [bodyLog, setBodyLog] = useState([]);
-const [favorites, setFavorites] = useState([]);
-const [loading, setLoading] = useState(true);
-const u = (k, v) => setD(p => ({ …p, [k]: v }));
-
-// ── データ読み込み（起動時）──
-useEffect(() => {
-(async () => {
-try {
-const r = await window.storage.get(“meal-app-data”);
-if (r && r.value) {
-const saved = JSON.parse(r.value);
-if (saved.d) setD(saved.d);
-if (saved.plan) setPlan(saved.plan);
-if (saved.meal) { setMeal(saved.meal); setStep(10); }
-if (saved.log) setLog(saved.log);
-if (saved.dailyDone) setDailyDone(saved.dailyDone);
-if (saved.water) setWater(saved.water);
-if (saved.bodyLog) setBodyLog(saved.bodyLog);
-if (saved.favorites) setFavorites(saved.favorites);
-}
-} catch (e) { console.log(“No saved data”); }
-setLoading(false);
-})();
-}, []);
-
-// ── データ保存（変更時）──
-useEffect(() => {
-if (loading) return;
-const timer = setTimeout(async () => {
-try {
-await window.storage.set(“meal-app-data”, JSON.stringify({ d, plan, meal, log, dailyDone, water, bodyLog, favorites }));
-} catch (e) { console.log(“Save failed”); }
-}, 500);
-return () => clearTimeout(timer);
-}, [d, plan, meal, log, dailyDone, water, bodyLog, favorites, loading]);
-
-const nA = parseFloat(d.age) || 0, nH = parseFloat(d.height) || 0, nW = parseFloat(d.weight) || 0, nBf = parseFloat(d.bodyFat) || 0;
-const lbm = nW > 0 && nBf > 0 ? nW * (1 - nBf / 100) : 0;
-const fatM = nW - lbm;
-const jO = JOBS.find(j => j.label === d.job);
-const fO = FRQ.find(f => f.label === d.exerciseFreq);
-const bMSJ = d.gender && nA && nH && nW ? (d.gender === “male” ? 10 * nW + 6.25 * nH - 5 * nA + 5 : 10 * nW + 6.25 * nH - 5 * nA - 161) : 0;
-const bKM = lbm > 0 ? 370 + 21.6 * lbm : 0;
-const bmr = bKM > 0 ? Math.round((bMSJ + bKM) / 2) : Math.round(bMSJ);
-const tdee = bmr && jO ? Math.round(bmr * (jO.factor + (fO ? fO.add : 0))) : 0;
-
-const curDK = (() => { const dt = DRINK_TYPES.find(t => t.label === d.drinkType); return dt ? Math.round(dt.kcal * (parseInt(d.drinkAmount) || 0) * (DFM[d.drinkFreq] || 0) / 7) : 0; })();
-const alDK = (() => { const dt = DRINK_TYPES.find(t => t.label === d.drinkAllowType); return dt ? Math.round(dt.kcal * (parseInt(d.drinkAllowAmount) || 0) * (DFM[d.drinkAllowFreq] || 0) / 7) : 0; })();
-
-const genPlan = () => {
-const tw = parseFloat(d.targetWeight) || nW, tbf = parseFloat(d.targetBf) || nBf, pace = parseFloat(d.pace) || 1;
-const wd = Math.abs(tw - nW), mo = wd > 0 ? Math.ceil(wd / pace) : 1;
-const iC = d.goal === “cut”, iB = d.goal === “bulk”;
-let dc = tdee;
-if (iC) dc = Math.round(tdee - (pace * 7700 / 30));
-if (iB) dc = Math.round(tdee + (pace * 7700 / 30));
-dc = Math.max(dc, d.gender === “male” ? 1400 : 1200);
-let pG, fG;
-if (iC) { pG = Math.round(lbm > 0 ? lbm * 2.2 : nW * 1.8); fG = Math.round(nW * 0.8); }
-else if (iB) { pG = Math.round(lbm > 0 ? lbm * 2.0 : nW * 1.6); fG = Math.round(nW * 0.9); }
-else { pG = Math.round(lbm > 0 ? lbm * 1.6 : nW * 1.2); fG = Math.round(nW * 0.8); }
-const cG = Math.round(Math.max((dc - pG * 4 - fG * 9) / 4, 50));
-const aC = pG * 4 + fG * 9 + cG * 4;
-setPlan({ currentWeight: nW, currentBf: nBf, lbm, fatMass: fatM, targetWeight: tw, targetBf: tbf, targetLBM: tw * (1 - tbf / 100), weightDiff: wd, months: mo, pace, tdee, dailyCal: dc, actualCal: aC, proteinG: pG, fatG: fG, carbG: cG, isCut: iC, isBulk: iB, bmr });
-setStep(5);
-};
-const genMeal = () => { setMeal(genMealLocal(plan, d, alDK)); setSelDay(0); setStep(10); };
-
-const resetAll = async () => {
-try { await window.storage.delete(“meal-app-data”); } catch (e) {}
-setStep(0); setPlan(null); setMeal(null); setLog({}); setDailyDone({}); setWater({}); setBodyLog([]); setFavorites([]);
-setD({ gender: “”, age: “”, height: “”, weight: “”, bodyFat: “”, job: “”, exercise: “”, exerciseFreq: “”, goal: “”, targetWeight: “”, targetBf: “”, pace: “”, wakeTime: “07”, sleepTime: “23”, mealSplit: “”, drinkType: “”, drinkAmount: “0”, drinkFreq: “”, drinkAllowType: “”, drinkAllowAmount: “0”, drinkAllowFreq: “”, dislikedFoods: “”, conv1: “”, conv2: “”, super1: “”, super2: “”, restaurant1: “”, restaurant2: “”, canCook: “” });
-};
-
-const IS = { width: “100%”, padding: “14px 16px”, borderRadius: 14, border: “2px solid #e8ece9”, fontSize: 16, outline: “none”, background: “#f8faf9”, boxSizing: “border-box” };
-const SS = { …IS, appearance: “auto” };
-
-// ═══ ローディング ═══
-if (loading) {
-return (
-<Sh>
-<div style={{ display: “flex”, flexDirection: “column”, alignItems: “center”, justifyContent: “center”, minHeight: “60vh”, gap: 12 }}>
-<style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-<div style={{ width: 36, height: 36, border: “3px solid #e0e5e2”, borderTopColor: “#2d8a6e”, borderRadius: “50%”, animation: “spin 0.8s linear infinite” }} />
-<p style={{ color: “#7a8f82”, fontSize: 13, fontWeight: 600 }}>データを読み込み中…</p>
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 0: 基本情報 ═══
-if (step === 0) {
-const cn = d.gender && nA >= 10 && nH >= 100 && nW >= 30 && nBf > 0;
-return (
-<Sh>
-<PBar c={0} t={5} />
-<Title icon="📋" title="基本情報" sub="あなたの体の情報を入力してください" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-<div><Lb>性別</Lb>
-<div style={{ display: “flex”, gap: 10 }}>
-{[[“male”, “🙋‍♂️”, “男性”], [“female”, “🙋‍♀️”, “女性”]].map(([v, ic, lb]) => (
-<button key={v} onClick={() => u(“gender”, v)} style={{ flex: 1, padding: “18px 10px”, borderRadius: 14, border: d.gender === v ? “2px solid #2d8a6e” : “2px solid #e8ece9”, background: d.gender === v ? “#edf7f2” : “#fff”, cursor: “pointer”, display: “flex”, flexDirection: “column”, alignItems: “center”, gap: 6 }}>
-<span style={{ fontSize: 28 }}>{ic}</span>
-<span style={{ fontSize: 14, fontWeight: 700, color: d.gender === v ? “#2d8a6e” : “#888” }}>{lb}</span>
-</button>
-))}
-</div>
-</div>
-<div><Lb>年齢</Lb><input type=“number” value={d.age} onChange={e => u(“age”, e.target.value)} placeholder=“例：35” style={IS} /></div>
-<div><Lb>身長（cm）</Lb><input type=“number” value={d.height} onChange={e => u(“height”, e.target.value)} placeholder=“例：170” style={IS} step=“0.1” /></div>
-<div><Lb>体重（kg）</Lb><input type=“number” value={d.weight} onChange={e => u(“weight”, e.target.value)} placeholder=“例：75” style={IS} step=“0.1” /></div>
-<div><Lb>体脂肪率（%）</Lb><input type=“number” value={d.bodyFat} onChange={e => u(“bodyFat”, e.target.value)} placeholder=“例：25” style={IS} step=“0.1” /></div>
-{nW > 0 && nBf > 0 && (
-<div style={{ background: “#edf7f2”, borderRadius: 14, padding: “14px 16px”, display: “flex”, gap: 12 }}>
-<div style={{ flex: 1, textAlign: “center” }}><div style={{ fontSize: 10, color: “#5a6e62”, fontWeight: 600 }}>除脂肪体重</div><div style={{ fontSize: 20, fontWeight: 800, color: “#2d8a6e” }}>{lbm.toFixed(1)}kg</div></div>
-<div style={{ width: 1, background: “#c8ddd2” }} />
-<div style={{ flex: 1, textAlign: “center” }}><div style={{ fontSize: 10, color: “#5a6e62”, fontWeight: 600 }}>体脂肪量</div><div style={{ fontSize: 20, fontWeight: 800, color: “#c0392b” }}>{fatM.toFixed(1)}kg</div></div>
-</div>
-)}
-<Btn disabled={!cn} onClick={() => setStep(1)} label=“次へ →” />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 1: 生活スタイル ═══
-if (step === 1) {
-const cn = d.job && d.exercise && (d.exercise === “なし” || d.exerciseFreq);
-return (
-<Sh>
-<PBar c={1} t={5} />
-<Title icon="💼" title="生活スタイル" sub="仕事と運動について教えてください" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-<div><Lb>仕事内容</Lb><select value={d.job} onChange={e => u(“job”, e.target.value)} style={SS}><option value="">選択してください</option>{JOBS.map(j => <option key={j.label} value={j.label}>{j.label}</option>)}</select></div>
-<div><Lb>運動項目</Lb><select value={d.exercise} onChange={e => { u(“exercise”, e.target.value); if (e.target.value === “なし”) u(“exerciseFreq”, “”); }} style={SS}><option value="">選択してください</option>{EX.map(e => <option key={e} value={e}>{e}</option>)}</select></div>
-{d.exercise && d.exercise !== “なし” && <div><Lb>運動頻度</Lb><select value={d.exerciseFreq} onChange={e => u(“exerciseFreq”, e.target.value)} style={SS}><option value="">選択してください</option>{FRQ.map(f => <option key={f.label} value={f.label}>{f.label}</option>)}</select></div>}
-{tdee > 0 && (
-<div style={{ background: “linear-gradient(135deg,#edf7f2,#e3f1ec)”, borderRadius: 16, padding: “18px 16px”, textAlign: “center” }}>
-<div style={{ fontSize: 11, color: “#5a6e62”, fontWeight: 700, marginBottom: 6 }}>推定消費カロリー</div>
-<div style={{ fontSize: 36, fontWeight: 800, color: “#2d8a6e” }}>{tdee} <span style={{ fontSize: 14 }}>kcal/日</span></div>
-</div>
-)}
-<Nav onBack={() => setStep(0)} onNext={() => setStep(2)} nd={!cn} />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 2: 目標 ═══
-if (step === 2) {
-return (
-<Sh>
-<PBar c={2} t={5} />
-<Title icon="🎯" title="目標体型" sub="どんな体を目指しますか？" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 12 }}>
-{GLS.map(g => (
-<button key={g.id} onClick={() => { u(“goal”, g.id); u(“targetWeight”, “”); u(“targetBf”, “”); u(“pace”, “”); }} style={{ padding: “20px 18px”, borderRadius: 16, border: d.goal === g.id ? “2px solid #2d8a6e” : “2px solid #e8ece9”, background: d.goal === g.id ? “#edf7f2” : “#fff”, cursor: “pointer”, textAlign: “left”, display: “flex”, alignItems: “center”, gap: 14 }}>
-<span style={{ fontSize: 32 }}>{g.icon}</span>
-<div><div style={{ fontSize: 16, fontWeight: 800, color: d.goal === g.id ? “#2d8a6e” : “#333” }}>{g.label}</div><div style={{ fontSize: 12, color: “#888” }}>{g.desc}</div></div>
-</button>
-))}
-<Nav onBack={() => setStep(1)} onNext={() => setStep(3)} nd={!d.goal} />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 3: 具体的な目標 ═══
-if (step === 3) {
-const iM = d.goal === “maintain”, cn = iM || (d.targetWeight && d.targetBf);
-return (
-<Sh>
-<PBar c={3} t={5} />
-<Title icon=“📐” title=“具体的な目標” sub={iM ? “現在の体型をキープ” : “目標の体重・体脂肪率を設定”} />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-{!iM && (
-<>
-<div><Lb>目標体重（kg）</Lb><input type=“number” value={d.targetWeight} onChange={e => u(“targetWeight”, e.target.value)} placeholder={d.goal === “cut” ? `例：${Math.round(nW - 5)}` : `例：${Math.round(nW + 5)}`} style={IS} step=“0.1” /></div>
-<div><Lb>目標体脂肪率（%）</Lb><input type=“number” value={d.targetBf} onChange={e => u(“targetBf”, e.target.value)} placeholder=“例：15” style={IS} step=“0.1” /></div>
-</>
-)}
-<Nav onBack={() => setStep(2)} onNext={() => { if (iM) { u(“targetWeight”, String(nW)); u(“targetBf”, String(nBf)); u(“pace”, “0”); } setStep(4); }} nd={!cn && !iM} />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 4: ペース ═══
-if (step === 4) {
-if (d.goal === “maintain”) { genPlan(); return (<Sh><p>計算中…</p></Sh>); }
-const po = d.goal === “cut” ? PC : PB2;
-return (
-<Sh>
-<PBar c={4} t={5} />
-<Title icon=“⏱️” title=“ペース設定” sub={d.goal === “cut” ? “月にどのくらい減量？” : “月にどのくらい増量？”} />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 10 }}>
-{po.map(p => (
-<button key={p.value} onClick={() => u(“pace”, String(p.value))} style={{ padding: “16px 18px”, borderRadius: 14, border: d.pace === String(p.value) ? “2px solid #2d8a6e” : “2px solid #e8ece9”, background: d.pace === String(p.value) ? “#edf7f2” : “#fff”, cursor: “pointer”, textAlign: “left”, fontSize: 14, fontWeight: 700, color: d.pace === String(p.value) ? “#2d8a6e” : “#555” }}>{p.label}</button>
-))}
-<Nav onBack={() => setStep(3)} onNext={genPlan} nd={!d.pace} nl=“プラン作成 🚀” />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 5: プラン結果 ═══
-if (step === 5 && plan) {
-const pP = Math.round(plan.proteinG * 4 / plan.actualCal * 100), fP = Math.round(plan.fatG * 9 / plan.actualCal * 100), cP = 100 - pP - fP;
-return (
-<Sh>
-<div style={{ textAlign: “center”, marginBottom: 20 }}><div style={{ fontSize: 40, marginBottom: 8 }}>✅</div><h2 style={{ fontSize: 22, fontWeight: 800, color: “#1a2e23” }}>あなたのプラン</h2></div>
-<Card title="📊 体組成の変化">
-<div style={{ display: “flex”, gap: 8 }}>
-<div style={{ flex: 1, background: “#f4f6f5”, borderRadius: 12, padding: 12, textAlign: “center” }}><div style={{ fontSize: 9, color: “#888” }}>現在</div><div style={{ fontSize: 20, fontWeight: 800 }}>{plan.currentWeight}kg</div><div style={{ fontSize: 11, color: “#888” }}>体脂肪{plan.currentBf}%</div></div>
-<div style={{ display: “flex”, alignItems: “center”, fontSize: 20, color: “#2d8a6e” }}>→</div>
-<div style={{ flex: 1, background: “#edf7f2”, borderRadius: 12, padding: 12, textAlign: “center” }}><div style={{ fontSize: 9, color: “#2d8a6e” }}>目標</div><div style={{ fontSize: 20, fontWeight: 800, color: “#2d8a6e” }}>{plan.targetWeight}kg</div><div style={{ fontSize: 11, color: “#5a6e62” }}>体脂肪{plan.targetBf}%</div></div>
-</div>
-</Card>
-<Card title="🔥 1日のカロリー">
-<div style={{ textAlign: “center” }}><div style={{ fontSize: 11, color: “#888” }}>消費 {plan.tdee} kcal → 摂取目標</div><div style={{ fontSize: 42, fontWeight: 800, color: “#1a2e23” }}>{plan.dailyCal} <span style={{ fontSize: 16, color: “#888” }}>kcal</span></div></div>
-</Card>
-<Card title="🥗 PFCバランス">
-<div style={{ display: “flex”, height: 12, borderRadius: 6, overflow: “hidden”, marginBottom: 14 }}><div style={{ width: `${pP}%`, background: “#e74c3c” }} /><div style={{ width: `${fP}%`, background: “#f39c12” }} /><div style={{ width: `${cP}%`, background: “#2ecc71” }} /></div>
-<div style={{ display: “flex”, gap: 8 }}>
-{[{ l: “タンパク質”, g: plan.proteinG, p: pP, c: “#e74c3c” }, { l: “脂質”, g: plan.fatG, p: fP, c: “#f39c12” }, { l: “炭水化物”, g: plan.carbG, p: cP, c: “#2ecc71” }].map(i => (
-<div key={i.l} style={{ flex: 1, background: “#f8faf9”, borderRadius: 12, padding: “12px 8px”, textAlign: “center” }}><div style={{ width: 8, height: 8, borderRadius: “50%”, background: i.c, margin: “0 auto 6px” }} /><div style={{ fontSize: 10, color: “#888” }}>{i.l}</div><div style={{ fontSize: 20, fontWeight: 800 }}>{i.g}g</div><div style={{ fontSize: 10, color: “#aaa” }}>{i.p}%</div></div>
-))}
-</div>
-</Card>
-<div style={{ background: “#fff”, borderRadius: 16, padding: 18, marginBottom: 12, boxShadow: “0 2px 12px #0000000a”, textAlign: “center” }}>
-<div style={{ fontSize: 16, fontWeight: 800, color: “#1a2e23”, marginBottom: 4 }}>🍽️ 食事メニューの作成</div>
-<div style={{ fontSize: 12, color: “#7a8f82”, marginBottom: 14 }}>生活リズムや好みに合わせた食事プラン</div>
-<Btn onClick={() => setStep(6)} label=“Step 2 へ進む →” />
-</div>
-<button onClick={resetAll} style={{ width: “100%”, padding: 14, borderRadius: 14, border: “2px solid #e0e5e2”, background: “#fff”, color: “#888”, fontWeight: 700, fontSize: 14, cursor: “pointer”, marginTop: 4 }}>最初からやり直す</button>
-</Sh>
-);
-}
-
-// ═══ Step 6: 生活リズム ═══
-if (step === 6) {
-const cn = d.wakeTime && d.sleepTime && d.mealSplit;
-return (
-<Sh>
-<PBar c={0} t={4} /><S2 />
-<Title icon="⏰" title="生活リズム" sub="起床・就寝時間と食事回数" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-<div><Lb>起床時間</Lb><select value={d.wakeTime} onChange={e => u(“wakeTime”, e.target.value)} style={SS}>{Array.from({ length: 12 }, (*, i) => i + 4).map(h => <option key={h} value={String(h)}>{String(h).padStart(2, “0”)}:00</option>)}</select></div>
-<div><Lb>就寝時間</Lb><select value={d.sleepTime} onChange={e => u(“sleepTime”, e.target.value)} style={SS}>{Array.from({ length: 10 }, (*, i) => i + 20).map(h => <option key={h} value={String(h > 23 ? h - 24 : h)}>{String(h > 23 ? h - 24 : h).padStart(2, “0”)}:00</option>)}</select></div>
-<div><Lb>食事回数</Lb><div style={{ display: “flex”, flexDirection: “column”, gap: 8 }}>
-{MS.map(m => (
-<button key={m.id} onClick={() => u(“mealSplit”, m.id)} style={{ padding: “14px 16px”, borderRadius: 14, border: d.mealSplit === m.id ? “2px solid #2d8a6e” : “2px solid #e8ece9”, background: d.mealSplit === m.id ? “#edf7f2” : “#fff”, cursor: “pointer”, textAlign: “left”, fontSize: 14, fontWeight: 700, color: d.mealSplit === m.id ? “#2d8a6e” : “#555”, display: “flex”, alignItems: “center”, gap: 10 }}>
-<span style={{ fontSize: 22 }}>{m.icon}</span> {m.label}
-</button>
-))}
-</div></div>
-<Nav onBack={() => setStep(5)} onNext={() => setStep(7)} nd={!cn} />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 7: お酒 ═══
-if (step === 7) {
-const nD = d.drinkFreq === “飲まない”;
-const cn = d.drinkFreq && (nD || (d.drinkType && parseInt(d.drinkAmount) > 0));
-const shA = cn && !nD;
-const nAD = d.drinkAllowFreq === “飲まない”;
-const aR = nD || (d.drinkAllowFreq && (nAD || (d.drinkAllowType && parseInt(d.drinkAllowAmount) > 0)));
-return (
-<Sh>
-<PBar c={1} t={4} /><S2 />
-<Title icon="🍺" title="お酒について" sub="現在の飲酒量と目標中の許容量" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-<div style={{ background: “#fff”, borderRadius: 16, padding: 16, border: “1px solid #e8ece9” }}>
-<div style={{ fontSize: 13, fontWeight: 800, color: “#1a2e23”, marginBottom: 12 }}>📊 現在の飲酒量</div>
-<div><Lb>飲む頻度</Lb><select value={d.drinkFreq} onChange={e => { u(“drinkFreq”, e.target.value); if (e.target.value === “飲まない”) { u(“drinkType”, “”); u(“drinkAmount”, “0”); u(“drinkAllowFreq”, “飲まない”); u(“drinkAllowType”, “”); u(“drinkAllowAmount”, “0”); } }} style={SS}><option value="">選択してください</option>{DF.map(f => <option key={f} value={f}>{f}</option>)}</select></div>
-{!nD && d.drinkFreq && (
-<>
-<div style={{ marginTop: 12 }}><Lb>よく飲むお酒</Lb><select value={d.drinkType} onChange={e => u(“drinkType”, e.target.value)} style={SS}><option value="">選択してください</option>{DRINK_TYPES.map(t => <option key={t.label} value={t.label}>{t.label}（約{t.kcal}kcal）</option>)}</select></div>
-<div style={{ marginTop: 12 }}><Lb>1回に飲む量</Lb><input type=“number” value={d.drinkAmount} onChange={e => u(“drinkAmount”, e.target.value)} placeholder=“例：2” style={IS} min=“0” /></div>
-</>
-)}
-{curDK > 0 && (() => {
-const dt = DRINK_TYPES.find(t => t.label === d.drinkType);
-const perTime = dt ? dt.kcal * (parseInt(d.drinkAmount) || 0) : 0;
-return (
-<div style={{ background: “#FFF5F5”, borderRadius: 12, padding: 12, textAlign: “center”, marginTop: 12 }}>
-<div style={{ fontSize: 11, color: “#c0392b”, fontWeight: 600 }}>飲む日1回あたり</div>
-<div style={{ fontSize: 24, fontWeight: 800, color: “#c0392b” }}>{perTime} kcal</div>
-<div style={{ fontSize: 10, color: “#888”, marginTop: 4 }}>1日平均に換算すると {curDK} kcal（ご飯{(curDK / 156).toFixed(1)}杯分）</div>
-</div>
-);
-})()}
-</div>
-{shA && (
-<div style={{ background: “#fff”, borderRadius: 16, padding: 16, border: “2px solid #2d8a6e20” }}>
-<div style={{ fontSize: 13, fontWeight: 800, color: “#2d8a6e”, marginBottom: 12 }}>🎯 目標期間中の許容量</div>
-<div><Lb>頻度</Lb><select value={d.drinkAllowFreq} onChange={e => { u(“drinkAllowFreq”, e.target.value); if (e.target.value === “飲まない”) { u(“drinkAllowType”, “”); u(“drinkAllowAmount”, “0”); } }} style={SS}><option value="">選択してください</option>{DF.map(f => <option key={f} value={f}>{f}</option>)}</select></div>
-{d.drinkAllowFreq && !nAD && (
-<>
-<div style={{ marginTop: 12 }}><Lb>お酒の種類</Lb><select value={d.drinkAllowType} onChange={e => u(“drinkAllowType”, e.target.value)} style={SS}><option value="">選択してください</option>{DRINK_TYPES.map(t => <option key={t.label} value={t.label}>{t.label}</option>)}</select></div>
-<div style={{ marginTop: 12 }}><Lb>1回の量</Lb><input type=“number” value={d.drinkAllowAmount} onChange={e => u(“drinkAllowAmount”, e.target.value)} placeholder=“例：1” style={IS} min=“0” /></div>
-</>
-)}
-{alDK > 0 && (() => {
-const dt = DRINK_TYPES.find(t => t.label === d.drinkAllowType);
-const perTime = dt ? dt.kcal * (parseInt(d.drinkAllowAmount) || 0) : 0;
-return (
-<div style={{ background: “#edf7f2”, borderRadius: 12, padding: 12, textAlign: “center”, marginTop: 12 }}>
-<div style={{ fontSize: 11, color: “#2d8a6e”, fontWeight: 600 }}>飲む日1回あたり</div>
-<div style={{ fontSize: 24, fontWeight: 800, color: “#2d8a6e” }}>{perTime} kcal</div>
-<div style={{ fontSize: 10, color: “#888”, marginTop: 4 }}>1日平均 {alDK} kcal → 食事分: {plan.dailyCal - alDK} kcal</div>
-</div>
-);
-})()}
-{nAD && <div style={{ background: “#edf7f2”, borderRadius: 12, padding: 12, textAlign: “center”, marginTop: 12 }}><div style={{ fontSize: 13, fontWeight: 700, color: “#2d8a6e” }}>💪 禁酒で目標達成を加速！</div></div>}
-</div>
-)}
-<Nav onBack={() => setStep(6)} onNext={() => setStep(8)} nd={!aR} />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 8: 苦手食材 ═══
-if (step === 8) {
-return (
-<Sh>
-<PBar c={2} t={4} /><S2 />
-<Title icon="🥕" title="食の好み" sub="苦手な食材と調理について" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-<div><Lb>苦手な食材・アレルギー</Lb><input value={d.dislikedFoods} onChange={e => u(“dislikedFoods”, e.target.value)} placeholder=“例：セロリ、レバー” style={IS} /><p style={{ fontSize: 11, color: “#999”, margin: “6px 0 0” }}>カンマ区切り。なければ空欄OK</p></div>
-<div><Lb>調理できますか？</Lb><div style={{ display: “flex”, flexDirection: “column”, gap: 8 }}>
-{[[“yes”, “👨‍🍳”, “自炊できる”], [“some”, “🍳”, “簡単なものなら”], [“no”, “🛒”, “買うだけ”]].map(([id, ic, lb]) => (
-<button key={id} onClick={() => u(“canCook”, id)} style={{ padding: “14px 16px”, borderRadius: 14, border: d.canCook === id ? “2px solid #2d8a6e” : “2px solid #e8ece9”, background: d.canCook === id ? “#edf7f2” : “#fff”, cursor: “pointer”, textAlign: “left”, display: “flex”, alignItems: “center”, gap: 12 }}>
-<span style={{ fontSize: 24 }}>{ic}</span>
-<span style={{ fontSize: 14, fontWeight: 700, color: d.canCook === id ? “#2d8a6e” : “#333” }}>{lb}</span>
-</button>
-))}
-</div></div>
-<Nav onBack={() => setStep(7)} onNext={() => setStep(9)} nd={!d.canCook} />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 9: お店 ═══
-if (step === 9) {
-return (
-<Sh>
-<PBar c={3} t={4} /><S2 />
-<Title icon="🏪" title="よく使うお店" sub="メニュー提案の参考にします" />
-<div style={{ display: “flex”, flexDirection: “column”, gap: 16 }}>
-<div style={{ background: “#fff”, borderRadius: 14, padding: 14, border: “1px solid #e8ece9” }}>
-<div style={{ fontSize: 13, fontWeight: 800, marginBottom: 10 }}>🏪 コンビニ</div>
-<select value={d.conv1} onChange={e => u(“conv1”, e.target.value)} style={SS}><option value="">1店目</option>{CVS.map(s => <option key={s} value={s}>{s}</option>)}</select>
-<select value={d.conv2} onChange={e => u(“conv2”, e.target.value)} style={{ …SS, marginTop: 8 }}><option value="">2店目（任意）</option>{CVS.filter(s => s !== d.conv1).map(s => <option key={s} value={s}>{s}</option>)}</select>
-</div>
-<div style={{ background: “#fff”, borderRadius: 14, padding: 14, border: “1px solid #e8ece9” }}>
-<div style={{ fontSize: 13, fontWeight: 800, marginBottom: 10 }}>🍜 飲食店</div>
-<input value={d.restaurant1} onChange={e => u(“restaurant1”, e.target.value)} placeholder=“例：吉野家” style={IS} />
-<input value={d.restaurant2} onChange={e => u(“restaurant2”, e.target.value)} placeholder=“例：松屋（任意）” style={{ …IS, marginTop: 8 }} />
-</div>
-<Nav onBack={() => setStep(8)} onNext={genMeal} nl=“🍽️ メニューを作成！” />
-</div>
-</Sh>
-);
-}
-
-// ═══ Step 10: メニュー結果 + 記録 ═══
-if (step === 10 && meal?.weeklyPlan) {
-const dd = meal.weeklyPlan[selDay];
-const mo = [“breakfast”, “snack1”, “lunch”, “snack2”, “dinner”];
-const ml = { breakfast: “🌅 朝食”, snack1: “🍌 間食①”, lunch: “☀️ 昼食”, snack2: “🍎 間食②”, dinner: “🌙 夕食” };
-
-```
-// ── メニュータブ ──
-if (tab === "menu") {
-  return (
-    <Sh pb={80}>
-      <div style={{ textAlign: "center", marginBottom: 16 }}><div style={{ fontSize: 36 }}>🍽️</div><h2 style={{ fontSize: 20, fontWeight: 800, color: "#1a2e23" }}>あなた専用メニュー</h2></div>
-      <div style={{ display: "flex", gap: 4, marginBottom: 14, overflowX: "auto", paddingBottom: 4 }}>
-        {meal.weeklyPlan.map((dy, i) => (
-          <button key={i} onClick={() => setSelDay(i)} style={{ flex: "0 0 auto", padding: "8px 14px", borderRadius: 10, border: "none", background: selDay === i ? "#2d8a6e" : "#fff", color: selDay === i ? "#fff" : "#555", fontWeight: 700, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap" }}>{dy.day?.replace("曜日", "")}</button>
-        ))}
+      <div class="row">
+        <div>
+          <label for="goalP">目標P</label>
+          <input id="goalP" type="number" placeholder="例：120" />
+        </div>
+        <div>
+          <label for="goalF">目標F</label>
+          <input id="goalF" type="number" placeholder="例：50" />
+        </div>
+        <div>
+          <label for="goalC">目標C</label>
+          <input id="goalC" type="number" placeholder="例：220" />
+        </div>
       </div>
-      {dd && (
-        <>
-          <div style={{ background: "linear-gradient(135deg,#edf7f2,#e3f1ec)", borderRadius: 14, padding: 14, marginBottom: 12, display: "flex", justifyContent: "space-around", textAlign: "center" }}>
-            <div><div style={{ fontSize: 10, color: "#5a6e62" }}>合計</div><div style={{ fontSize: 20, fontWeight: 800, color: "#2d8a6e" }}>{dd.totalKcal}kcal</div></div>
-            <div><div style={{ fontSize: 10, color: "#e74c3c" }}>P</div><div style={{ fontSize: 16, fontWeight: 800, color: "#e74c3c" }}>{dd.totalP}g</div></div>
-            <div><div style={{ fontSize: 10, color: "#f39c12" }}>F</div><div style={{ fontSize: 16, fontWeight: 800, color: "#f39c12" }}>{dd.totalF}g</div></div>
-            <div><div style={{ fontSize: 10, color: "#2ecc71" }}>C</div><div style={{ fontSize: 16, fontWeight: 800, color: "#2ecc71" }}>{dd.totalC}g</div></div>
-          </div>
-          {mo.filter(k => dd.meals?.[k]).map(k => {
-            const m = dd.meals[k];
-            return (
-              <div key={k} style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 8, boxShadow: "0 1px 8px #0000000a" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#1a2e23" }}>{ml[k]}</div>
-                  <div style={{ fontSize: 11, color: "#888" }}>{m.time} ・ {m.kcal}kcal</div>
-                </div>
-                {m.items?.map((it, i) => (
-                  it.startsWith("📍") 
-                    ? <div key={i} style={{ fontSize: 11, color: "#2d8a6e", fontWeight: 700, marginBottom: 4, padding: "3px 8px", background: "#edf7f2", borderRadius: 6, display: "inline-block" }}>{it}</div>
-                    : <div key={i} style={{ fontSize: 13, color: "#444", paddingLeft: 8, borderLeft: "3px solid #2d8a6e40", lineHeight: 1.5, marginBottom: 4 }}>{it}</div>
-                ))}
-                <div style={{ display: "flex", gap: 12, fontSize: 10, fontWeight: 600, marginTop: 6 }}>
-                  <span style={{ color: "#e74c3c" }}>P:{m.p}g</span>
-                  <span style={{ color: "#f39c12" }}>F:{m.f}g</span>
-                  <span style={{ color: "#2ecc71" }}>C:{m.c}g</span>
-                </div>
-                {m.tip && <div style={{ marginTop: 6, fontSize: 11, color: "#2d8a6e", background: "#edf7f2", borderRadius: 8, padding: "6px 10px" }}>💡 {m.tip}</div>}
-              </div>
-            );
-          })}
-          {dd.alcohol && (
-            <div style={{ background: "#FFF8E1", borderRadius: 14, padding: 14, marginBottom: 8, border: "1px solid #FFE082" }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#F57F17", marginBottom: 6 }}>🍺 お酒</div>
-              {dd.alcohol.items?.map((it, i) => <div key={i} style={{ fontSize: 13, color: "#795548" }}>{it}</div>)}
-              <div style={{ fontSize: 11, color: "#999", marginTop: 4 }}>{dd.alcohol.kcal}kcal</div>
-            </div>
-          )}
-        </>
-      )}
-      {meal.generalTips && (
-        <div style={{ background: "linear-gradient(135deg,#edf7f2,#e3f1ec)", borderRadius: 16, padding: 16, marginTop: 12, marginBottom: 8 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#2d8a6e", marginBottom: 10 }}>💡 アドバイス</div>
-          {meal.generalTips.map((t, i) => <div key={i} style={{ fontSize: 12, color: "#3d5c4a", lineHeight: 1.6, paddingLeft: 8, borderLeft: "2px solid #2d8a6e40", marginBottom: 6 }}>{t}</div>)}
-        </div>
-      )}
-      {meal.alcoholAdvice && (
-        <div style={{ background: "#FFF8E1", borderRadius: 14, padding: 14, marginBottom: 12, border: "1px solid #FFE082" }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#F57F17", marginBottom: 6 }}>🍺 お酒のアドバイス</div>
-          <div style={{ fontSize: 12, color: "#795548", lineHeight: 1.6 }}>{meal.alcoholAdvice}</div>
-        </div>
-      )}
-      <Btn onClick={genMeal} label="🔄 別メニューを提案" />
-      <button onClick={() => { setStep(5); setMeal(null); }} style={{ width: "100%", padding: 14, borderRadius: 14, border: "2px solid #e0e5e2", background: "#fff", color: "#888", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8 }}>← プラン結果に戻る</button>
-      <button onClick={resetAll} style={{ width: "100%", padding: 12, borderRadius: 14, border: "none", background: "transparent", color: "#c0392b", fontWeight: 600, fontSize: 12, cursor: "pointer", marginTop: 4 }}>🔄 プランを最初から作り直す</button>
-      <TabBar tab={tab} setTab={setTab} />
-    </Sh>
-  );
-}
 
-// ── 今日タブ ──
-if (tab === "today") {
-  // 今日の曜日を取得 → 対応するメニューを表示
-  const dayIdx = new Date().getDay(); // 0=日 1=月...
-  const todayIdx = dayIdx === 0 ? 6 : dayIdx - 1; // 月=0...日=6
-  const todayPlan = meal.weeklyPlan[todayIdx];
-  const todayLog = log[todayIdx] || {};
-  const todayEaten = todayLog.eaten || {};
-  const isDone = dailyDone[todayIdx];
-  const DAYS = ["日","月","火","水","木","金","土"];
-  const todayLabel = `${new Date().getMonth() + 1}/${new Date().getDate()}（${DAYS[dayIdx]}）`;
-  const catKeys = mo.filter(k => todayPlan?.meals?.[k]);
+      <button class="btn" onclick="saveGoals()">目標を保存</button>
+      <div class="hint">一度保存すると次回も残ります。</div>
+    </div>
 
-  // 全食品リスト
-  const allFoods = [];
-  Object.entries(FOOD_DB).forEach(([src, cats]) => {
-    Object.values(cats).forEach(items => {
-      items.forEach(item => {
-        if (!allFoods.find(f => f.name === item.name && f.src === src)) allFoods.push({ ...item, src });
+    <div class="card">
+      <div class="section-title">➕ 食べたものを追加</div>
+
+      <label for="mealCategory">食事カテゴリ</label>
+      <select id="mealCategory">
+        <option value="朝食">朝食</option>
+        <option value="昼食">昼食</option>
+        <option value="夕食">夕食</option>
+        <option value="間食">間食</option>
+        <option value="飲み物">飲み物</option>
+      </select>
+
+      <label for="foodName">食品名</label>
+      <input id="foodName" type="text" placeholder="例：サラダチキン" />
+
+      <div class="row">
+        <div>
+          <label for="foodKcal">kcal</label>
+          <input id="foodKcal" type="number" placeholder="120" />
+        </div>
+        <div>
+          <label for="foodP">P</label>
+          <input id="foodP" type="number" step="0.1" placeholder="24" />
+        </div>
+        <div>
+          <label for="foodF">F</label>
+          <input id="foodF" type="number" step="0.1" placeholder="1.5" />
+        </div>
+        <div>
+          <label for="foodC">C</label>
+          <input id="foodC" type="number" step="0.1" placeholder="3" />
+        </div>
+      </div>
+
+      <button class="btn" onclick="addFood()">食べたものを追加</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📊 今日の合計</div>
+      <div class="totals">
+        <div class="total-box">
+          <div class="total-label">kcal</div>
+          <div class="total-value" id="totalKcal">0</div>
+        </div>
+        <div class="total-box">
+          <div class="total-label">P</div>
+          <div class="total-value" id="totalP">0</div>
+        </div>
+        <div class="total-box">
+          <div class="total-label">F</div>
+          <div class="total-value" id="totalF">0</div>
+        </div>
+        <div class="total-box">
+          <div class="total-label">C</div>
+          <div class="total-value" id="totalC">0</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="small" id="goalSummary">目標を設定してください</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">⚖️ 体重記録</div>
+      <div class="row">
+        <div>
+          <label for="bodyWeight">体重（kg）</label>
+          <input id="bodyWeight" type="number" step="0.1" placeholder="例：72.5" />
+        </div>
+        <div>
+          <label for="bodyFat">体脂肪率（%）</label>
+          <input id="bodyFat" type="number" step="0.1" placeholder="例：18.5" />
+        </div>
+      </div>
+      <button class="btn" onclick="saveBody()">体重を記録</button>
+      <div id="bodyLogArea" class="hint">まだ記録がありません</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📝 今日の食事一覧</div>
+      <div id="mealList"></div>
+      <button class="btn subbtn" onclick="resetToday()">今日の記録をリセット</button>
+    </div>
+
+    <div class="footer-space"></div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "meal-app-html-data";
+
+    let appData = {
+      goals: {
+        kcal: "",
+        p: "",
+        f: "",
+        c: ""
+      },
+      meals: [],
+      bodyLog: []
+    };
+
+    function loadData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          appData = JSON.parse(raw);
+        } catch (e) {
+          console.log("load error");
+        }
+      }
+
+      document.getElementById("goalKcal").value = appData.goals.kcal || "";
+      document.getElementById("goalP").value = appData.goals.p || "";
+      document.getElementById("goalF").value = appData.goals.f || "";
+      document.getElementById("goalC").value = appData.goals.c || "";
+
+      renderMeals();
+      renderGoals();
+      renderBodyLog();
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    function saveGoals() {
+      appData.goals.kcal = document.getElementById("goalKcal").value;
+      appData.goals.p = document.getElementById("goalP").value;
+      appData.goals.f = document.getElementById("goalF").value;
+      appData.goals.c = document.getElementById("goalC").value;
+      saveData();
+      renderGoals();
+      alert("目標を保存しました");
+    }
+
+    function renderGoals() {
+      const g = appData.goals;
+      const text = `目標 kcal: ${g.kcal || "-"} / P: ${g.p || "-"}g / F: ${g.f || "-"}g / C: ${g.c || "-"}g`;
+      document.getElementById("goalSummary").textContent = text;
+    }
+
+    function addFood() {
+      const category = document.getElementById("mealCategory").value;
+      const name = document.getElementById("foodName").value.trim();
+      const kcal = Number(document.getElementById("foodKcal").value || 0);
+      const p = Number(document.getElementById("foodP").value || 0);
+      const f = Number(document.getElementById("foodF").value || 0);
+      const c = Number(document.getElementById("foodC").value || 0);
+
+      if (!name) {
+        alert("食品名を入力してください");
+        return;
+      }
+
+      appData.meals.push({
+        id: Date.now(),
+        category,
+        name,
+        kcal,
+        p,
+        f,
+        c
       });
-    });
-  });
-  COMMON_FOODS.forEach(item => allFoods.push({ ...item, src: item.cat || "一般" }));
 
-  // カテゴリ別の実食合計
-  const allEaten = [];
-  catKeys.forEach(k => { (todayEaten[k] || []).forEach(e => allEaten.push(e)); });
-  const eK = allEaten.reduce((s, e) => s + (e.kcal || 0), 0);
-  const eP = Math.round(allEaten.reduce((s, e) => s + (e.p || 0), 0) * 10) / 10;
-  const eF = Math.round(allEaten.reduce((s, e) => s + (e.f || 0), 0) * 10) / 10;
-  const eC = Math.round(allEaten.reduce((s, e) => s + (e.c || 0), 0) * 10) / 10;
-  const tgtK = plan?.dailyCal || 2000;
-  const pct = Math.min(Math.round(eK / tgtK * 100), 150);
+      saveData();
+      renderMeals();
 
-  // 自動アドバイス生成
-  const genAdvice = () => {
-    const msgs = [];
-    const pDiff = eP - (plan?.proteinG || 0);
-    const cDiff = eC - (plan?.carbG || 0);
-    const fDiff = eF - (plan?.fatG || 0);
-    const kDiff = eK - tgtK;
-    if (Math.abs(kDiff) <= tgtK * 0.05) msgs.push("🎉 カロリーほぼピッタリ！素晴らしいコントロールです。");
-    else if (kDiff > 0) msgs.push(`⚡ 目標より${kDiff}kcal多めでした。明日は間食を1つ減らすか、夕食を軽めにしてみましょう。`);
-    else msgs.push(`📉 目標より${Math.abs(kDiff)}kcal少なめでした。${plan?.isCut ? "減量中なので問題なし！ただし極端な制限は避けましょう。" : "もう少し食べてOKです。特にタンパク質を意識して。"}`);
-    if (pDiff < -10) msgs.push(`💪 タンパク質が${Math.abs(Math.round(pDiff))}g不足。明日はゆで卵やサラダチキンをプラスしましょう。`);
-    else if (pDiff >= 0) msgs.push("✅ タンパク質は目標達成！筋肉の維持に貢献しています。");
-    if (fDiff > 15) msgs.push(`🫒 脂質が${Math.round(fDiff)}g多め。揚げ物を蒸し・焼きに変えるとGood。`);
-    if (cDiff > 30) msgs.push(`🍚 炭水化物が多め。夜のご飯量を少し減らしてみましょう。`);
-    const warns = allEaten.filter(e => e.warn);
-    if (warns.length > 0) msgs.push(`⚠️ お菓子/スイーツを${warns.length}品摂りました。次回は代わりにプロテインバーやナッツを試してみては？`);
-    const drinks = allEaten.filter(e => e.drink);
-    if (drinks.length > 0) { const dk = drinks.reduce((s,e)=>s+e.kcal,0); msgs.push(`🍺 お酒で${dk}kcal。ハイボールや焼酎水割りに切り替えるとカロリーを抑えられます。`); }
-    return msgs;
-  };
+      document.getElementById("foodName").value = "";
+      document.getElementById("foodKcal").value = "";
+      document.getElementById("foodP").value = "";
+      document.getElementById("foodF").value = "";
+      document.getElementById("foodC").value = "";
+    }
 
-  return (
-    <Sh pb={80}>
-      {/* ヘッダー */}
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <div style={{ fontSize: 12, color: "#7a8f82", fontWeight: 600 }}>{todayLabel}</div>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1a2e23", margin: "4px 0" }}>📅 今日のプラン</h2>
-      </div>
+    function deleteMeal(id) {
+      appData.meals = appData.meals.filter(item => item.id !== id);
+      saveData();
+      renderMeals();
+    }
 
-      {/* 目標カード */}
-      <div style={{ background: "linear-gradient(135deg,#2d8a6e,#3aaf8a)", borderRadius: 16, padding: "16px 18px", marginBottom: 12, color: "#fff" }}>
-        <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.8, marginBottom: 8 }}>🎯 あなたの目標</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700 }}>{plan?.isCut ? "減量" : plan?.isBulk ? "増量" : "維持"} {plan?.targetWeight}kg（体脂肪{plan?.targetBf}%）</div>
-            <div style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>現在 {plan?.currentWeight}kg → あと{plan?.weightDiff?.toFixed(1)}kg</div>
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 24, fontWeight: 800 }}>{tgtK}</div>
-            <div style={{ fontSize: 10, opacity: 0.8 }}>kcal/日</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 12, marginTop: 10, fontSize: 11, opacity: 0.9 }}>
-          <span>P:{plan?.proteinG}g</span>
-          <span>F:{plan?.fatG}g</span>
-          <span>C:{plan?.carbG}g</span>
-          {plan?.months > 0 && <span>残り約{plan?.months}ヶ月</span>}
-        </div>
-      </div>
+    function renderMeals() {
+      const mealList = document.getElementById("mealList");
 
-      {/* 今日の達成状況 */}
-      <div style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 12, boxShadow: "0 2px 12px #0000000a" }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#2d8a6e", marginBottom: 10 }}>📊 現在の摂取状況</div>
-        <div style={{ display: "flex", justifyContent: "space-around", textAlign: "center", marginBottom: 8 }}>
-          <div><div style={{ fontSize: 10, color: "#5a6e62" }}>摂取</div><div style={{ fontSize: 22, fontWeight: 800, color: pct > 110 ? "#c0392b" : "#2d8a6e" }}>{eK}</div><div style={{ fontSize: 10, color: "#888" }}>/ {tgtK}kcal</div></div>
-          <div><div style={{ fontSize: 10, color: "#e74c3c" }}>P</div><div style={{ fontSize: 16, fontWeight: 800, color: "#e74c3c" }}>{eP}g</div><div style={{ fontSize: 10, color: "#888" }}>/ {plan?.proteinG}g</div></div>
-          <div><div style={{ fontSize: 10, color: "#f39c12" }}>F</div><div style={{ fontSize: 16, fontWeight: 800, color: "#f39c12" }}>{eF}g</div><div style={{ fontSize: 10, color: "#888" }}>/ {plan?.fatG}g</div></div>
-          <div><div style={{ fontSize: 10, color: "#2ecc71" }}>C</div><div style={{ fontSize: 16, fontWeight: 800, color: "#2ecc71" }}>{eC}g</div><div style={{ fontSize: 10, color: "#888" }}>/ {plan?.carbG}g</div></div>
-        </div>
-        <div style={{ background: "#c8ddd2", borderRadius: 6, height: 10, overflow: "hidden" }}>
-          <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", borderRadius: 6, background: pct > 110 ? "#c0392b" : pct >= 90 ? "#2d8a6e" : "#f39c12", transition: "width 0.3s" }} />
-        </div>
-        <div style={{ textAlign: "center", fontSize: 11, color: "#5a6e62", marginTop: 4, fontWeight: 600 }}>{pct}%</div>
-      </div>
+      if (appData.meals.length === 0) {
+        mealList.innerHTML = '<div class="empty">まだ食事記録がありません</div>';
+        updateTotals();
+        return;
+      }
 
-      {/* カテゴリ別食事 */}
-      {catKeys.map(k => {
-        const m = todayPlan.meals[k];
-        const catEaten = todayEaten[k] || [];
-        const catKcal = catEaten.reduce((s, e) => s + (e.kcal || 0), 0);
-        return (
-          <div key={k} style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 8, boxShadow: "0 1px 8px #0000000a" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#1a2e23" }}>{ml[k]}</div>
-              <div style={{ fontSize: 10, color: "#888" }}>予定 {m.kcal}kcal → 実績 <span style={{ fontWeight: 800, color: catKcal > 0 ? "#2d8a6e" : "#ccc" }}>{catKcal}kcal</span></div>
+      mealList.innerHTML = appData.meals.map(item => `
+        <div class="meal-item">
+          <div class="meal-top">
+            <div>
+              <div class="meal-name">${item.category}｜${item.name}</div>
+              <div class="meal-meta">${item.kcal}kcal / P:${item.p}g / F:${item.f}g / C:${item.c}g</div>
             </div>
-            {/* 提案メニュー（薄く表示） */}
-            <div style={{ background: "#f8faf9", borderRadius: 10, padding: "8px 10px", marginBottom: 8, opacity: 0.7 }}>
-              <div style={{ fontSize: 10, color: "#7a8f82", fontWeight: 600, marginBottom: 4 }}>📋 提案メニュー</div>
-              {m.items?.filter(it => !it.startsWith("📍")).map((it, i) => (
-                <div key={i} style={{ fontSize: 11, color: "#5a6e62", lineHeight: 1.5 }}>{it}</div>
-              ))}
-            </div>
-            {/* 実食リスト */}
-            {catEaten.map((item, idx) => {
-              const bg = item.warn ? "#FFF5F5" : item.drink ? "#FFF8E1" : "#edf7f2";
-              const tc = item.warn ? "#c0392b" : item.drink ? "#E65100" : "#2d8a6e";
-              const icon = item.warn ? "⚠️" : item.drink ? "🍺" : "✓";
-              return (
-                <div key={idx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 0", borderBottom: idx < catEaten.length - 1 ? "1px solid #f0f0f0" : "none" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 10, width: 18, height: 18, borderRadius: 6, background: bg, display: "flex", alignItems: "center", justifyContent: "center", color: tc, fontWeight: 700 }}>{icon}</span>
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: tc }}>{item.time && <span style={{ fontSize: 10, color: "#888", marginRight: 4 }}>{item.time}</span>}{item.name}</div>
-                      <div style={{ fontSize: 9, color: "#999" }}>{item.kcal}kcal P:{item.p}g F:{item.f}g C:{item.c}g</div>
-                    </div>
-                  </div>
-                  <button onClick={() => setLog(prev => {
-                    const cp = { ...prev };
-                    const dayE = { ...(cp[todayIdx]?.eaten || {}) };
-                    const arr = [...(dayE[k] || [])];
-                    arr.splice(idx, 1);
-                    dayE[k] = arr;
-                    cp[todayIdx] = { ...cp[todayIdx], eaten: dayE };
-                    return cp;
-                  })} style={{ width: 22, height: 22, borderRadius: 6, border: "none", background: "#f5f5f5", color: "#ccc", fontSize: 12, cursor: "pointer" }}>×</button>
-                </div>
-              );
-            })}
-            {/* このカテゴリに追加 */}
-            {addMode && addCat === k ? (
-              <div style={{ marginTop: 8, background: "#f8faf9", borderRadius: 10, padding: 10 }}>
-                {/* 食べた時間 */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#5a6e62", whiteSpace: "nowrap" }}>🕐 時間</div>
-                  <input type="time" value={addTime} onChange={e => setAddTime(e.target.value)} style={{ ...IS, fontSize: 13, padding: "8px 10px", flex: 1 }} />
-                </div>
-                {/* お気に入り */}
-                {favorites.length > 0 && (
-                  <div style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#f39c12", marginBottom: 4 }}>⭐ お気に入り</div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                      {favorites.map((fv, fi) => (
-                        <button key={fi} onClick={() => {
-                          setLog(prev => {
-                            const cp = { ...prev };
-                            const dayE = { ...(cp[todayIdx]?.eaten || {}) };
-                            dayE[k] = [...(dayE[k] || []), { ...fv, time: addTime }];
-                            cp[todayIdx] = { ...cp[todayIdx], eaten: dayE };
-                            return cp;
-                          });
-                          setAddMode(false); setAddCat(""); setAddTime("");
-                        }} style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid #FFE082", background: "#FFFDE7", fontSize: 11, fontWeight: 600, color: "#E65100", cursor: "pointer" }}>
-                          {fv.name}
-                          <span style={{ fontSize: 9, color: "#999", marginLeft: 4 }}>{fv.kcal}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* 検索 */}
-                <input value={foodSearch} onChange={e => setFoodSearch(e.target.value)} placeholder="食品名で検索..." style={{ ...IS, fontSize: 13, padding: "10px 12px", marginBottom: 6 }} />
-                {foodSearch && (
-                  <div style={{ maxHeight: 180, overflowY: "auto", marginBottom: 6 }}>
-                    {allFoods.filter(f => { const q = foodSearch.toLowerCase(); return f.name.toLowerCase().includes(q) || (f.cat || "").toLowerCase().includes(q); }).slice(0, 10).map((f, i) => {
-                      const isW = (f.cat || f.src || "").includes("🚨");
-                      const isD = (f.cat || "").includes("🍺");
-                      const isFav = favorites.some(fv => fv.name === f.name);
-                      return (
-                        <div key={i} style={{ display: "flex", gap: 4, marginBottom: 3 }}>
-                          <button onClick={() => {
-                            setLog(prev => {
-                              const cp = { ...prev };
-                              const dayE = { ...(cp[todayIdx]?.eaten || {}) };
-                              dayE[k] = [...(dayE[k] || []), { name: f.name, kcal: f.kcal, p: f.p, f: f.f, c: f.c, warn: isW, drink: isD, time: addTime }];
-                              cp[todayIdx] = { ...cp[todayIdx], eaten: dayE };
-                              return cp;
-                            });
-                            setFoodSearch(""); setAddMode(false); setAddCat(""); setAddTime("");
-                          }} style={{ flex: 1, padding: "6px 8px", borderRadius: 6, border: "none", background: isW ? "#FFF5F5" : isD ? "#FFF8E1" : "#fff", cursor: "pointer", textAlign: "left" }}>
-                            <div style={{ fontSize: 12, color: isW ? "#c0392b" : isD ? "#E65100" : "#333", fontWeight: 600 }}>{f.name}</div>
-                            <div style={{ fontSize: 9, color: "#999" }}>{f.kcal}kcal P:{f.p}g F:{f.f}g C:{f.c}g</div>
-                          </button>
-                          <button onClick={() => {
-                            if (isFav) setFavorites(prev => prev.filter(x => x.name !== f.name));
-                            else setFavorites(prev => [...prev, { name: f.name, kcal: f.kcal, p: f.p, f: f.f, c: f.c, warn: isW, drink: isD }]);
-                          }} style={{ width: 30, borderRadius: 6, border: "none", background: "transparent", cursor: "pointer", fontSize: 16, color: isFav ? "#f39c12" : "#ddd", display: "flex", alignItems: "center", justifyContent: "center" }}>{isFav ? "★" : "☆"}</button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {/* 手入力 */}
-                <div style={{ fontSize: 10, fontWeight: 700, color: "#5a6e62", marginBottom: 4 }}>手入力</div>
-                <input value={customName} onChange={e => setCustomName(e.target.value)} placeholder="品名" style={{ ...IS, fontSize: 12, padding: "8px 10px", marginBottom: 4 }} />
-                <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
-                  <input type="number" value={customKcal} onChange={e => setCustomKcal(e.target.value)} placeholder="kcal" style={{ ...IS, flex: 1, fontSize: 11, padding: "8px 6px" }} />
-                  <input type="number" value={customP} onChange={e => setCustomP(e.target.value)} placeholder="P" style={{ ...IS, flex: 1, fontSize: 11, padding: "8px 6px" }} />
-                  <input type="number" value={customF} onChange={e => setCustomF(e.target.value)} placeholder="F" style={{ ...IS, flex: 1, fontSize: 11, padding: "8px 6px" }} />
-                  <input type="number" value={customC} onChange={e => setCustomC(e.target.value)} placeholder="C" style={{ ...IS, flex: 1, fontSize: 11, padding: "8px 6px" }} />
-                </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  <button onClick={() => { setAddMode(false); setAddCat(""); setFoodSearch(""); }} style={{ flex: 1, padding: 8, borderRadius: 8, border: "1px solid #e0e5e2", background: "#fff", color: "#888", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>閉じる</button>
-                  <button onClick={() => {
-                    if (!customName) return;
-                    setLog(prev => {
-                      const cp = { ...prev };
-                      const dayE = { ...(cp[todayIdx]?.eaten || {}) };
-                      dayE[k] = [...(dayE[k] || []), { name: customName, kcal: parseFloat(customKcal) || 0, p: parseFloat(customP) || 0, f: parseFloat(customF) || 0, c: parseFloat(customC) || 0, time: addTime }];
-                      cp[todayIdx] = { ...cp[todayIdx], eaten: dayE };
-                      return cp;
-                    });
-                    setCustomName(""); setCustomKcal(""); setCustomP(""); setCustomF(""); setCustomC("");
-                    setAddMode(false); setAddCat(""); setAddTime("");
-                  }} style={{ flex: 1, padding: 8, borderRadius: 8, border: "none", background: customName ? "#2d8a6e" : "#ccc", color: "#fff", fontWeight: 700, fontSize: 12, cursor: customName ? "pointer" : "default" }}>追加</button>
-                </div>
-              </div>
-            ) : (
-              <button onClick={() => { setAddMode(true); setAddCat(k); setFoodSearch(""); }} style={{ width: "100%", padding: 8, borderRadius: 8, border: "1.5px dashed #c8ddd2", background: "transparent", color: "#2d8a6e", fontWeight: 700, fontSize: 11, cursor: "pointer", marginTop: 6 }}>＋ 食べたものを追加</button>
-            )}
-          </div>
-        );
-      })}
-
-      {/* 💧 水分トラッカー */}
-      {(() => {
-        const todayKey = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
-        const cups = water[todayKey] || 0;
-        const target = 8; // コップ8杯 = 約2L
-        return (
-          <div style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 8, boxShadow: "0 1px 8px #0000000a" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "#1a2e23" }}>💧 水分摂取</div>
-              <div style={{ fontSize: 11, color: cups >= target ? "#2d8a6e" : "#888", fontWeight: 700 }}>{cups}/{target}杯（{(cups * 0.25).toFixed(1)}L / 2L）</div>
-            </div>
-            <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-              {Array.from({ length: target }).map((_, i) => (
-                <div key={i} style={{ flex: 1, height: 24, borderRadius: 6, background: i < cups ? "linear-gradient(180deg,#5bc0de,#3498db)" : "#e8ece9", transition: "background 0.3s", cursor: "pointer" }} onClick={() => setWater(p => ({ ...p, [todayKey]: i + 1 }))} />
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-              <button onClick={() => setWater(p => ({ ...p, [todayKey]: Math.max((p[todayKey] || 0) - 1, 0) }))} style={{ width: 36, height: 36, borderRadius: 10, border: "2px solid #e8ece9", background: "#fff", fontSize: 18, cursor: "pointer", color: "#888" }}>−</button>
-              <button onClick={() => setWater(p => ({ ...p, [todayKey]: Math.min((p[todayKey] || 0) + 1, 12) }))} style={{ width: 36, height: 36, borderRadius: 10, border: "none", background: "linear-gradient(135deg,#3498db,#5bc0de)", fontSize: 18, cursor: "pointer", color: "#fff" }}>＋</button>
-            </div>
-            {cups >= target && <div style={{ textAlign: "center", fontSize: 11, color: "#2d8a6e", fontWeight: 700, marginTop: 6 }}>🎉 今日の水分目標達成！</div>}
-          </div>
-        );
-      })()}
-
-      {/* 食事完了ボタン */}
-      {!isDone ? (
-        <button onClick={() => {
-          setDailyDone(prev => ({ ...prev, [todayIdx]: genAdvice() }));
-        }} disabled={allEaten.length === 0} style={{
-          width: "100%", padding: 16, borderRadius: 14, border: "none",
-          background: allEaten.length === 0 ? "#ccc" : "linear-gradient(135deg,#e74c3c,#c0392b)",
-          color: "#fff", fontWeight: 800, fontSize: 16, cursor: allEaten.length === 0 ? "default" : "pointer",
-          marginTop: 12, boxShadow: allEaten.length > 0 ? "0 4px 16px rgba(231,76,60,0.3)" : "none",
-        }}>🏁 今日の食事を完了する</button>
-      ) : (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ background: "linear-gradient(135deg,#edf7f2,#e3f1ec)", borderRadius: 16, padding: 16, marginBottom: 8 }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "#2d8a6e", marginBottom: 10, textAlign: "center" }}>🏁 本日の食事レポート</div>
-            <div style={{ display: "flex", justifyContent: "space-around", textAlign: "center", marginBottom: 12 }}>
-              <div><div style={{ fontSize: 9, color: "#5a6e62" }}>目標</div><div style={{ fontSize: 18, fontWeight: 800, color: "#888" }}>{tgtK}</div></div>
-              <div style={{ fontSize: 18, color: "#2d8a6e", display: "flex", alignItems: "center" }}>→</div>
-              <div><div style={{ fontSize: 9, color: "#5a6e62" }}>実績</div><div style={{ fontSize: 18, fontWeight: 800, color: pct > 110 ? "#c0392b" : "#2d8a6e" }}>{eK}</div></div>
-              <div><div style={{ fontSize: 9, color: "#5a6e62" }}>差</div><div style={{ fontSize: 18, fontWeight: 800, color: eK - tgtK > 0 ? "#c0392b" : "#2d8a6e" }}>{eK - tgtK > 0 ? "+" : ""}{eK - tgtK}</div></div>
-            </div>
-            {isDone.map((msg, i) => (
-              <div key={i} style={{ fontSize: 12, color: "#3d5c4a", lineHeight: 1.7, paddingLeft: 10, borderLeft: "2px solid #2d8a6e40", marginBottom: 8 }}>{msg}</div>
-            ))}
-          </div>
-          <button onClick={() => setDailyDone(prev => { const cp = { ...prev }; delete cp[todayIdx]; return cp; })} style={{ width: "100%", padding: 12, borderRadius: 12, border: "2px solid #e0e5e2", background: "#fff", color: "#888", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>修正して再記録する</button>
-        </div>
-      )}
-
-      <TabBar tab={tab} setTab={setTab} />
-    </Sh>
-  );
-}
-
-// ── 週間管理タブ ──
-if (tab === "weekly") {
-  const dayLog = log[selDay] || {};
-  const mealKeys = mo.filter(k => dd?.meals?.[k]);
-  const eaten = dayLog.eaten || [];
-  const eatenKcal = Array.isArray(eaten) ? eaten.reduce((s, e) => s + (e.kcal || 0), 0)
-    : Object.values(eaten).flat().reduce((s, e) => s + (e.kcal || 0), 0);
-  const tgtKcal = plan?.dailyCal || 2000;
-  const kcalPct = Math.min(Math.round(eatenKcal / tgtKcal * 100), 150);
-
-  return (
-    <Sh pb={80}>
-      <div style={{ textAlign: "center", marginBottom: 16 }}>
-        <div style={{ fontSize: 32 }}>📋</div>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: "#1a2e23" }}>週間管理</h2>
-      </div>
-      {/* 曜日タブ */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 14, overflowX: "auto", paddingBottom: 4 }}>
-        {meal.weeklyPlan.map((dy, i) => {
-          const dl = log[i];
-          const hasData = dl && (dl.checks || dl.eaten);
-          return (
-            <button key={i} onClick={() => setSelDay(i)} style={{ flex: "0 0 auto", padding: "8px 14px", borderRadius: 10, border: "none", background: selDay === i ? "#2d8a6e" : "#fff", color: selDay === i ? "#fff" : "#555", fontWeight: 700, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
-              {dy.day?.replace("曜日", "")}
-              {hasData && <span style={{ position: "absolute", top: 2, right: 2, width: 6, height: 6, borderRadius: "50%", background: "#3aaf8a" }} />}
-            </button>
-          );
-        })}
-      </div>
-      {/* 達成度 */}
-      <div style={{ background: "linear-gradient(135deg,#edf7f2,#e3f1ec)", borderRadius: 14, padding: 14, marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#2d8a6e" }}>📊 カロリー達成度</div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: kcalPct > 110 ? "#c0392b" : "#2d8a6e" }}>{eatenKcal} / {tgtKcal} kcal（{kcalPct}%）</div>
-        </div>
-        <div style={{ marginTop: 8, background: "#c8ddd2", borderRadius: 6, height: 8, overflow: "hidden" }}>
-          <div style={{ width: `${Math.min(kcalPct, 100)}%`, height: "100%", borderRadius: 6, background: kcalPct > 110 ? "#c0392b" : kcalPct >= 90 ? "#2d8a6e" : "#f39c12" }} />
-        </div>
-      </div>
-      {/* ◉△✖チェック */}
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#1a2e23", marginBottom: 8 }}>🍽️ 食事チェック</div>
-      {mealKeys.map(k => {
-        const chk = dayLog.checks?.[k] || "";
-        return (
-          <div key={k} style={{ background: "#fff", borderRadius: 12, padding: "10px 14px", marginBottom: 6, boxShadow: "0 1px 6px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#333" }}>{ml[k]}</div>
-            <div style={{ display: "flex", gap: 6 }}>
-              {[["◉", "#2d8a6e"], ["△", "#f39c12"], ["✖", "#c0392b"]].map(([sym, col]) => (
-                <button key={sym} onClick={() => setLog(prev => {
-                  const cp = { ...prev };
-                  cp[selDay] = { ...cp[selDay], checks: { ...(cp[selDay]?.checks || {}), [k]: sym } };
-                  return cp;
-                })} style={{
-                  width: 34, height: 34, borderRadius: 8, border: chk === sym ? `2px solid ${col}` : "2px solid #e8ece9",
-                  background: chk === sym ? col + "15" : "#fff", color: col, fontSize: 16, fontWeight: 800,
-                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                }}>{sym}</button>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-      {/* 体重記録 */}
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#1a2e23", marginTop: 16, marginBottom: 8 }}>📊 体重・体脂肪の記録</div>
-      <div style={{ background: "#fff", borderRadius: 14, padding: 14, marginBottom: 8, boxShadow: "0 1px 8px #0000000a" }}>
-        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-          <div style={{ flex: 1 }}><div style={{ fontSize: 10, fontWeight: 700, color: "#5a6e62", marginBottom: 4 }}>体重（kg）</div><input id="bw-input" type="number" placeholder="kg" style={{ ...IS, fontSize: 13, padding: "10px" }} step="0.1" /></div>
-          <div style={{ flex: 1 }}><div style={{ fontSize: 10, fontWeight: 700, color: "#5a6e62", marginBottom: 4 }}>体脂肪率（%）</div><input id="bf-input" type="number" placeholder="%" style={{ ...IS, fontSize: 13, padding: "10px" }} step="0.1" /></div>
-          <button onClick={() => {
-            const bw = parseFloat(document.getElementById("bw-input")?.value); const bf = parseFloat(document.getElementById("bf-input")?.value);
-            if (!bw) return; setBodyLog(prev => [...prev, { date: `${new Date().getMonth()+1}/${new Date().getDate()}`, w: bw, bf: bf||0 }].slice(-12));
-            document.getElementById("bw-input").value = ""; document.getElementById("bf-input").value = "";
-          }} style={{ alignSelf: "flex-end", padding: "10px 14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#2d8a6e,#3aaf8a)", color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>記録</button>
-        </div>
-        {bodyLog.length > 0 ? (
-          <div>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 80 }}>
-              {(() => { const ws = bodyLog.map(b => b.w); const mn = Math.min(...ws)-2, mx = Math.max(...ws)+2, rng = mx-mn||1;
-                return bodyLog.map((b, i) => { const h = Math.max(((b.w-mn)/rng)*65+10, 10); const isL = i === bodyLog.length-1;
-                  return (<div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}><div style={{ fontSize: 7, color: isL ? "#2d8a6e" : "#999", fontWeight: isL ? 800 : 500 }}>{b.w}</div><div style={{ width: "100%", height: h, borderRadius: 3, background: isL ? "linear-gradient(180deg,#2d8a6e,#3aaf8a)" : "#c8ddd2" }} /><div style={{ fontSize: 6, color: "#bbb" }}>{b.date}</div></div>);
-                });
-              })()}
-            </div>
-            {plan?.targetWeight && <div style={{ fontSize: 10, color: "#2d8a6e", fontWeight: 600, textAlign: "center", marginTop: 4 }}>🎯 目標 {plan.targetWeight}kg → 現在 {bodyLog[bodyLog.length-1].w}kg</div>}
-            <button onClick={() => setBodyLog(prev => prev.slice(0,-1))} style={{ width: "100%", marginTop: 4, padding: 6, border: "none", background: "transparent", color: "#ccc", fontSize: 10, cursor: "pointer" }}>取り消す</button>
-          </div>
-        ) : <div style={{ textAlign: "center", color: "#ccc", fontSize: 12, padding: "10px 0" }}>まだ記録なし</div>}
-      </div>
-      <TabBar tab={tab} setTab={setTab} />
-    </Sh>
-  );
-}
-
-// ── 目標タブ（月間計画表）──
-if (tab === "goal") {
-  // 月間マイルストーン生成
-  const startW = plan?.currentWeight || 70;
-  const startBf = plan?.currentBf || 20;
-  const tgtW = plan?.targetWeight || startW;
-  const months = plan?.months || 1;
-  const pace = plan?.pace || 0;
-  const isCut = plan?.isCut;
-  const now = new Date();
-  const milestones = [];
-  for (let i = 0; i <= Math.min(months, 12); i++) {
-    const mDate = new Date(now.getFullYear(), now.getMonth() + i, 30);
-    const expectedW = isCut ? Math.max(startW - pace * i, tgtW) : Math.min(startW + pace * i, tgtW);
-    milestones.push({
-      label: `${mDate.getMonth() + 1}/${mDate.getDate()}`,
-      month: `${mDate.getMonth() + 1}月`,
-      expectedW: Math.round(expectedW * 10) / 10,
-      actual: "",
-    });
-  }
-
-  // 月間記録state（bodyLogのgoalEntries）
-  const goalKey = "goalActuals";
-  const goalActuals = log[goalKey] || {};
-
-  return (
-    <Sh pb={80}>
-      {/* 目標ヘッダー（大きめ表示）*/}
-      <div style={{ background: "linear-gradient(135deg,#1a2e23,#2d8a6e)", borderRadius: 20, padding: "24px 20px", marginBottom: 16, color: "#fff", textAlign: "center" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.7, marginBottom: 6 }}>🎯 最終目標</div>
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
-          <div>
-            <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1 }}>{tgtW}</div>
-            <div style={{ fontSize: 12, opacity: 0.7 }}>kg</div>
-          </div>
-          <div style={{ fontSize: 20, opacity: 0.5 }}>/</div>
-          <div>
-            <div style={{ fontSize: 42, fontWeight: 800, lineHeight: 1 }}>{plan?.targetBf || "−"}</div>
-            <div style={{ fontSize: 12, opacity: 0.7 }}>%</div>
+            <button class="delete-btn" onclick="deleteMeal(${item.id})">×</button>
           </div>
         </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 16, fontSize: 12, opacity: 0.8 }}>
-          <span>{isCut ? "🔥 減量" : plan?.isBulk ? "💪 増量" : "⚖️ 維持"}</span>
-          <span>現在 {startW}kg</span>
-          <span>あと {plan?.weightDiff?.toFixed(1)}kg</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 10, fontSize: 11, opacity: 0.7 }}>
-          <span>📅 約{months}ヶ月計画</span>
-          <span>🔥 {plan?.dailyCal}kcal/日</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 4, fontSize: 11, opacity: 0.7 }}>
-          <span>P:{plan?.proteinG}g</span>
-          <span>F:{plan?.fatG}g</span>
-          <span>C:{plan?.carbG}g</span>
-        </div>
-      </div>
+      `).join("");
 
-      {/* 月間計画表 */}
-      <div style={{ fontSize: 14, fontWeight: 800, color: "#1a2e23", marginBottom: 10 }}>📊 月間マイルストーン</div>
+      updateTotals();
+    }
 
-      {milestones.map((ms, i) => {
-        const actualVal = goalActuals[i];
-        const hasActual = actualVal !== undefined && actualVal !== "";
-        const diff = hasActual ? (parseFloat(actualVal) - ms.expectedW) : null;
-        const isFirst = i === 0;
-        const isLast = i === milestones.length - 1;
-        return (
-          <div key={i} style={{ display: "flex", alignItems: "stretch", marginBottom: 0 }}>
-            {/* タイムライン */}
-            <div style={{ width: 40, display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
-              <div style={{ width: 14, height: 14, borderRadius: "50%", background: isLast ? "#2d8a6e" : hasActual ? "#3aaf8a" : "#c8ddd2", border: isLast ? "3px solid #1a2e23" : "2px solid #fff", zIndex: 1, boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }} />
-              {!isLast && <div style={{ flex: 1, width: 2, background: "#e0e5e2" }} />}
-            </div>
-            {/* カード */}
-            <div style={{ flex: 1, background: isLast ? "#edf7f2" : "#fff", borderRadius: 12, padding: "12px 14px", marginBottom: 8, boxShadow: "0 1px 6px rgba(0,0,0,0.04)", border: isLast ? "2px solid #2d8a6e" : "1px solid #f0f0f0" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: isLast ? "#2d8a6e" : "#1a2e23" }}>{ms.label}</span>
-                  {isFirst && <span style={{ fontSize: 9, color: "#888", marginLeft: 6 }}>スタート</span>}
-                  {isLast && <span style={{ fontSize: 9, color: "#2d8a6e", marginLeft: 6, fontWeight: 700 }}>🏁 ゴール</span>}
-                </div>
-                <div style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>目標 {ms.expectedW}kg</div>
-              </div>
-              {/* 実績入力 */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ fontSize: 11, color: "#5a6e62", fontWeight: 600, whiteSpace: "nowrap" }}>実績:</div>
-                <input
-                  type="number"
-                  value={goalActuals[i] ?? ""}
-                  onChange={e => {
-                    setLog(prev => ({
-                      ...prev,
-                      [goalKey]: { ...(prev[goalKey] || {}), [i]: e.target.value }
-                    }));
-                  }}
-                  placeholder="−"
-                  style={{ width: 80, padding: "6px 10px", borderRadius: 8, border: "1.5px solid #e8ece9", fontSize: 14, fontWeight: 800, outline: "none", background: "#f8faf9", textAlign: "center" }}
-                />
-                <span style={{ fontSize: 12, color: "#888" }}>kg</span>
-                {diff !== null && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: (isCut && diff <= 0) || (!isCut && diff >= 0) ? "#2d8a6e" : "#c0392b", marginLeft: 4 }}>
-                    {diff > 0 ? "+" : ""}{diff.toFixed(1)}kg
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+    function updateTotals() {
+      const totals = appData.meals.reduce((acc, item) => {
+        acc.kcal += Number(item.kcal || 0);
+        acc.p += Number(item.p || 0);
+        acc.f += Number(item.f || 0);
+        acc.c += Number(item.c || 0);
+        return acc;
+      }, { kcal: 0, p: 0, f: 0, c: 0 });
 
-      {/* 直近の体重推移（bodyLogから） */}
-      {bodyLog.length > 0 && (
-        <div style={{ background: "#fff", borderRadius: 14, padding: 14, marginTop: 8, marginBottom: 8, boxShadow: "0 1px 8px #0000000a" }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#2d8a6e", marginBottom: 8 }}>📈 体重推移グラフ</div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 80 }}>
-            {(() => {
-              const ws = bodyLog.map(b => b.w);
-              const mn = Math.min(...ws) - 2, mx = Math.max(...ws) + 2, rng = mx - mn || 1;
-              return bodyLog.map((b, i) => {
-                const h = Math.max(((b.w - mn) / rng) * 65 + 10, 10);
-                const isL = i === bodyLog.length - 1;
-                return (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                    <div style={{ fontSize: 7, color: isL ? "#2d8a6e" : "#999", fontWeight: isL ? 800 : 500 }}>{b.w}</div>
-                    <div style={{ width: "100%", height: h, borderRadius: 3, background: isL ? "linear-gradient(180deg,#2d8a6e,#3aaf8a)" : "#c8ddd2" }} />
-                    <div style={{ fontSize: 6, color: "#bbb" }}>{b.date}</div>
-                  </div>
-                );
-              });
-            })()}
-          </div>
-        </div>
-      )}
+      document.getElementById("totalKcal").textContent = Math.round(totals.kcal);
+      document.getElementById("totalP").textContent = Math.round(totals.p * 10) / 10;
+      document.getElementById("totalF").textContent = Math.round(totals.f * 10) / 10;
+      document.getElementById("totalC").textContent = Math.round(totals.c * 10) / 10;
+    }
 
-      <TabBar tab={tab} setTab={setTab} />
-    </Sh>
-  );
-}
-```
+    function saveBody() {
+      const weight = document.getElementById("bodyWeight").value;
+      const fat = document.getElementById("bodyFat").value;
 
-}
+      if (!weight) {
+        alert("体重を入力してください");
+        return;
+      }
 
-return (<Sh><p>Loading…</p></Sh>);
-}
+      const today = new Date();
+      const label = `${today.getMonth() + 1}/${today.getDate()}`;
 
-// ── 共通コンポーネント ──
-function Sh({ children, pb }) {
-return (
-<div style={{ fontFamily: “‘Noto Sans JP’,‘Hiragino Sans’,sans-serif”, minHeight: “100vh”, background: “linear-gradient(180deg,#f0f5f2 0%,#e8ede9 100%)”, display: “flex”, justifyContent: “center” }}>
-<style>{`@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap');*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}input,select,button{font-family:'Noto Sans JP',sans-serif}`}</style>
-<div style={{ width: “100%”, maxWidth: 440, padding: `20px 16px ${pb || 40}px` }}>{children}</div>
-</div>
-);
-}
-function PBar({ c, t }) {
-return (
-<div style={{ display: “flex”, gap: 4, padding: “0 4px”, marginBottom: 20 }}>
-{Array.from({ length: t }).map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= c ? “linear-gradient(90deg,#2d8a6e,#3aaf8a)” : “#e0e5e2” }} />)}
-</div>
-);
-}
-function Title({ icon, title, sub }) {
-return (
-<div style={{ marginBottom: 24 }}>
-<div style={{ fontSize: 28, marginBottom: 6 }}>{icon}</div>
-<h2 style={{ fontSize: 20, fontWeight: 800, color: “#1a2e23”, margin: “0 0 4px” }}>{title}</h2>
-{sub && <p style={{ fontSize: 13, color: “#7a8f82”, margin: 0 }}>{sub}</p>}
-</div>
-);
-}
-function Lb({ children }) {
-return <label style={{ display: “block”, fontSize: 12, fontWeight: 700, color: “#5a6e62”, marginBottom: 6 }}>{children}</label>;
-}
-function Btn({ disabled, onClick, label }) {
-return (
-<button onClick={onClick} disabled={disabled} style={{ width: “100%”, padding: 16, borderRadius: 14, border: “none”, background: disabled ? “#ccc” : “linear-gradient(135deg,#2d8a6e,#3aaf8a)”, color: “#fff”, fontWeight: 800, fontSize: 16, cursor: disabled ? “default” : “pointer”, boxShadow: disabled ? “none” : “0 4px 16px rgba(45,138,110,0.3)”, marginTop: 8 }}>{label}</button>
-);
-}
-function Nav({ onBack, onNext, nd, nl }) {
-return (
-<div style={{ display: “flex”, gap: 10, marginTop: 8 }}>
-<button onClick={onBack} style={{ flex: 1, padding: 14, borderRadius: 14, border: “2px solid #e0e5e2”, background: “#fff”, color: “#888”, fontWeight: 700, fontSize: 15, cursor: “pointer” }}>← 戻る</button>
-<button onClick={onNext} disabled={nd} style={{ flex: 1, padding: 14, borderRadius: 14, border: “none”, background: nd ? “#ccc” : “linear-gradient(135deg,#2d8a6e,#3aaf8a)”, color: “#fff”, fontWeight: 700, fontSize: 15, cursor: nd ? “default” : “pointer” }}>{nl || “次へ →”}</button>
-</div>
-);
-}
-function Card({ title, children }) {
-return (
-<div style={{ background: “#fff”, borderRadius: 16, padding: 18, marginBottom: 12, boxShadow: “0 2px 12px #0000000a” }}>
-<div style={{ fontSize: 12, fontWeight: 800, color: “#2d8a6e”, marginBottom: 14 }}>{title}</div>
-{children}
-</div>
-);
-}
-function S2() {
-return <div style={{ display: “inline-block”, background: “#2d8a6e”, color: “#fff”, padding: “4px 12px”, borderRadius: 8, fontSize: 10, fontWeight: 700, marginBottom: 12, letterSpacing: 1 }}>STEP 2</div>;
-}
-function TabBar({ tab, setTab }) {
-return (
-<div style={{ position: “fixed”, bottom: 0, left: “50%”, transform: “translateX(-50%)”, width: “100%”, maxWidth: 440, background: “#fff”, borderTop: “1px solid #eee”, display: “flex”, justifyContent: “space-around”, padding: “6px 0”, paddingBottom: “max(6px, env(safe-area-inset-bottom))”, zIndex: 500, boxShadow: “0 -2px 12px rgba(0,0,0,0.05)” }}>
-{[{ id: “menu”, icon: “🍽️”, label: “メニュー” }, { id: “today”, icon: “📅”, label: “今日” }, { id: “weekly”, icon: “📋”, label: “週間管理” }, { id: “goal”, icon: “🎯”, label: “目標” }].map(t => (
-<button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, background: “none”, border: “none”, cursor: “pointer”, padding: “4px 0”, display: “flex”, flexDirection: “column”, alignItems: “center”, gap: 1 }}>
-<span style={{ fontSize: 20, opacity: tab === t.id ? 1 : 0.4 }}>{t.icon}</span>
-<span style={{ fontSize: 9, fontWeight: tab === t.id ? 800 : 500, color: tab === t.id ? “#2d8a6e” : “#999” }}>{t.label}</span>
-{tab === t.id && <div style={{ width: 16, height: 2.5, borderRadius: 2, background: “#2d8a6e” }} />}
-</button>
-))}
-</div>
-);
-}
+      appData.bodyLog.push({
+        date: label,
+        weight: Number(weight),
+        fat: fat ? Number(fat) : ""
+      });
+
+      if (appData.bodyLog.length > 10) {
+        appData.bodyLog = appData.bodyLog.slice(-10);
+      }
+
+      saveData();
+      renderBodyLog();
+
+      document.getElementById("bodyWeight").value = "";
+      document.getElementById("bodyFat").value = "";
+    }
+
+    function renderBodyLog() {
+      const area = document.getElementById("bodyLogArea");
+
+      if (!appData.bodyLog.length) {
+        area.textContent = "まだ記録がありません";
+        return;
+      }
+
+      area.innerHTML = appData.bodyLog.slice().reverse().map(item => {
+        return `・${item.date}　${item.weight}kg${item.fat !== "" ? ` / 体脂肪 ${item.fat}%` : ""}`;
+      }).join("<br>");
+    }
+
+    function resetToday() {
+      const ok = confirm("今日の食事記録をすべて削除しますか？");
+      if (!ok) return;
+      appData.meals = [];
+      saveData();
+      renderMeals();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
