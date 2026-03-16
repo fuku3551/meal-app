@@ -10,13 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:linear-gradient(180deg,#f0f5f2,#e8ede9);min-height:100vh;min-height:100dvh}
-    input,select,button{font-family:'Noto Sans JP',sans-serif;touch-action:manipulation}
+    body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:linear-gradient(180deg,#f0f5f2,#e8ede9);min-height:100vh;min-height:100dvh;color:#1a2e23}
+    input,select,button,textarea{font-family:'Noto Sans JP',sans-serif;touch-action:manipulation}
     button{cursor:pointer;-webkit-appearance:none}
-    .app{max-width:440px;margin:0 auto;padding:20px 16px 90px}
     .shell{min-height:100vh;min-height:100dvh;display:flex;justify-content:center;background:linear-gradient(180deg,#f0f5f2,#e8ede9)}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .fade-in{animation:fadeIn 0.3s ease}
+    .app{width:100%;max-width:440px;padding:20px 16px 90px}
     .progress{display:flex;gap:4px;padding:0 4px;margin-bottom:20px}
     .progress div{flex:1;height:4px;border-radius:2px;background:#e0e5e2}
     .progress div.active{background:linear-gradient(90deg,#2d8a6e,#3aaf8a)}
@@ -24,46 +22,77 @@
     .title-h{font-size:20px;font-weight:800;color:#1a2e23;margin:0 0 4px;letter-spacing:-0.5px}
     .title-sub{font-size:13px;color:#7a8f82;margin:0}
     .label{display:block;font-size:12px;font-weight:700;color:#5a6e62;margin-bottom:6px}
-    .input{width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;font-size:16px;outline:none;background:#f8faf9;box-sizing:border-box}
-    .input:focus{border-color:#2d8a6e}
-    .select{width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;font-size:16px;outline:none;background:#f8faf9;appearance:auto;box-sizing:border-box}
-    .btn-primary{width:100%;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:800;font-size:16px;box-shadow:0 4px 16px #2d8a6e4d;margin-top:8px}
+    .input,.select,.textarea{
+      width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;
+      font-size:16px;outline:none;background:#f8faf9;box-sizing:border-box
+    }
+    .input:focus,.select:focus,.textarea:focus{border-color:#2d8a6e}
+    .textarea{min-height:88px;resize:vertical}
+    .select{appearance:auto}
+    .btn-primary{
+      width:100%;padding:16px;border-radius:14px;border:none;
+      background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;
+      font-weight:800;font-size:16px;box-shadow:0 4px 16px rgba(45,138,110,.25);margin-top:8px
+    }
     .btn-primary:disabled{background:#ccc;box-shadow:none;cursor:default}
-    .btn-back{flex:1;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:15px}
-    .btn-next{flex:1;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:700;font-size:15px}
+    .btn-back{
+      flex:1;padding:14px;border-radius:14px;border:2px solid #e0e5e2;
+      background:#fff;color:#888;font-weight:700;font-size:15px
+    }
+    .btn-next{
+      flex:1;padding:14px;border-radius:14px;border:none;
+      background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:700;font-size:15px
+    }
     .btn-next:disabled{background:#ccc;cursor:default}
-    .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 12px #0000000a}
+    .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
     .card-title{font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:14px}
-    .gender-btn{flex:1;padding:18px 10px;border-radius:14px;border:2px solid #e8ece9;background:#fff;display:flex;flex-direction:column;align-items:center;gap:6px}
+    .gender-btn,.goal-btn,.pace-btn,.split-btn,.cook-btn,.seg-btn{
+      background:#fff;border:2px solid #e8ece9;cursor:pointer
+    }
+    .gender-btn{
+      flex:1;padding:18px 10px;border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:6px
+    }
     .gender-btn.active{border-color:#2d8a6e;background:#edf7f2}
-    .goal-btn{padding:20px 18px;border-radius:16px;border:2px solid #e8ece9;background:#fff;text-align:left;display:flex;align-items:center;gap:14px;width:100%}
+    .goal-btn{padding:20px 18px;border-radius:16px;text-align:left;display:flex;align-items:center;gap:14px;width:100%}
     .goal-btn.active{border-color:#2d8a6e;background:#edf7f2}
-    .pace-btn{padding:16px 18px;border-radius:14px;border:2px solid #e8ece9;background:#fff;text-align:left;font-size:14px;font-weight:700;width:100%}
+    .pace-btn{padding:16px 18px;border-radius:14px;text-align:left;font-size:14px;font-weight:700;width:100%}
     .pace-btn.active{border-color:#2d8a6e;background:#edf7f2;color:#2d8a6e}
-    .split-btn{padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;background:#fff;text-align:left;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;width:100%}
+    .split-btn{padding:14px 16px;border-radius:14px;text-align:left;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;width:100%}
     .split-btn.active{border-color:#2d8a6e;background:#edf7f2;color:#2d8a6e}
-    .cook-btn{padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;background:#fff;text-align:left;display:flex;align-items:center;gap:12px;width:100%}
+    .cook-btn{padding:14px 16px;border-radius:14px;text-align:left;display:flex;align-items:center;gap:12px;width:100%}
     .cook-btn.active{border-color:#2d8a6e;background:#edf7f2}
+    .seg-row{display:flex;gap:8px;flex-wrap:wrap}
+    .seg-btn{padding:10px 12px;border-radius:12px;font-size:12px;font-weight:700}
+    .seg-btn.active{border-color:#2d8a6e;background:#edf7f2;color:#2d8a6e}
     .s2-badge{display:inline-block;background:#2d8a6e;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:700;margin-bottom:12px;letter-spacing:1px}
-    .tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:500;box-shadow:0 -2px 12px #0000000d}
-    .tab-btn{flex:1;background:none;border:none;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px}
-    .tab-icon{font-size:20px;transition:opacity 0.2s}
-    .tab-label{font-size:9px;font-weight:500;color:#999}
-    .tab-label.active{font-weight:800;color:#2d8a6e}
-    .tab-dot{width:16px;height:2.5px;border-radius:2px;background:#2d8a6e;margin-top:1px}
     .pfc-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-bottom:14px}
-    .day-btn{flex:0 0 auto;padding:8px 14px;border-radius:10px;border:none;font-weight:700;font-size:12px;white-space:nowrap}
+    .day-btn{flex:0 0 auto;padding:8px 14px;border-radius:10px;border:none;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
     .day-btn.active{background:#2d8a6e;color:#fff}
     .day-btn.inactive{background:#fff;color:#555}
-    .meal-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 8px #0000000a}
-    .item-line{font-size:13px;color:#444;padding-left:8px;border-left:3px solid #2d8a6e40;line-height:1.5;margin-bottom:4px}
+    .meal-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+    .item-line{font-size:13px;color:#444;padding-left:8px;border-left:3px solid rgba(45,138,110,.25);line-height:1.5;margin-bottom:4px}
     .item-src{font-size:11px;color:#2d8a6e;font-weight:700;margin-bottom:4px;padding:3px 8px;background:#edf7f2;border-radius:6px;display:inline-block}
     .tip-box{margin-top:6px;font-size:11px;color:#2d8a6e;background:#edf7f2;border-radius:8px;padding:6px 10px}
-    .water-bar{flex:1;height:24px;border-radius:6px;background:#e8ece9;transition:background 0.3s}
+    .tab-bar{
+      position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;
+      display:flex;justify-content:space-around;padding:6px 0;
+      padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:500;
+      box-shadow:0 -2px 12px rgba(0,0,0,.05)
+    }
+    .tab-btn{flex:1;background:none;border:none;cursor:pointer;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px}
+    .tab-icon{font-size:20px;transition:opacity .2s}
+    .tab-label{font-size:9px;font-weight:500;color:#999}
+    .tab-label.active{font-weight:800;color:#2d8a6e}
+    .tab-dot{width:16px;height:2.5px;border-radius:2px;background:#2d8a6e}
+    .water-bar{flex:1;height:24px;border-radius:6px;background:#e8ece9;cursor:pointer;transition:background .3s}
     .water-bar.filled{background:linear-gradient(180deg,#5bc0de,#3498db)}
-    .fav-tag{padding:4px 10px;border-radius:8px;border:1px solid #FFE082;background:#FFFDE7;font-size:11px;font-weight:600;color:#E65100}
-    .search-result{width:100%;padding:6px 8px;border-radius:6px;border:none;text-align:left;margin-bottom:3px}
+    .fav-tag{padding:4px 10px;border-radius:8px;border:1px solid #FFE082;background:#FFFDE7;font-size:11px;font-weight:600;color:#E65100;cursor:pointer}
+    .search-result{width:100%;padding:6px 8px;border-radius:6px;border:none;cursor:pointer;text-align:left;margin-bottom:3px}
     .goal-header{background:linear-gradient(135deg,#1a2e23,#2d8a6e);border-radius:20px;padding:24px 20px;margin-bottom:16px;color:#fff;text-align:center}
+    .mini-note{font-size:11px;color:#888}
+    .list-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:#f4f6f5;font-size:11px;color:#5a6e62;font-weight:700;margin:2px}
+    .sticky-top-space{padding-top:4px}
   </style>
 </head>
 <body>
@@ -311,7 +340,7 @@
       { name: "白米ご飯 少なめ（100g）", kcal: 156, p: 2.5, f: 0.3, c: 35.6, cat: "主食" },
       { name: "白米ご飯 1膳（150g）", kcal: 234, p: 3.8, f: 0.5, c: 53.4, cat: "主食" },
       { name: "白米ご飯 大盛り（200g）", kcal: 312, p: 5.0, f: 0.6, c: 71.2, cat: "主食" },
-      { name: "白米ご飯 特盛り（250g）", kcal: 390, p: 6.3, f: 0.8, c: 89.0, cat: "主食" },
+      { name: "白米ご飯 特盛り（250g）", kcal: 390, p: 6.2, f: 0.8, c: 89.0, cat: "主食" },
       { name: "玄米ご飯 1膳（150g）", kcal: 228, p: 4.2, f: 1.5, c: 49.5, cat: "主食" },
       { name: "食パン 6枚切り1枚", kcal: 158, p: 5.6, f: 2.6, c: 28.0, cat: "主食" },
       { name: "うどん 1玉", kcal: 252, p: 6.5, f: 1.0, c: 52.0, cat: "主食" },
@@ -350,14 +379,11 @@
       { name: "ハンバーグ 1個", kcal: 340, p: 20.5, f: 22.8, c: 12.5, cat: "家庭料理" },
       { name: "麻婆豆腐 1人前", kcal: 295, p: 15.8, f: 18.2, c: 15.5, cat: "家庭料理" },
 
-      { name: "筋肉冷凍弁当（男性ダイエット用）", kcal: 450, p: 35.0, f: 12.0, c: 48.0, cat: "フィットネス食品" },
-      { name: "筋肉冷凍弁当（女性ダイエット用）", kcal: 350, p: 28.0, f: 9.0, c: 38.0, cat: "フィットネス食品" },
-      { name: "筋肉冷凍弁当（リーン用）", kcal: 550, p: 40.0, f: 15.0, c: 58.0, cat: "フィットネス食品" },
-      { name: "マッスルデリ 男性ダイエット用", kcal: 450, p: 35.0, f: 12.0, c: 48.0, cat: "フィットネス食品" },
-      { name: "マッスルデリ 女性ダイエット用", kcal: 350, p: 28.0, f: 9.0, c: 38.0, cat: "フィットネス食品" },
-      { name: "マッスルデリ リーン用", kcal: 550, p: 40.0, f: 15.0, c: 58.0, cat: "フィットネス食品" },
-      { name: "ミールリプレイスメント（ゴールドジム参考）1杯", kcal: 380, p: 30.0, f: 6.0, c: 48.0, cat: "フィットネス食品" },
-      { name: "ミールリプレイスメント（高たんぱく）1杯", kcal: 320, p: 35.0, f: 5.0, c: 30.0, cat: "フィットネス食品" },
+      { name: "マッスル冷凍弁当（男性ダイエット用）", kcal: 450, p: 40.0, f: 15.0, c: 35.0, cat: "フィットネス食品" },
+      { name: "マッスル冷凍弁当（女性ダイエット用）", kcal: 350, p: 30.0, f: 10.0, c: 30.0, cat: "フィットネス食品" },
+      { name: "マッスル冷凍弁当（リーンバルク用）", kcal: 550, p: 50.0, f: 17.0, c: 45.0, cat: "フィットネス食品" },
+      { name: "MRP（ミールリプレイスメント）1杯", kcal: 380, p: 40.0, f: 5.0, c: 42.0, cat: "フィットネス食品" },
+      { name: "ゴールドジム ミールリプレイスメント 1杯", kcal: 390, p: 35.0, f: 6.0, c: 43.0, cat: "フィットネス食品" },
       { name: "プロテインバー 1本", kcal: 180, p: 16.0, f: 7.5, c: 15.0, cat: "フィットネス食品" },
       { name: "BCAA ドリンク 1杯", kcal: 20, p: 5.0, f: 0, c: 0, cat: "フィットネス食品" },
 
@@ -408,6 +434,7 @@
       { label: "焼酎ロック（1杯）", kcal: 85, unit: "杯" },
       { label: "レモンサワー（1杯）", kcal: 150, unit: "杯" }
     ];
+
     const DFM = { "毎日": 7, "週5〜6回": 5.5, "週3〜4回": 3.5, "週1〜2回": 1.5, "月2〜3回": 0.6, "飲まない": 0 };
     const DF = Object.keys(DFM);
     const JOBS = [
@@ -417,7 +444,7 @@
       { label: "体を動かす仕事（介護・配送）", factor: 1.55 },
       { label: "肉体労働（建設・農業）", factor: 1.725 }
     ];
-    const EXLIST = ["ウォーキング","ジョギング","筋トレ（自重）","筋トレ（ジム）","ヨガ・ピラティス","水泳","サイクリング","ダンス・エアロビクス","格闘技","球技（サッカー等）","なし"];
+    const EXLIST = ["ウォーキング", "ジョギング", "筋トレ（自重）", "筋トレ（ジム）", "ヨガ・ピラティス", "水泳", "サイクリング", "ダンス・エアロビクス", "格闘技", "球技（サッカー等）", "なし"];
     const FRQ = [
       { label: "週1回", add: 0.025 },
       { label: "週2〜3回", add: 0.05 },
@@ -447,16 +474,158 @@
       { id: "3meals2snack", label: "3食＋間食2回", icon: "🍌" }
     ];
     const CVS = ["セブンイレブン", "ファミリーマート", "ローソン", "ミニストップ", "使わない"];
-    const ML = { breakfast:"🌅 朝食", snack1:"🍌 間食①", lunch:"☀️ 昼食", snack2:"🍎 間食②", dinner:"🌙 夕食" };
-    const MO = ["breakfast","snack1","lunch","snack2","dinner"];
+    const ML = { breakfast: "🌅 朝食", snack1: "🍌 間食①", lunch: "☀️ 昼食", snack2: "🍎 間食②", dinner: "🌙 夕食" };
+    const MO = ["breakfast", "snack1", "lunch", "snack2", "dinner"];
 
-    function esc(s){
+    let S = {
+      step: 0,
+      d: {
+        gender: "", age: "", height: "", weight: "", bodyFat: "",
+        job: "", exercise: "", exerciseFreq: "",
+        goal: "", targetWeight: "", targetBf: "", pace: "",
+        wakeTime: "07", sleepTime: "23", mealSplit: "",
+        drinkType: "", drinkAmount: "0", drinkFreq: "",
+        drinkAllowType: "", drinkAllowAmount: "0", drinkAllowFreq: "",
+        dislikedFoods: "", conv1: "", conv2: "", restaurant1: "", restaurant2: "", canCook: ""
+      },
+      plan: null,
+      meal: null,
+      selDay: 0,
+      tab: "daily",
+      log: {},
+      dailyDone: {},
+      water: {},
+      bodyLog: [],
+      favorites: [],
+      addMode: false,
+      addCat: "",
+      addTime: "",
+      foodSearch: "",
+      customName: "",
+      customKcal: "",
+      customP: "",
+      customF: "",
+      customC: ""
+    };
+
+    function save() {
+      try {
+        localStorage.setItem("meal-app", JSON.stringify({
+          d: S.d, plan: S.plan, meal: S.meal, log: S.log, dailyDone: S.dailyDone,
+          water: S.water, bodyLog: S.bodyLog, favorites: S.favorites
+        }));
+      } catch(e) {}
+    }
+
+    function load() {
+      try {
+        const r = JSON.parse(localStorage.getItem("meal-app"));
+        if (!r) return;
+        if (r.d) S.d = r.d;
+        if (r.plan) S.plan = r.plan;
+        if (r.meal) { S.meal = r.meal; S.step = 10; }
+        if (r.log) S.log = r.log;
+        if (r.dailyDone) S.dailyDone = r.dailyDone;
+        if (r.water) S.water = r.water;
+        if (r.bodyLog) S.bodyLog = r.bodyLog;
+        if (r.favorites) S.favorites = r.favorites;
+      } catch(e) {}
+    }
+
+    function resetAll() {
+      localStorage.removeItem("meal-app");
+      S = {
+        step: 0,
+        d: {
+          gender: "", age: "", height: "", weight: "", bodyFat: "",
+          job: "", exercise: "", exerciseFreq: "",
+          goal: "", targetWeight: "", targetBf: "", pace: "",
+          wakeTime: "07", sleepTime: "23", mealSplit: "",
+          drinkType: "", drinkAmount: "0", drinkFreq: "",
+          drinkAllowType: "", drinkAllowAmount: "0", drinkAllowFreq: "",
+          dislikedFoods: "", conv1: "", conv2: "", restaurant1: "", restaurant2: "", canCook: ""
+        },
+        plan: null, meal: null, selDay: 0, tab: "daily",
+        log: {}, dailyDone: {}, water: {}, bodyLog: [], favorites: [],
+        addMode: false, addCat: "", addTime: "", foodSearch: "",
+        customName: "", customKcal: "", customP: "", customF: "", customC: ""
+      };
+      render();
+    }
+
+    function esc(s) {
       return String(s ?? "")
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    }
+
+    function upd(k, v) {
+      S.d[k] = v;
+      save();
+    }
+
+    function updR(k, v) {
+      S.d[k] = v;
+      save();
+      render();
+    }
+
+    function setStep(n) {
+      S.step = n;
+      render();
+    }
+
+    function setTab(t) {
+      S.tab = t;
+      S.addMode = false;
+      S.foodSearch = "";
+      render();
+    }
+
+    function progressBar(c, t) {
+      return `<div class="progress">${Array.from({length:t}).map((_,i)=>`<div class="${i<=c?'active':''}"></div>`).join("")}</div>`;
+    }
+
+    function titleBlock(icon, title, sub) {
+      return `
+        <div style="margin-bottom:24px">
+          <div class="title-icon">${icon}</div>
+          <h2 class="title-h">${title}</h2>
+          ${sub ? `<p class="title-sub">${sub}</p>` : ""}
+        </div>
+      `;
+    }
+
+    function navBtns(backFn, nextFn, disabled, nextLabel) {
+      return `
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="btn-back" onclick="${backFn}">← 戻る</button>
+          <button class="btn-next" ${disabled ? "disabled" : ""} onclick="${nextFn}">${nextLabel || "次へ →"}</button>
+        </div>
+      `;
+    }
+
+    function tabBar() {
+      const tabs = [
+        { id: "profile", icon: "👤", label: "Profile" },
+        { id: "goal", icon: "🎯", label: "目標進捗" },
+        { id: "weekly", icon: "📅", label: "週間予定" },
+        { id: "daily", icon: "📝", label: "本日予定" }
+      ];
+      return `
+        <div class="tab-bar">
+          ${tabs.map(t => `
+            <button class="tab-btn" onclick="setTab('${t.id}')">
+              <span class="tab-icon" style="opacity:${S.tab===t.id ? 1 : .4}">${t.icon}</span>
+              <span class="tab-label ${S.tab===t.id ? 'active' : ''}">${t.label}</span>
+              ${S.tab===t.id ? `<div class="tab-dot"></div>` : ``}
+            </button>
+          `).join("")}
+        </div>
+      `;
     }
 
     function calc() {
@@ -498,26 +667,25 @@
       const pace = parseFloat(d.pace) || 1;
       const wd = Math.abs(tw - c.nW);
       const mo = wd > 0 ? Math.ceil(wd / pace) : 1;
-      const isCut = d.goal === "cut";
-      const isBulk = d.goal === "bulk";
+      const iC = d.goal === "cut";
+      const iB = d.goal === "bulk";
 
       let dc = c.tdee;
-      if (isCut) dc = Math.round(c.tdee - (pace * 7700 / 30));
-      if (isBulk) dc = Math.round(c.tdee + (pace * 7700 / 30));
+      if (iC) dc = Math.round(c.tdee - (pace * 7700 / 30));
+      if (iB) dc = Math.round(c.tdee + (pace * 7700 / 30));
       dc = Math.max(dc, d.gender === "male" ? 1400 : 1200);
 
       let pG, fG;
-      if (isCut) {
+      if (iC) {
         pG = Math.round(c.lbm > 0 ? c.lbm * 2.2 : c.nW * 1.8);
         fG = Math.round(c.nW * 0.8);
-      } else if (isBulk) {
+      } else if (iB) {
         pG = Math.round(c.lbm > 0 ? c.lbm * 2.0 : c.nW * 1.6);
         fG = Math.round(c.nW * 0.9);
       } else {
         pG = Math.round(c.lbm > 0 ? c.lbm * 1.6 : c.nW * 1.2);
         fG = Math.round(c.nW * 0.8);
       }
-
       const cG = Math.round(Math.max((dc - pG * 4 - fG * 9) / 4, 50));
       const aC = pG * 4 + fG * 9 + cG * 4;
 
@@ -538,8 +706,8 @@
         proteinG: pG,
         fatG: fG,
         carbG: cG,
-        isCut,
-        isBulk,
+        isCut: iC,
+        isBulk: iB,
         bmr: c.bmr
       };
 
@@ -633,27 +801,17 @@
         }
 
         for (let i = 0; i < 20 && sel.length < 5 && rem > 50; i++) {
-          const cands = sh.filter(x => !sel.find(s => s.name === x.name) && x.kcal <= rem + 80 && x.kcal >= 15);
-          if (!cands.length) break;
-          const p = cands[Math.floor(Math.random() * cands.length)];
+          const c = sh.filter(x => !sel.find(s => s.name === x.name) && x.kcal <= rem + 80 && x.kcal >= 15);
+          if (!c.length) break;
+          const p = c[Math.floor(Math.random() * c.length)];
           sel.push(p);
           rem -= p.kcal;
         }
 
-        if (rem > 100) {
-          const rice = Math.round(rem / 235);
-          if (rice >= 1) {
-            sel.push({
-              name: `白米ご飯${rice > 1 ? rice + "杯" : "1杯"}`,
-              kcal: rice * 235,
-              p: rice * 4.0,
-              f: rice * 0.5,
-              c: rice * 53.4,
-              src: sel[0]?.src || "自炊"
-            });
-          }
-        } else if (rem > 50) {
-          sel.push({ name: "白米ご飯（小）", kcal: 118, p: 2.0, f: 0.3, c: 26.7, src: sel[0]?.src || "自炊" });
+        if (rem > 150) {
+          sel.push({ name: "白米ご飯 1膳（150g）", kcal: 234, p: 3.8, f: 0.5, c: 53.4, src: sel[0]?.src || "自炊" });
+        } else if (rem > 90) {
+          sel.push({ name: "白米ご飯 少なめ（100g）", kcal: 156, p: 2.5, f: 0.3, c: 35.6, src: sel[0]?.src || "自炊" });
         }
 
         return sel;
@@ -676,12 +834,14 @@
       }
 
       const DAYS = ["月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日", "日曜日"];
+
       const sm = items => ({
         kcal: items.reduce((s, i) => s + i.kcal, 0),
         p: Math.round(items.reduce((s, i) => s + i.p, 0) * 10) / 10,
         f: Math.round(items.reduce((s, i) => s + i.f, 0) * 10) / 10,
         c: Math.round(items.reduce((s, i) => s + i.c, 0) * 10) / 10
       });
+
       const fmtItems = items => {
         if (!items.length) return [];
         const src = items[0]?.src;
@@ -724,6 +884,7 @@
         const tP = Math.round(Object.values(meals).reduce((s, m) => s + m.p, 0) * 10) / 10;
         const tF = Math.round(Object.values(meals).reduce((s, m) => s + m.f, 0) * 10) / 10;
         const tC = Math.round(Object.values(meals).reduce((s, m) => s + m.c, 0) * 10) / 10;
+
         return { day, meals, alcohol, totalKcal: tK, totalP: tP, totalF: tF, totalC: tC };
       });
 
@@ -740,167 +901,28 @@
       };
     }
 
-    let S = {
-      step: 0,
-      d: {
-        gender:"", age:"", height:"", weight:"", bodyFat:"",
-        job:"", exercise:"", exerciseFreq:"",
-        goal:"", targetWeight:"", targetBf:"", pace:"",
-        wakeTime:"07", sleepTime:"23", mealSplit:"",
-        drinkType:"", drinkAmount:"0", drinkFreq:"",
-        drinkAllowType:"", drinkAllowAmount:"0", drinkAllowFreq:"",
-        dislikedFoods:"", conv1:"", conv2:"",
-        restaurant1:"", restaurant2:"",
-        canCook:""
-      },
-      plan: null,
-      meal: null,
-      selDay: 0,
-      tab: "today",
-      log: {},
-      dailyDone: {},
-      water: {},
-      bodyLog: [],
-      favorites: [],
-      addMode: false,
-      addCat: "",
-      addTime: "",
-      foodSearch: ""
-    };
-
-    function save() {
-      try {
-        localStorage.setItem("meal-app", JSON.stringify({
-          d: S.d,
-          plan: S.plan,
-          meal: S.meal,
-          log: S.log,
-          dailyDone: S.dailyDone,
-          water: S.water,
-          bodyLog: S.bodyLog,
-          favorites: S.favorites,
-          tab: S.tab
-        }));
-      } catch(e) {}
-    }
-
-    function load() {
-      try {
-        const r = JSON.parse(localStorage.getItem("meal-app"));
-        if (!r) return;
-        if (r.d) S.d = r.d;
-        if (r.plan) S.plan = r.plan;
-        if (r.meal) { S.meal = r.meal; S.step = 10; }
-        if (r.log) S.log = r.log;
-        if (r.dailyDone) S.dailyDone = r.dailyDone;
-        if (r.water) S.water = r.water;
-        if (r.bodyLog) S.bodyLog = r.bodyLog;
-        if (r.favorites) S.favorites = r.favorites;
-        if (r.tab) S.tab = r.tab;
-      } catch(e) {}
-    }
-
-    function resetAll() {
-      localStorage.removeItem("meal-app");
-      S = {
-        step: 0,
-        d: {
-          gender:"", age:"", height:"", weight:"", bodyFat:"",
-          job:"", exercise:"", exerciseFreq:"",
-          goal:"", targetWeight:"", targetBf:"", pace:"",
-          wakeTime:"07", sleepTime:"23", mealSplit:"",
-          drinkType:"", drinkAmount:"0", drinkFreq:"",
-          drinkAllowType:"", drinkAllowAmount:"0", drinkAllowFreq:"",
-          dislikedFoods:"", conv1:"", conv2:"",
-          restaurant1:"", restaurant2:"",
-          canCook:""
-        },
-        plan: null,
-        meal: null,
-        selDay: 0,
-        tab: "today",
-        log: {},
-        dailyDone: {},
-        water: {},
-        bodyLog: [],
-        favorites: [],
-        addMode: false,
-        addCat: "",
-        addTime: "",
-        foodSearch: ""
-      };
-      render();
-    }
-
-    function upd(k, v) {
-      S.d[k] = v;
-      save();
-    }
-
-    function updR(k, v) {
-      S.d[k] = v;
-      save();
-      render();
-    }
-
-    function setStep(n) {
-      S.step = n;
-      render();
-    }
-
-    function setTab(t) {
-      S.tab = t;
-      S.addMode = false;
-      S.addCat = "";
-      S.foodSearch = "";
-      save();
-      render();
-    }
-
     function genMeal() {
       S.meal = genMealLocal(S.plan, S.d, allowDrinkKcal());
       S.selDay = 0;
       S.step = 10;
-      S.tab = "today";
+      S.tab = "daily";
       save();
       render();
     }
 
-    function progressBar(c, t) {
-      return '<div class="progress">' +
-        Array.from({length:t}).map((_, i) => '<div class="' + (i <= c ? 'active' : '') + '"></div>').join('') +
-      '</div>';
+    function getTodayIndex() {
+      const dayIdx = new Date().getDay();
+      return dayIdx === 0 ? 6 : dayIdx - 1;
     }
 
-    function titleBlock(icon, title, sub) {
-      return '<div style="margin-bottom:24px">' +
-        '<div class="title-icon">' + icon + '</div>' +
-        '<h2 class="title-h">' + title + '</h2>' +
-        (sub ? '<p class="title-sub">' + sub + '</p>' : '') +
-      '</div>';
+    function getTodayLabel() {
+      const dayIdx = new Date().getDay();
+      const DAYS = ["日","月","火","水","木","金","土"];
+      return `${new Date().getMonth()+1}/${new Date().getDate()}（${DAYS[dayIdx]}）`;
     }
 
-    function navBtns(backFn, nextFn, disabled, nextLabel) {
-      return '<div style="display:flex;gap:10px;margin-top:8px">' +
-        '<button class="btn-back" onclick="' + backFn + '">← 戻る</button>' +
-        '<button class="btn-next" ' + (disabled ? 'disabled' : '') + ' onclick="' + nextFn + '">' + (nextLabel || '次へ →') + '</button>' +
-      '</div>';
-    }
-
-    function tabBar() {
-      const tabs = [
-        { id: "profile", icon: "👤", label: "Profile" },
-        { id: "goal", icon: "🎯", label: "目標進捗" },
-        { id: "weekly", icon: "📅", label: "週間予定" },
-        { id: "today", icon: "📝", label: "本日予定" }
-      ];
-      return '<div class="tab-bar">' + tabs.map(t =>
-        '<button class="tab-btn" onclick="setTab(\'' + t.id + '\')">' +
-          '<span class="tab-icon" style="opacity:' + (S.tab === t.id ? '1' : '0.4') + '">' + t.icon + '</span>' +
-          '<span class="tab-label ' + (S.tab === t.id ? 'active' : '') + '">' + t.label + '</span>' +
-          (S.tab === t.id ? '<div class="tab-dot"></div>' : '') +
-        '</button>'
-      ).join('') + '</div>';
+    function todayWaterKey() {
+      return `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDate()}`;
     }
 
     function openAddFood(cat) {
@@ -918,45 +940,29 @@
       render();
     }
 
-    function updateSearch(v) {
-      S.foodSearch = v;
+    function addFoodItem(cat, item) {
+      const todayIdx = getTodayIndex();
+      if (!S.log[todayIdx]) S.log[todayIdx] = {};
+      if (!S.log[todayIdx].eaten) S.log[todayIdx].eaten = {};
+      if (!S.log[todayIdx].eaten[cat]) S.log[todayIdx].eaten[cat] = [];
+      S.log[todayIdx].eaten[cat].push(item);
+      S.addMode = false;
+      S.addCat = "";
+      S.foodSearch = "";
+      save();
       render();
     }
 
     function updateAddTime(v) {
       S.addTime = v;
-      save();
     }
 
-    function addFoodItem(cat, item) {
-      const dayIdx = new Date().getDay();
-      const todayIdx = dayIdx === 0 ? 6 : dayIdx - 1;
-
-      if (!S.log[todayIdx]) S.log[todayIdx] = {};
-      if (!S.log[todayIdx].eaten) S.log[todayIdx].eaten = {};
-      if (!S.log[todayIdx].eaten[cat]) S.log[todayIdx].eaten[cat] = [];
-
-      S.log[todayIdx].eaten[cat].push(item);
-      S.addMode = false;
-      S.addCat = "";
-      S.foodSearch = "";
-
-      save();
-      render();
-    }
-
-    function pickFood(cat, idx) {
+    function pickFood(cat, name) {
       const allFoods = getAllFoods();
-      const q = S.foodSearch.toLowerCase();
-      const results = allFoods.filter(f =>
-        f.name.toLowerCase().includes(q) || (f.cat || "").toLowerCase().includes(q)
-      ).slice(0, 12);
-      const f = results[idx];
+      const f = allFoods.find(x => x.name === name);
       if (!f) return;
-
       const isW = (f.cat || f.src || "").includes("🚨");
       const isD = (f.cat || "").includes("🍺");
-
       addFoodItem(cat, {
         name: f.name,
         kcal: f.kcal,
@@ -969,69 +975,48 @@
       });
     }
 
-    function toggleFav(idx) {
-      const allFoods = getAllFoods();
-      const q = S.foodSearch.toLowerCase();
-      const results = allFoods.filter(f =>
-        f.name.toLowerCase().includes(q) || (f.cat || "").toLowerCase().includes(q)
-      ).slice(0, 12);
-      const f = results[idx];
-      if (!f) return;
-
-      const existing = S.favorites.findIndex(x => x.name === f.name);
-      if (existing >= 0) {
-        S.favorites.splice(existing, 1);
-      } else {
-        const isW = (f.cat || f.src || "").includes("🚨");
-        const isD = (f.cat || "").includes("🍺");
-        S.favorites.push({
-          name: f.name,
-          kcal: f.kcal,
-          p: f.p,
-          f: f.f,
-          c: f.c,
-          warn: isW,
-          drink: isD
-        });
-      }
-      save();
-      render();
-    }
-
     function pickFav(cat, idx) {
       const f = S.favorites[idx];
       if (!f) return;
       addFoodItem(cat, { ...f, time: S.addTime });
     }
 
-    function addCustomFood(cat) {
-      const name = document.getElementById("cf-name")?.value;
-      if (!name) return;
+    function toggleFavByName(name) {
+      const allFoods = getAllFoods();
+      const f = allFoods.find(x => x.name === name);
+      if (!f) return;
+      const idx = S.favorites.findIndex(x => x.name === name);
+      if (idx >= 0) {
+        S.favorites.splice(idx, 1);
+      } else {
+        const isW = (f.cat || f.src || "").includes("🚨");
+        const isD = (f.cat || "").includes("🍺");
+        S.favorites.push({ name: f.name, kcal: f.kcal, p: f.p, f: f.f, c: f.c, warn: isW, drink: isD });
+      }
+      save();
+      const box = document.getElementById("food-search-results");
+      if (box) box.innerHTML = renderSearchResultsOnly();
+      const favBox = document.getElementById("fav-box-live");
+      if (favBox) favBox.innerHTML = renderFavoritesOnly();
+    }
 
+    function addCustomFood(cat) {
+      const name = document.getElementById("cf-name")?.value?.trim();
+      if (!name) return;
       const kcal = parseFloat(document.getElementById("cf-kcal")?.value) || 0;
       const p = parseFloat(document.getElementById("cf-p")?.value) || 0;
       const f = parseFloat(document.getElementById("cf-f")?.value) || 0;
       const c = parseFloat(document.getElementById("cf-c")?.value) || 0;
-
-      addFoodItem(cat, {
-        name,
-        kcal,
-        p,
-        f,
-        c,
-        time: S.addTime
-      });
+      addFoodItem(cat, { name, kcal, p, f, c, time: S.addTime });
     }
 
     function removeTodayItem(todayIdx, cat, idx) {
       const dayE = S.log[todayIdx]?.eaten || {};
       const arr = [...(dayE[cat] || [])];
       arr.splice(idx, 1);
-
       if (!S.log[todayIdx]) S.log[todayIdx] = {};
       if (!S.log[todayIdx].eaten) S.log[todayIdx].eaten = {};
       S.log[todayIdx].eaten[cat] = arr;
-
       save();
       render();
     }
@@ -1042,20 +1027,28 @@
       render();
     }
 
-    function addBodyLogToday() {
-      const bw = parseFloat(document.getElementById("bw-input-today")?.value);
-      const bf = parseFloat(document.getElementById("bf-input-today")?.value);
-      if (!bw) return;
-
-      S.bodyLog.push({
-        date: (new Date().getMonth() + 1) + '/' + new Date().getDate(),
-        w: bw,
-        bf: bf || 0
-      });
-
-      if (S.bodyLog.length > 12) S.bodyLog = S.bodyLog.slice(-12);
+    function setCheck(day, meal, sym) {
+      if (!S.log[day]) S.log[day] = {};
+      if (!S.log[day].checks) S.log[day].checks = {};
+      S.log[day].checks[meal] = sym;
       save();
       render();
+    }
+
+    function addBodyLog() {
+      const bw = parseFloat(document.getElementById("bw-input")?.value);
+      const bf = parseFloat(document.getElementById("bf-input")?.value);
+      if (!bw) return;
+      S.bodyLog.push({ date: `${new Date().getMonth()+1}/${new Date().getDate()}`, w: bw, bf: bf || 0 });
+      if (S.bodyLog.length > 24) S.bodyLog = S.bodyLog.slice(-24);
+      save();
+      render();
+    }
+
+    function setGoalActual(idx, val) {
+      if (!S.log.goalActuals) S.log.goalActuals = {};
+      S.log.goalActuals[idx] = val;
+      save();
     }
 
     function completeMeal(todayIdx) {
@@ -1074,26 +1067,26 @@
       const msgs = [];
       const kDiff = eK - tgtK;
       const pDiff = eP - (p?.proteinG || 0);
-      const cDiff = eC - (p?.carbG || 0);
       const fDiff = eF - (p?.fatG || 0);
+      const cDiff = eC - (p?.carbG || 0);
 
-      if (Math.abs(kDiff) <= tgtK * 0.05) msgs.push("🎉 カロリーほぼピッタリ！素晴らしいです。");
-      else if (kDiff > 0) msgs.push("⚡ 目標より" + kDiff + "kcal多めでした。明日は間食か夕食を少し軽めに。");
-      else msgs.push("📉 目標より" + Math.abs(kDiff) + "kcal少なめでした。" + (p.isCut ? "減量中なら大きな問題はありません。" : "もう少し食べてもOKです。"));
+      if (Math.abs(kDiff) <= tgtK * 0.05) msgs.push("🎉 カロリーほぼピッタリ！素晴らしいコントロールです。");
+      else if (kDiff > 0) msgs.push(`⚡ 目標より${kDiff}kcal多めでした。明日は間食を1つ減らすか、夕食を軽めにしてみましょう。`);
+      else msgs.push(`📉 目標より${Math.abs(kDiff)}kcal少なめでした。${p?.isCut ? "減量中なので問題なし！ただし極端な制限は避けましょう。" : "もう少し食べてOKです。特にタンパク質を意識して。"}`);
 
-      if (pDiff < -10) msgs.push("💪 タンパク質が" + Math.abs(Math.round(pDiff)) + "g不足。ゆで卵・サラダチキン・プロテイン追加がおすすめ。");
-      else if (pDiff >= 0) msgs.push("✅ タンパク質は目標達成です。");
+      if (pDiff < -10) msgs.push(`💪 タンパク質が${Math.abs(Math.round(pDiff))}g不足。明日はゆで卵やサラダチキンをプラスしましょう。`);
+      else if (pDiff >= 0) msgs.push("✅ タンパク質は目標達成！筋肉の維持に貢献しています。");
 
-      if (fDiff > 15) msgs.push("🫒 脂質がやや多め。揚げ物を焼き・蒸しへ置き換えると◎");
-      if (cDiff > 30) msgs.push("🍚 炭水化物が多め。夜のご飯量を少し減らすと整いやすいです。");
+      if (fDiff > 15) msgs.push(`🫒 脂質が${Math.round(fDiff)}g多め。揚げ物を蒸し・焼きに変えるとGood。`);
+      if (cDiff > 30) msgs.push(`🍚 炭水化物が多め。夜のご飯量を少し減らしてみましょう。`);
 
       const warns = allE.filter(e => e.warn);
-      if (warns.length > 0) msgs.push("⚠️ お菓子・スイーツを" + warns.length + "品摂取。次回はナッツや高タンパク間食も候補です。");
+      if (warns.length > 0) msgs.push(`⚠️ お菓子/スイーツを${warns.length}品摂りました。次回は代わりにプロテインバーやナッツを試してみては？`);
 
       const drinks = allE.filter(e => e.drink);
       if (drinks.length > 0) {
         const dk = drinks.reduce((s, e) => s + e.kcal, 0);
-        msgs.push("🍺 お酒で" + dk + "kcal。ハイボールや焼酎に寄せると調整しやすいです。");
+        msgs.push(`🍺 お酒で${dk}kcal。ハイボールや焼酎水割りに切り替えるとカロリーを抑えられます。`);
       }
 
       S.dailyDone[todayIdx] = msgs;
@@ -1107,70 +1100,96 @@
       render();
     }
 
-    function setGoalActual(idx, val) {
-      if (!S.log.goalActuals) S.log.goalActuals = {};
-      S.log.goalActuals[idx] = val;
-      save();
-      render();
+    function updateSearch(v) {
+      S.foodSearch = v;
+      const resultsBox = document.getElementById("food-search-results");
+      if (resultsBox) {
+        resultsBox.innerHTML = renderSearchResultsOnly();
+      }
     }
 
-    function renderAddPanel(cat) {
-      const q = S.foodSearch.toLowerCase();
+    function renderFavoritesOnly() {
+      if (!S.favorites.length) return "";
+      return `
+        <div style="font-size:10px;font-weight:700;color:#f39c12;margin-bottom:4px">⭐ お気に入り</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${S.favorites.map((fv, fi) => `
+            <button class="fav-tag" onclick="pickFav('${S.addCat}',${fi})">
+              ${esc(fv.name)} <span style="font-size:9px;color:#999">${fv.kcal}</span>
+            </button>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderSearchResultsOnly() {
+      const q = (S.foodSearch || "").toLowerCase().trim();
+      if (!q) return "";
+
       const allFoods = getAllFoods();
-      const results = q
-        ? allFoods.filter(f => f.name.toLowerCase().includes(q) || (f.cat || "").toLowerCase().includes(q)).slice(0, 12)
-        : [];
+      const results = allFoods.filter(f =>
+        f.name.toLowerCase().includes(q) ||
+        (f.cat || "").toLowerCase().includes(q) ||
+        (f.src || "").toLowerCase().includes(q)
+      ).slice(0, 20);
 
-      let h = '<div style="margin-top:8px;background:#f8faf9;border-radius:10px;padding:10px">';
-      h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
-        '<div style="font-size:11px;font-weight:700;color:#5a6e62;white-space:nowrap">🕐 時間</div>' +
-        '<input type="time" value="' + esc(S.addTime) + '" onchange="updateAddTime(this.value)" class="input" style="font-size:13px;padding:8px 10px;flex:1">' +
-      '</div>';
-
-      if (S.favorites.length > 0) {
-        h += '<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:#f39c12;margin-bottom:4px">⭐ お気に入り</div><div style="display:flex;flex-wrap:wrap;gap:4px">';
-        S.favorites.forEach((fv, fi) => {
-          h += '<button class="fav-tag" onclick="pickFav(\'' + cat + '\',' + fi + ')">' + esc(fv.name) + ' <span style="font-size:9px;color:#999">' + fv.kcal + '</span></button>';
-        });
-        h += '</div></div>';
-      }
-
-      h += '<input class="input" style="font-size:13px;padding:10px 12px;margin-bottom:6px" value="' + esc(S.foodSearch) + '" oninput="updateSearch(this.value)" placeholder="食品名で検索...">';
-
-      h += '<div style="max-height:220px;overflow-y:auto;margin-bottom:6px">';
-      results.forEach((f, i) => {
+      let h = "";
+      results.forEach(f => {
         const isW = (f.cat || f.src || "").includes("🚨");
         const isD = (f.cat || "").includes("🍺");
         const isFav = S.favorites.some(x => x.name === f.name);
         const bg = isW ? "#FFF5F5" : isD ? "#FFF8E1" : "#fff";
         const tc = isW ? "#c0392b" : isD ? "#E65100" : "#333";
 
-        h += '<div style="display:flex;gap:4px;margin-bottom:3px">';
-        h += '<button class="search-result" style="background:' + bg + '" onclick="pickFood(\'' + cat + '\',' + i + ')">' +
-          '<div style="font-size:12px;color:' + tc + ';font-weight:600">' + esc(f.name) + '</div>' +
-          '<div style="font-size:9px;color:#999">' + f.kcal + 'kcal P:' + f.p + 'g F:' + f.f + 'g C:' + f.c + 'g</div>' +
-        '</button>';
-        h += '<button style="width:30px;border-radius:6px;border:none;background:transparent;font-size:16px;color:' + (isFav ? '#f39c12' : '#ddd') + '" onclick="toggleFav(' + i + ')">' + (isFav ? '★' : '☆') + '</button>';
-        h += '</div>';
+        h += `
+          <div style="display:flex;gap:4px;margin-bottom:3px">
+            <button class="search-result" style="background:${bg}" onclick="pickFood('${S.addCat}','${esc(f.name)}')">
+              <div style="font-size:12px;color:${tc};font-weight:600">${esc(f.name)}</div>
+              <div style="font-size:9px;color:#999">${f.kcal}kcal P:${f.p}g F:${f.f}g C:${f.c}g</div>
+            </button>
+            <button
+              style="width:30px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-size:16px;color:${isFav ? '#f39c12' : '#ddd'}"
+              onclick="toggleFavByName('${esc(f.name)}')"
+            >${isFav ? "★" : "☆"}</button>
+          </div>
+        `;
       });
-      h += '</div>';
-
-      h += '<div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px">手入力</div>';
-      h += '<input id="cf-name" class="input" style="font-size:12px;padding:8px 10px;margin-bottom:4px" placeholder="品名">';
-      h += '<div style="display:flex;gap:4px;margin-bottom:6px">' +
-        '<input id="cf-kcal" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="kcal">' +
-        '<input id="cf-p" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="P">' +
-        '<input id="cf-f" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="F">' +
-        '<input id="cf-c" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="C">' +
-      '</div>';
-
-      h += '<div style="display:flex;gap:6px">' +
-        '<button style="flex:1;padding:8px;border-radius:8px;border:1px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:12px" onclick="closeAddFood()">閉じる</button>' +
-        '<button style="flex:1;padding:8px;border-radius:8px;border:none;background:#2d8a6e;color:#fff;font-weight:700;font-size:12px" onclick="addCustomFood(\'' + cat + '\')">追加</button>' +
-      '</div>';
-
-      h += '</div>';
       return h;
+    }
+
+    function renderAddPanel(cat) {
+      return `
+        <div style="margin-top:8px;background:#f8faf9;border-radius:10px;padding:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="font-size:11px;font-weight:700;color:#5a6e62;white-space:nowrap">🕐 時間</div>
+            <input type="time" value="${esc(S.addTime)}" onchange="updateAddTime(this.value)" class="input" style="font-size:13px;padding:8px 10px;flex:1">
+          </div>
+
+          <div id="fav-box-live" style="margin-bottom:${S.favorites.length ? '8px' : '0'}">
+            ${renderFavoritesOnly()}
+          </div>
+
+          <input id="food-search-input" class="input" style="font-size:13px;padding:10px 12px;margin-bottom:6px" value="${esc(S.foodSearch)}" oninput="updateSearch(this.value)" placeholder="食品名で検索...">
+
+          <div id="food-search-results" style="max-height:220px;overflow-y:auto;margin-bottom:6px">
+            ${renderSearchResultsOnly()}
+          </div>
+
+          <div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px;margin-top:4px">手入力</div>
+          <input id="cf-name" class="input" style="font-size:12px;padding:8px 10px;margin-bottom:4px" placeholder="品名">
+          <div style="display:flex;gap:4px;margin-bottom:6px">
+            <input id="cf-kcal" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="kcal">
+            <input id="cf-p" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="P">
+            <input id="cf-f" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="F">
+            <input id="cf-c" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="C">
+          </div>
+
+          <div style="display:flex;gap:6px">
+            <button style="flex:1;padding:8px;border-radius:8px;border:1px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:12px;cursor:pointer" onclick="closeAddFood()">閉じる</button>
+            <button style="flex:1;padding:8px;border-radius:8px;border:none;background:#2d8a6e;color:#fff;font-weight:700;font-size:12px;cursor:pointer" onclick="addCustomFood('${cat}')">追加</button>
+          </div>
+        </div>
+      `;
     }
 
     function render() {
@@ -1183,58 +1202,69 @@
         app.innerHTML =
           progressBar(0, 5) +
           titleBlock("📋", "基本情報", "あなたの体の情報を入力してください") +
-          '<div style="display:flex;flex-direction:column;gap:16px">' +
-            '<div><span class="label">性別</span><div style="display:flex;gap:10px">' +
-              '<button class="gender-btn ' + (d.gender === "male" ? "active" : "") + '" onclick="updR(\'gender\',\'male\')"><span style="font-size:28px">🙋‍♂️</span><span style="font-size:14px;font-weight:700;color:' + (d.gender === "male" ? '#2d8a6e' : '#888') + '">男性</span></button>' +
-              '<button class="gender-btn ' + (d.gender === "female" ? "active" : "") + '" onclick="updR(\'gender\',\'female\')"><span style="font-size:28px">🙋‍♀️</span><span style="font-size:14px;font-weight:700;color:' + (d.gender === "female" ? '#2d8a6e' : '#888') + '">女性</span></button>' +
-            '</div></div>' +
-            '<div><span class="label">年齢</span><input class="input" type="number" value="' + esc(d.age) + '" oninput="upd(\'age\',this.value)" onblur="render()" placeholder="例：35"></div>' +
-            '<div><span class="label">身長（cm）</span><input class="input" type="number" value="' + esc(d.height) + '" oninput="upd(\'height\',this.value)" onblur="render()" placeholder="例：170" step="0.1"></div>' +
-            '<div><span class="label">体重（kg）</span><input class="input" type="number" value="' + esc(d.weight) + '" oninput="upd(\'weight\',this.value)" onblur="render()" placeholder="例：75" step="0.1"></div>' +
-            '<div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="' + esc(d.bodyFat) + '" oninput="upd(\'bodyFat\',this.value)" onblur="render()" placeholder="例：25" step="0.1"></div>' +
-            (c.nW > 0 && c.nBf > 0
-              ? '<div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">' +
-                  '<div style="flex:1;text-align:center"><div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">' + c.lbm.toFixed(1) + 'kg</div></div>' +
-                  '<div style="width:1px;background:#c8ddd2"></div>' +
-                  '<div style="flex:1;text-align:center"><div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div><div style="font-size:20px;font-weight:800;color:#c0392b">' + c.fatM.toFixed(1) + 'kg</div></div>' +
-                '</div>'
-              : '') +
-            '<button class="btn-primary" ' + (cn ? '' : 'disabled') + ' onclick="setStep(1)">次へ →</button>' +
-          '</div>';
+          `
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div>
+              <span class="label">性別</span>
+              <div style="display:flex;gap:10px">
+                <button class="gender-btn ${d.gender==="male"?"active":""}" onclick="updR('gender','male')">
+                  <span style="font-size:28px">🙋‍♂️</span>
+                  <span style="font-size:14px;font-weight:700;color:${d.gender==="male"?"#2d8a6e":"#888"}">男性</span>
+                </button>
+                <button class="gender-btn ${d.gender==="female"?"active":""}" onclick="updR('gender','female')">
+                  <span style="font-size:28px">🙋‍♀️</span>
+                  <span style="font-size:14px;font-weight:700;color:${d.gender==="female"?"#2d8a6e":"#888"}">女性</span>
+                </button>
+              </div>
+            </div>
+
+            <div><span class="label">年齢</span><input class="input" type="number" value="${esc(d.age)}" oninput="upd('age',this.value)" onblur="render()" placeholder="例：35"></div>
+            <div><span class="label">身長（cm）</span><input class="input" type="number" value="${esc(d.height)}" oninput="upd('height',this.value)" onblur="render()" placeholder="例：170" step="0.1"></div>
+            <div><span class="label">体重（kg）</span><input class="input" type="number" value="${esc(d.weight)}" oninput="upd('weight',this.value)" onblur="render()" placeholder="例：75" step="0.1"></div>
+            <div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="${esc(d.bodyFat)}" oninput="upd('bodyFat',this.value)" onblur="render()" placeholder="例：25" step="0.1"></div>
+
+            ${c.nW > 0 && c.nBf > 0 ? `
+              <div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">
+                <div style="flex:1;text-align:center">
+                  <div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div>
+                  <div style="font-size:20px;font-weight:800;color:#2d8a6e">${c.lbm.toFixed(1)}kg</div>
+                </div>
+                <div style="width:1px;background:#c8ddd2"></div>
+                <div style="flex:1;text-align:center">
+                  <div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div>
+                  <div style="font-size:20px;font-weight:800;color:#c0392b">${c.fatM.toFixed(1)}kg</div>
+                </div>
+              </div>
+            ` : ""}
+
+            <button class="btn-primary" ${cn ? "" : "disabled"} onclick="setStep(1)">次へ →</button>
+          </div>
+        `;
         return;
       }
 
       if (S.step === 1) {
         const cn = d.job && d.exercise && (d.exercise === "なし" || d.exerciseFreq);
-        let h = progressBar(1,5) + titleBlock("💼","生活スタイル","仕事と運動について教えてください") + '<div style="display:flex;flex-direction:column;gap:16px">';
-        h += '<div><span class="label">仕事内容</span><select class="select" onchange="updR(\'job\',this.value)"><option value="">選択してください</option>';
-        JOBS.forEach(j => { h += '<option value="' + esc(j.label) + '" ' + (d.job === j.label ? 'selected' : '') + '>' + esc(j.label) + '</option>'; });
-        h += '</select></div>';
-        h += '<div><span class="label">運動項目</span><select class="select" onchange="updR(\'exercise\',this.value);if(this.value===\'なし\')upd(\'exerciseFreq\',\'\')"><option value="">選択してください</option>';
-        EXLIST.forEach(e => { h += '<option value="' + esc(e) + '" ' + (d.exercise === e ? 'selected' : '') + '>' + esc(e) + '</option>'; });
-        h += '</select></div>';
+        let h = progressBar(1, 5) + titleBlock("💼", "生活スタイル", "仕事と運動について教えてください") + `<div style="display:flex;flex-direction:column;gap:16px">`;
+        h += `<div><span class="label">仕事内容</span><select class="select" onchange="updR('job',this.value)"><option value="">選択してください</option>${JOBS.map(j=>`<option value="${esc(j.label)}" ${d.job===j.label?"selected":""}>${esc(j.label)}</option>`).join("")}</select></div>`;
+        h += `<div><span class="label">運動項目</span><select class="select" onchange="updR('exercise',this.value);if(this.value==='なし'){upd('exerciseFreq','');render()}"><option value="">選択してください</option>${EXLIST.map(e=>`<option value="${esc(e)}" ${d.exercise===e?"selected":""}>${esc(e)}</option>`).join("")}</select></div>`;
         if (d.exercise && d.exercise !== "なし") {
-          h += '<div><span class="label">運動頻度</span><select class="select" onchange="updR(\'exerciseFreq\',this.value)"><option value="">選択してください</option>';
-          FRQ.forEach(f => { h += '<option value="' + esc(f.label) + '" ' + (d.exerciseFreq === f.label ? 'selected' : '') + '>' + esc(f.label) + '</option>'; });
-          h += '</select></div>';
+          h += `<div><span class="label">運動頻度</span><select class="select" onchange="updR('exerciseFreq',this.value)"><option value="">選択してください</option>${FRQ.map(f=>`<option value="${esc(f.label)}" ${d.exerciseFreq===f.label?"selected":""}>${esc(f.label)}</option>`).join("")}</select></div>`;
         }
         if (c.tdee > 0) {
-          h += '<div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:18px 16px;text-align:center"><div style="font-size:11px;color:#5a6e62;font-weight:700;margin-bottom:6px">推定消費カロリー</div><div style="font-size:36px;font-weight:800;color:#2d8a6e">' + c.tdee + ' <span style="font-size:14px">kcal/日</span></div></div>';
+          h += `<div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:18px 16px;text-align:center"><div style="font-size:11px;color:#5a6e62;font-weight:700;margin-bottom:6px">推定消費カロリー</div><div style="font-size:36px;font-weight:800;color:#2d8a6e">${c.tdee} <span style="font-size:14px">kcal/日</span></div></div>`;
         }
-        h += navBtns('setStep(0)','setStep(2)',!cn) + '</div>';
+        h += navBtns(`setStep(0)`, `setStep(2)`, !cn) + `</div>`;
         app.innerHTML = h;
         return;
       }
 
       if (S.step === 2) {
-        let h = progressBar(2,5) + titleBlock("🎯","目標体型","どんな体を目指しますか？") + '<div style="display:flex;flex-direction:column;gap:12px">';
+        let h = progressBar(2, 5) + titleBlock("🎯", "目標体型", "どんな体を目指しますか？") + `<div style="display:flex;flex-direction:column;gap:12px">`;
         GLS.forEach(g => {
-          h += '<button class="goal-btn ' + (d.goal === g.id ? 'active' : '') + '" onclick="updR(\'goal\',\'' + g.id + '\');upd(\'targetWeight\',\'\');upd(\'targetBf\',\'\');upd(\'pace\',\'\')">' +
-            '<span style="font-size:32px">' + g.icon + '</span>' +
-            '<div><div style="font-size:16px;font-weight:800;color:' + (d.goal === g.id ? '#2d8a6e' : '#333') + '">' + g.label + '</div><div style="font-size:12px;color:#888">' + g.desc + '</div></div>' +
-          '</button>';
+          h += `<button class="goal-btn ${d.goal===g.id?"active":""}" onclick="updR('goal','${g.id}');upd('targetWeight','');upd('targetBf','');upd('pace','')"><span style="font-size:32px">${g.icon}</span><div><div style="font-size:16px;font-weight:800;color:${d.goal===g.id?"#2d8a6e":"#333"}">${g.label}</div><div style="font-size:12px;color:#888">${g.desc}</div></div></button>`;
         });
-        h += navBtns('setStep(1)','setStep(3)',!d.goal) + '</div>';
+        h += navBtns(`setStep(1)`, `setStep(3)`, !d.goal) + `</div>`;
         app.innerHTML = h;
         return;
       }
@@ -1242,31 +1272,37 @@
       if (S.step === 3) {
         const iM = d.goal === "maintain";
         const cn = iM || (d.targetWeight && d.targetBf);
-        let h = progressBar(3,5) + titleBlock("📐","具体的な目標", iM ? "現在の体型をキープ" : "目標の体重・体脂肪率を設定") + '<div style="display:flex;flex-direction:column;gap:16px">';
-        if (!iM) {
-          h += '<div><span class="label">目標体重（kg）</span><input class="input" type="number" value="' + esc(d.targetWeight) + '" oninput="upd(\'targetWeight\',this.value)" onblur="render()" placeholder="' + (d.goal === "cut" ? '例：' + Math.round(c.nW - 5) : '例：' + Math.round(c.nW + 5)) + '" step="0.1"></div>';
-          h += '<div><span class="label">目標体脂肪率（%）</span><input class="input" type="number" value="' + esc(d.targetBf) + '" oninput="upd(\'targetBf\',this.value)" onblur="render()" placeholder="例：15" step="0.1"></div>';
-        }
         const nextFn = iM
-          ? "upd('targetWeight','" + c.nW + "');upd('targetBf','" + c.nBf + "');upd('pace','0');setStep(4)"
-          : "setStep(4)";
-        h += navBtns('setStep(2)', nextFn, !cn && !iM) + '</div>';
-        app.innerHTML = h;
+          ? `upd('targetWeight','${c.nW}');upd('targetBf','${c.nBf}');upd('pace','0');setStep(4)`
+          : `setStep(4)`;
+
+        app.innerHTML =
+          progressBar(3, 5) +
+          titleBlock("📐", "具体的な目標", iM ? "現在の体型をキープ" : "目標の体重・体脂肪率を設定") +
+          `
+          <div style="display:flex;flex-direction:column;gap:16px">
+            ${!iM ? `
+              <div><span class="label">目標体重（kg）</span><input class="input" type="number" value="${esc(d.targetWeight)}" oninput="upd('targetWeight',this.value)" onblur="render()" placeholder="${d.goal==="cut" ? "例：" + Math.round(c.nW - 5) : "例：" + Math.round(c.nW + 5)}" step="0.1"></div>
+              <div><span class="label">目標体脂肪率（%）</span><input class="input" type="number" value="${esc(d.targetBf)}" oninput="upd('targetBf',this.value)" onblur="render()" placeholder="例：15" step="0.1"></div>
+            ` : ""}
+            ${navBtns(`setStep(2)`, nextFn, !cn && !iM)}
+          </div>
+        `;
         return;
       }
 
       if (S.step === 4) {
-        if (d.goal === "maintain") {
-          genPlan();
-          return;
-        }
+        if (d.goal === "maintain") { genPlan(); return; }
         const po = d.goal === "cut" ? PCut : PBulk;
-        let h = progressBar(4,5) + titleBlock("⏱️","ペース設定", d.goal === "cut" ? "月にどのくらい減量？" : "月にどのくらい増量？") + '<div style="display:flex;flex-direction:column;gap:10px">';
-        po.forEach(p => {
-          h += '<button class="pace-btn ' + (d.pace === String(p.v) ? 'active' : '') + '" onclick="updR(\'pace\',\'' + p.v + '\')">' + p.label + '</button>';
-        });
-        h += navBtns('setStep(3)','genPlan()',!d.pace,'プラン作成 🚀') + '</div>';
-        app.innerHTML = h;
+        app.innerHTML =
+          progressBar(4, 5) +
+          titleBlock("⏱️", "ペース設定", d.goal === "cut" ? "月にどのくらい減量？" : "月にどのくらい増量？") +
+          `
+          <div style="display:flex;flex-direction:column;gap:10px">
+            ${po.map(p => `<button class="pace-btn ${d.pace===String(p.v)?"active":""}" onclick="updR('pace','${p.v}')">${p.label}</button>`).join("")}
+            ${navBtns(`setStep(3)`, `genPlan()`, !d.pace, "プラン作成 🚀")}
+          </div>
+        `;
         return;
       }
 
@@ -1275,45 +1311,78 @@
         const pP = Math.round(p.proteinG * 4 / p.actualCal * 100);
         const fP = Math.round(p.fatG * 9 / p.actualCal * 100);
         const cP = 100 - pP - fP;
-        let h = '<div style="text-align:center;margin-bottom:20px"><div style="font-size:40px;margin-bottom:8px">✅</div><h2 style="font-size:22px;font-weight:800;color:#1a2e23">あなたのプラン</h2></div>';
-        h += '<div class="card"><div class="card-title">📊 体組成の変化</div><div style="display:flex;gap:8px"><div style="flex:1;background:#f4f6f5;border-radius:12px;padding:12px;text-align:center"><div style="font-size:9px;color:#888">現在</div><div style="font-size:20px;font-weight:800">' + p.currentWeight + 'kg</div><div style="font-size:11px;color:#888">体脂肪' + p.currentBf + '%</div></div><div style="display:flex;align-items:center;font-size:20px;color:#2d8a6e">→</div><div style="flex:1;background:#edf7f2;border-radius:12px;padding:12px;text-align:center"><div style="font-size:9px;color:#2d8a6e">目標</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">' + p.targetWeight + 'kg</div><div style="font-size:11px;color:#5a6e62">体脂肪' + p.targetBf + '%</div></div></div></div>';
-        h += '<div class="card"><div class="card-title">🔥 1日のカロリー</div><div style="text-align:center"><div style="font-size:11px;color:#888">消費 ' + p.tdee + ' kcal → 摂取目標</div><div style="font-size:42px;font-weight:800;color:#1a2e23">' + p.dailyCal + ' <span style="font-size:16px;color:#888">kcal</span></div></div></div>';
-        h += '<div class="card"><div class="card-title">🥗 PFCバランス</div><div class="pfc-bar"><div style="width:' + pP + '%;background:#e74c3c"></div><div style="width:' + fP + '%;background:#f39c12"></div><div style="width:' + cP + '%;background:#2ecc71"></div></div>';
-        h += '<div style="display:flex;gap:8px">';
-        [
-          { l:"タンパク質", g:p.proteinG, pct:pP, c:"#e74c3c" },
-          { l:"脂質", g:p.fatG, pct:fP, c:"#f39c12" },
-          { l:"炭水化物", g:p.carbG, pct:cP, c:"#2ecc71" }
-        ].forEach(i => {
-          h += '<div style="flex:1;background:#f8faf9;border-radius:12px;padding:12px 8px;text-align:center"><div style="width:8px;height:8px;border-radius:50%;background:' + i.c + ';margin:0 auto 6px"></div><div style="font-size:10px;color:#888">' + i.l + '</div><div style="font-size:20px;font-weight:800">' + i.g + 'g</div><div style="font-size:10px;color:#aaa">' + i.pct + '%</div></div>';
-        });
-        h += '</div></div>';
-        h += '<div class="card" style="text-align:center"><div style="font-size:16px;font-weight:800;color:#1a2e23;margin-bottom:4px">🍽️ 食事メニューの作成</div><div style="font-size:12px;color:#7a8f82;margin-bottom:14px">生活リズムや好みに合わせた食事プラン</div><button class="btn-primary" onclick="setStep(6)">Step 2 へ進む →</button></div>';
-        h += '<button style="width:100%;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:14px;margin-top:4px" onclick="resetAll()">最初からやり直す</button>';
-        app.innerHTML = h;
+        app.innerHTML = `
+          <div style="text-align:center;margin-bottom:20px">
+            <div style="font-size:40px;margin-bottom:8px">✅</div>
+            <h2 style="font-size:22px;font-weight:800;color:#1a2e23">あなたのプラン</h2>
+          </div>
+
+          <div class="card">
+            <div class="card-title">📊 体組成の変化</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;background:#f4f6f5;border-radius:12px;padding:12px;text-align:center">
+                <div style="font-size:9px;color:#888">現在</div>
+                <div style="font-size:20px;font-weight:800">${p.currentWeight}kg</div>
+                <div style="font-size:11px;color:#888">体脂肪${p.currentBf}%</div>
+              </div>
+              <div style="display:flex;align-items:center;font-size:20px;color:#2d8a6e">→</div>
+              <div style="flex:1;background:#edf7f2;border-radius:12px;padding:12px;text-align:center">
+                <div style="font-size:9px;color:#2d8a6e">目標</div>
+                <div style="font-size:20px;font-weight:800;color:#2d8a6e">${p.targetWeight}kg</div>
+                <div style="font-size:11px;color:#5a6e62">体脂肪${p.targetBf}%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">🔥 1日のカロリー</div>
+            <div style="text-align:center">
+              <div style="font-size:11px;color:#888">消費 ${p.tdee} kcal → 摂取目標</div>
+              <div style="font-size:42px;font-weight:800;color:#1a2e23">${p.dailyCal} <span style="font-size:16px;color:#888">kcal</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">🥗 PFCバランス</div>
+            <div class="pfc-bar">
+              <div style="width:${pP}%;background:#e74c3c"></div>
+              <div style="width:${fP}%;background:#f39c12"></div>
+              <div style="width:${cP}%;background:#2ecc71"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              ${[
+                { l: "タンパク質", g: p.proteinG, p: pP, c: "#e74c3c" },
+                { l: "脂質", g: p.fatG, p: fP, c: "#f39c12" },
+                { l: "炭水化物", g: p.carbG, p: cP, c: "#2ecc71" }
+              ].map(i => `
+                <div style="flex:1;background:#f8faf9;border-radius:12px;padding:12px 8px;text-align:center">
+                  <div style="width:8px;height:8px;border-radius:50%;background:${i.c};margin:0 auto 6px"></div>
+                  <div style="font-size:10px;color:#888">${i.l}</div>
+                  <div style="font-size:20px;font-weight:800">${i.g}g</div>
+                  <div style="font-size:10px;color:#aaa">${i.p}%</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="card" style="text-align:center">
+            <div style="font-size:16px;font-weight:800;color:#1a2e23;margin-bottom:4px">🍽️ 食事メニューの作成</div>
+            <div style="font-size:12px;color:#7a8f82;margin-bottom:14px">生活リズムや好みに合わせた食事プラン</div>
+            <button class="btn-primary" onclick="setStep(6)">Step 2 へ進む →</button>
+          </div>
+
+          <button style="width:100%;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px" onclick="resetAll()">最初からやり直す</button>
+        `;
         return;
       }
 
       if (S.step === 6) {
         const cn = d.wakeTime && d.sleepTime && d.mealSplit;
-        let h = progressBar(0,4) + '<div class="s2-badge">STEP 2</div>' + titleBlock("⏰","生活リズム","起床・就寝時間と食事回数") + '<div style="display:flex;flex-direction:column;gap:16px">';
-        h += '<div><span class="label">起床時間</span><select class="select" onchange="updR(\'wakeTime\',this.value)">';
-        for (let i = 4; i < 16; i++) {
-          h += '<option value="' + i + '" ' + (d.wakeTime == String(i) ? 'selected' : '') + '>' + String(i).padStart(2,'0') + ':00</option>';
-        }
-        h += '</select></div>';
-        h += '<div><span class="label">就寝時間</span><select class="select" onchange="updR(\'sleepTime\',this.value)">';
-        for (let i = 20; i < 30; i++) {
-          const v = i > 23 ? i - 24 : i;
-          h += '<option value="' + v + '" ' + (d.sleepTime == String(v) ? 'selected' : '') + '>' + String(v).padStart(2,'0') + ':00</option>';
-        }
-        h += '</select></div>';
-        h += '<div><span class="label">食事回数</span><div style="display:flex;flex-direction:column;gap:8px">';
-        MSplits.forEach(m => {
-          h += '<button class="split-btn ' + (d.mealSplit === m.id ? 'active' : '') + '" onclick="updR(\'mealSplit\',\'' + m.id + '\')"><span style="font-size:22px">' + m.icon + '</span> ' + m.label + '</button>';
-        });
-        h += '</div></div>';
-        h += navBtns('setStep(5)','setStep(7)',!cn) + '</div>';
+        let h = progressBar(0, 4) + `<div class="s2-badge">STEP 2</div>` + titleBlock("⏰", "生活リズム", "起床・就寝時間と食事回数") + `<div style="display:flex;flex-direction:column;gap:16px">`;
+        h += `<div><span class="label">起床時間</span><select class="select" onchange="updR('wakeTime',this.value)">${Array.from({length:12},(_,i)=>i+4).map(h=>`<option value="${h}" ${d.wakeTime==String(h)?"selected":""}>${String(h).padStart(2,"0")}:00</option>`).join("")}</select></div>`;
+        h += `<div><span class="label">就寝時間</span><select class="select" onchange="updR('sleepTime',this.value)">${Array.from({length:10},(_,i)=>i+20).map(h=>{const v=h>23?h-24:h;return `<option value="${v}" ${d.sleepTime==String(v)?"selected":""}>${String(v).padStart(2,"0")}:00</option>`;}).join("")}</select></div>`;
+        h += `<div><span class="label">食事回数</span><div style="display:flex;flex-direction:column;gap:8px">${MSplits.map(m=>`<button class="split-btn ${d.mealSplit===m.id?"active":""}" onclick="updR('mealSplit','${m.id}')"><span style="font-size:22px">${m.icon}</span> ${m.label}</button>`).join("")}</div></div>`;
+        h += navBtns(`setStep(5)`, `setStep(7)`, !cn) + `</div>`;
         app.innerHTML = h;
         return;
       }
@@ -1324,185 +1393,248 @@
         const shA = cn && !nD;
         const nAD = d.drinkAllowFreq === "飲まない";
         const aR = nD || (d.drinkAllowFreq && (nAD || (d.drinkAllowType && parseInt(d.drinkAllowAmount) > 0)));
-        let h = progressBar(1,4) + '<div class="s2-badge">STEP 2</div>' + titleBlock("🍺","お酒について","現在の飲酒量と目標中の許容量") + '<div style="display:flex;flex-direction:column;gap:16px">';
-        h += '<div style="background:#fff;border-radius:16px;padding:16px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;color:#1a2e23;margin-bottom:12px">📊 現在の飲酒量</div>';
-        h += '<div><span class="label">飲む頻度</span><select class="select" onchange="updR(\'drinkFreq\',this.value);if(this.value===\'飲まない\'){upd(\'drinkType\',\'\');upd(\'drinkAmount\',\'0\');upd(\'drinkAllowFreq\',\'飲まない\');upd(\'drinkAllowType\',\'\');upd(\'drinkAllowAmount\',\'0\')}"><option value="">選択してください</option>';
-        DF.forEach(f => { h += '<option value="' + esc(f) + '" ' + (d.drinkFreq === f ? 'selected' : '') + '>' + esc(f) + '</option>'; });
-        h += '</select></div>';
+
+        let h = progressBar(1, 4) + `<div class="s2-badge">STEP 2</div>` + titleBlock("🍺", "お酒について", "現在の飲酒量と目標中の許容量") + `<div style="display:flex;flex-direction:column;gap:16px">`;
+        h += `<div style="background:#fff;border-radius:16px;padding:16px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;color:#1a2e23;margin-bottom:12px">📊 現在の飲酒量</div>`;
+        h += `<div><span class="label">飲む頻度</span><select class="select" onchange="updR('drinkFreq',this.value);if(this.value==='飲まない'){upd('drinkType','');upd('drinkAmount','0');upd('drinkAllowFreq','飲まない');upd('drinkAllowType','');upd('drinkAllowAmount','0');render()}"><option value="">選択してください</option>${DF.map(f=>`<option value="${esc(f)}" ${d.drinkFreq===f?"selected":""}>${esc(f)}</option>`).join("")}</select></div>`;
         if (!nD && d.drinkFreq) {
-          h += '<div style="margin-top:12px"><span class="label">よく飲むお酒</span><select class="select" onchange="updR(\'drinkType\',this.value)"><option value="">選択してください</option>';
-          DRINK_TYPES.forEach(t => { h += '<option value="' + esc(t.label) + '" ' + (d.drinkType === t.label ? 'selected' : '') + '>' + esc(t.label) + '（約' + t.kcal + 'kcal）</option>'; });
-          h += '</select></div>';
-          h += '<div style="margin-top:12px"><span class="label">1回に飲む量</span><input class="input" type="number" value="' + esc(d.drinkAmount) + '" oninput="upd(\'drinkAmount\',this.value)" onblur="render()" placeholder="例：2" min="0"></div>';
+          h += `<div style="margin-top:12px"><span class="label">よく飲むお酒</span><select class="select" onchange="updR('drinkType',this.value)"><option value="">選択してください</option>${DRINK_TYPES.map(t=>`<option value="${esc(t.label)}" ${d.drinkType===t.label?"selected":""}>${esc(t.label)}（約${t.kcal}kcal）</option>`).join("")}</select></div>`;
+          h += `<div style="margin-top:12px"><span class="label">1回に飲む量</span><input class="input" type="number" value="${esc(d.drinkAmount)}" oninput="upd('drinkAmount',this.value)" onblur="render()" placeholder="例：2" min="0"></div>`;
         }
         const cDK = curDrinkKcal();
         if (cDK > 0) {
           const dt = DRINK_TYPES.find(t => t.label === d.drinkType);
           const perT = dt ? dt.kcal * (parseInt(d.drinkAmount) || 0) : 0;
-          h += '<div style="background:#FFF5F5;border-radius:12px;padding:12px;text-align:center;margin-top:12px"><div style="font-size:11px;color:#c0392b;font-weight:600">飲む日1回あたり</div><div style="font-size:24px;font-weight:800;color:#c0392b">' + perT + ' kcal</div><div style="font-size:10px;color:#888;margin-top:4px">1日平均 ' + cDK + ' kcal</div></div>';
+          h += `<div style="background:#FFF5F5;border-radius:12px;padding:12px;text-align:center;margin-top:12px"><div style="font-size:11px;color:#c0392b;font-weight:600">飲む日1回あたり</div><div style="font-size:24px;font-weight:800;color:#c0392b">${perT} kcal</div><div style="font-size:10px;color:#888;margin-top:4px">1日平均 ${cDK} kcal</div></div>`;
         }
-        h += '</div>';
+        h += `</div>`;
 
         if (shA) {
-          h += '<div style="background:#fff;border-radius:16px;padding:16px;border:2px solid #2d8a6e20"><div style="font-size:13px;font-weight:800;color:#2d8a6e;margin-bottom:12px">🎯 目標期間中の許容量</div>';
-          h += '<div><span class="label">頻度</span><select class="select" onchange="updR(\'drinkAllowFreq\',this.value);if(this.value===\'飲まない\'){upd(\'drinkAllowType\',\'\');upd(\'drinkAllowAmount\',\'0\')}"><option value="">選択してください</option>';
-          DF.forEach(f => { h += '<option value="' + esc(f) + '" ' + (d.drinkAllowFreq === f ? 'selected' : '') + '>' + esc(f) + '</option>'; });
-          h += '</select></div>';
+          h += `<div style="background:#fff;border-radius:16px;padding:16px;border:2px solid rgba(45,138,110,.12)"><div style="font-size:13px;font-weight:800;color:#2d8a6e;margin-bottom:12px">🎯 目標期間中の許容量</div>`;
+          h += `<div><span class="label">頻度</span><select class="select" onchange="updR('drinkAllowFreq',this.value);if(this.value==='飲まない'){upd('drinkAllowType','');upd('drinkAllowAmount','0');render()}"><option value="">選択してください</option>${DF.map(f=>`<option value="${esc(f)}" ${d.drinkAllowFreq===f?"selected":""}>${esc(f)}</option>`).join("")}</select></div>`;
           if (d.drinkAllowFreq && !nAD) {
-            h += '<div style="margin-top:12px"><span class="label">お酒の種類</span><select class="select" onchange="updR(\'drinkAllowType\',this.value)"><option value="">選択してください</option>';
-            DRINK_TYPES.forEach(t => { h += '<option value="' + esc(t.label) + '" ' + (d.drinkAllowType === t.label ? 'selected' : '') + '>' + esc(t.label) + '</option>'; });
-            h += '</select></div>';
-            h += '<div style="margin-top:12px"><span class="label">1回の量</span><input class="input" type="number" value="' + esc(d.drinkAllowAmount) + '" oninput="upd(\'drinkAllowAmount\',this.value)" onblur="render()" placeholder="例：1" min="0"></div>';
+            h += `<div style="margin-top:12px"><span class="label">お酒の種類</span><select class="select" onchange="updR('drinkAllowType',this.value)"><option value="">選択してください</option>${DRINK_TYPES.map(t=>`<option value="${esc(t.label)}" ${d.drinkAllowType===t.label?"selected":""}>${esc(t.label)}</option>`).join("")}</select></div>`;
+            h += `<div style="margin-top:12px"><span class="label">1回の量</span><input class="input" type="number" value="${esc(d.drinkAllowAmount)}" oninput="upd('drinkAllowAmount',this.value)" onblur="render()" placeholder="例：1" min="0"></div>`;
           }
           if (nAD) {
-            h += '<div style="background:#edf7f2;border-radius:12px;padding:12px;text-align:center;margin-top:12px"><div style="font-size:13px;font-weight:700;color:#2d8a6e">💪 禁酒で目標達成を加速！</div></div>';
+            h += `<div style="background:#edf7f2;border-radius:12px;padding:12px;text-align:center;margin-top:12px"><div style="font-size:13px;font-weight:700;color:#2d8a6e">💪 禁酒で目標達成を加速！</div></div>`;
           }
-          h += '</div>';
+          h += `</div>`;
         }
-
-        h += navBtns('setStep(6)','setStep(8)',!aR) + '</div>';
+        h += navBtns(`setStep(6)`, `setStep(8)`, !aR) + `</div>`;
         app.innerHTML = h;
         return;
       }
 
       if (S.step === 8) {
-        let h = progressBar(2,4) + '<div class="s2-badge">STEP 2</div>' + titleBlock("🥕","食の好み","苦手な食材と調理について") + '<div style="display:flex;flex-direction:column;gap:16px">';
-        h += '<div><span class="label">苦手な食材・アレルギー</span><input class="input" value="' + esc(d.dislikedFoods) + '" oninput="upd(\'dislikedFoods\',this.value)" onblur="render()" placeholder="例：セロリ、レバー"><p style="font-size:11px;color:#999;margin:6px 0 0">カンマ区切り。なければ空欄OK</p></div>';
-        h += '<div><span class="label">調理できますか？</span><div style="display:flex;flex-direction:column;gap:8px">';
-        [["yes","👨‍🍳","自炊できる"],["some","🍳","簡単なものなら"],["no","🛒","買うだけ"]].forEach(([id, ic, lb]) => {
-          h += '<button class="cook-btn ' + (d.canCook === id ? 'active' : '') + '" onclick="updR(\'canCook\',\'' + id + '\')"><span style="font-size:24px">' + ic + '</span><span style="font-size:14px;font-weight:700;color:' + (d.canCook === id ? '#2d8a6e' : '#333') + '">' + lb + '</span></button>';
-        });
-        h += '</div></div>';
-        h += navBtns('setStep(7)','setStep(9)',!d.canCook) + '</div>';
-        app.innerHTML = h;
+        app.innerHTML =
+          progressBar(2, 4) +
+          `<div class="s2-badge">STEP 2</div>` +
+          titleBlock("🥕", "食の好み", "苦手な食材と調理について") +
+          `
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div>
+              <span class="label">苦手な食材・アレルギー</span>
+              <input class="input" value="${esc(d.dislikedFoods)}" oninput="upd('dislikedFoods',this.value)" onblur="render()" placeholder="例：セロリ、レバー">
+              <p style="font-size:11px;color:#999;margin:6px 0 0">カンマ区切り。なければ空欄OK</p>
+            </div>
+
+            <div>
+              <span class="label">調理できますか？</span>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                ${[
+                  ["yes","👨‍🍳","自炊できる"],
+                  ["some","🍳","簡単なものなら"],
+                  ["no","🛒","買うだけ"]
+                ].map(([id,ic,lb]) => `
+                  <button class="cook-btn ${d.canCook===id?"active":""}" onclick="updR('canCook','${id}')">
+                    <span style="font-size:24px">${ic}</span>
+                    <span style="font-size:14px;font-weight:700;color:${d.canCook===id?"#2d8a6e":"#333"}">${lb}</span>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            ${navBtns(`setStep(7)`, `setStep(9)`, !d.canCook)}
+          </div>
+        `;
         return;
       }
 
       if (S.step === 9) {
-        let h = progressBar(3,4) + '<div class="s2-badge">STEP 2</div>' + titleBlock("🏪","よく使うお店","メニュー提案の参考にします") + '<div style="display:flex;flex-direction:column;gap:16px">';
-        h += '<div style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;margin-bottom:10px">🏪 コンビニ</div>';
-        h += '<select class="select" onchange="updR(\'conv1\',this.value)"><option value="">1店目</option>';
-        CVS.forEach(s => { h += '<option value="' + esc(s) + '" ' + (d.conv1 === s ? 'selected' : '') + '>' + esc(s) + '</option>'; });
-        h += '</select>';
-        h += '<select class="select" style="margin-top:8px" onchange="updR(\'conv2\',this.value)"><option value="">2店目（任意）</option>';
-        CVS.filter(s => s !== d.conv1).forEach(s => { h += '<option value="' + esc(s) + '" ' + (d.conv2 === s ? 'selected' : '') + '>' + esc(s) + '</option>'; });
-        h += '</select></div>';
+        app.innerHTML =
+          progressBar(3, 4) +
+          `<div class="s2-badge">STEP 2</div>` +
+          titleBlock("🏪", "よく使うお店", "メニュー提案の参考にします") +
+          `
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e8ece9">
+              <div style="font-size:13px;font-weight:800;margin-bottom:10px">🏪 コンビニ</div>
+              <select class="select" onchange="updR('conv1',this.value)">
+                <option value="">1店目</option>
+                ${CVS.map(s=>`<option value="${esc(s)}" ${d.conv1===s?"selected":""}>${esc(s)}</option>`).join("")}
+              </select>
+              <select class="select" style="margin-top:8px" onchange="updR('conv2',this.value)">
+                <option value="">2店目（任意）</option>
+                ${CVS.filter(s=>s!==d.conv1).map(s=>`<option value="${esc(s)}" ${d.conv2===s?"selected":""}>${esc(s)}</option>`).join("")}
+              </select>
+            </div>
 
-        h += '<div style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;margin-bottom:10px">🍜 飲食店</div>';
-        h += '<input class="input" value="' + esc(d.restaurant1) + '" oninput="upd(\'restaurant1\',this.value)" onblur="render()" placeholder="例：吉野家">';
-        h += '<input class="input" style="margin-top:8px" value="' + esc(d.restaurant2) + '" oninput="upd(\'restaurant2\',this.value)" onblur="render()" placeholder="例：松屋（任意）"></div>';
+            <div style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e8ece9">
+              <div style="font-size:13px;font-weight:800;margin-bottom:10px">🍜 飲食店</div>
+              <input class="input" value="${esc(d.restaurant1)}" oninput="upd('restaurant1',this.value)" onblur="render()" placeholder="例：吉野家">
+              <input class="input" style="margin-top:8px" value="${esc(d.restaurant2)}" oninput="upd('restaurant2',this.value)" onblur="render()" placeholder="例：松屋（任意）">
+            </div>
 
-        h += navBtns('setStep(8)','genMeal()',false,'🍽️ メニューを作成！') + '</div>';
-        app.innerHTML = h;
+            ${navBtns(`setStep(8)`, `genMeal()`, false, "🍽️ メニューを作成！")}
+          </div>
+        `;
         return;
       }
 
       if (S.step === 10 && S.meal) {
         const p = S.plan;
+        const dd = S.meal.weeklyPlan[S.selDay];
+        const moKeys = MO.filter(k => dd?.meals?.[k]);
 
         if (S.tab === "profile") {
-          let h = '<div style="text-align:center;margin-bottom:16px"><div style="font-size:32px">👤</div><h2 style="font-size:20px;font-weight:800;color:#1a2e23">Profile</h2><div style="font-size:12px;color:#7a8f82">個人情報・アンケート情報</div></div>';
+          app.innerHTML = `
+            <div style="text-align:center;margin-bottom:16px">
+              <div style="font-size:32px">👤</div>
+              <h2 style="font-size:20px;font-weight:800;color:#1a2e23">Profile</h2>
+            </div>
 
-          h += '<div class="card"><div class="card-title">基本情報</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;color:#333">';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">性別<br><b>' + (S.d.gender === "male" ? '男性' : S.d.gender === "female" ? '女性' : '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">年齢<br><b>' + (S.d.age || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">身長<br><b>' + (S.d.height || '-') + ' cm</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">体重<br><b>' + (S.d.weight || '-') + ' kg</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">体脂肪率<br><b>' + (S.d.bodyFat || '-') + ' %</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">除脂肪体重<br><b>' + (c.lbm ? c.lbm.toFixed(1) : '-') + ' kg</b></div>';
-          h += '</div></div>';
+            <div class="card">
+              <div class="card-title">基本情報</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="list-chip">性別：${d.gender==="male"?"男性":d.gender==="female"?"女性":"-"}</div>
+                <div class="list-chip">年齢：${d.age || "-"}歳</div>
+                <div class="list-chip">身長：${d.height || "-"}cm</div>
+                <div class="list-chip">体重：${d.weight || "-"}kg</div>
+                <div class="list-chip">体脂肪：${d.bodyFat || "-"}%</div>
+                <div class="list-chip">起床：${String(d.wakeTime).padStart(2,"0")}:00</div>
+                <div class="list-chip">就寝：${String(d.sleepTime).padStart(2,"0")}:00</div>
+                <div class="list-chip">食事回数：${MSplits.find(x=>x.id===d.mealSplit)?.label || "-"}</div>
+              </div>
+            </div>
 
-          h += '<div class="card"><div class="card-title">生活・活動情報</div><div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#333">';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">仕事内容：<b>' + (S.d.job || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">運動：<b>' + (S.d.exercise || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">運動頻度：<b>' + (S.d.exerciseFreq || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">起床時間：<b>' + (S.d.wakeTime || '-') + ':00</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">就寝時間：<b>' + (S.d.sleepTime || '-') + ':00</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">食事回数：<b>' + (
-            S.d.mealSplit === '3meals' ? '朝・昼・夜の3食' :
-            S.d.mealSplit === '3meals1snack' ? '3食＋間食1回' :
-            S.d.mealSplit === '3meals2snack' ? '3食＋間食2回' : '-'
-          ) + '</b></div>';
-          h += '</div></div>';
+            <div class="card">
+              <div class="card-title">生活・アンケート情報</div>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#444;line-height:1.6">
+                <div><strong>仕事内容：</strong>${esc(d.job || "-")}</div>
+                <div><strong>運動：</strong>${esc(d.exercise || "-")} ${d.exerciseFreq ? `（${esc(d.exerciseFreq)}）` : ""}</div>
+                <div><strong>目標：</strong>${GLS.find(x=>x.id===d.goal)?.label || "-"}</div>
+                <div><strong>目標体重：</strong>${esc(d.targetWeight || "-")}kg</div>
+                <div><strong>目標体脂肪率：</strong>${esc(d.targetBf || "-")}%</div>
+                <div><strong>調理：</strong>${d.canCook==="yes"?"自炊できる":d.canCook==="some"?"簡単なものなら":"買うだけ"}</div>
+                <div><strong>苦手食材：</strong>${esc(d.dislikedFoods || "なし")}</div>
+                <div><strong>コンビニ：</strong>${[d.conv1,d.conv2].filter(Boolean).join(" / ") || "-"}</div>
+                <div><strong>飲食店：</strong>${[d.restaurant1,d.restaurant2].filter(Boolean).join(" / ") || "-"}</div>
+              </div>
+            </div>
 
-          h += '<div class="card"><div class="card-title">食の好み・利用店</div><div style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#333">';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">苦手食材：<b>' + (S.d.dislikedFoods || 'なし') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">調理：<b>' + (
-            S.d.canCook === 'yes' ? '自炊できる' :
-            S.d.canCook === 'some' ? '簡単なものなら' :
-            S.d.canCook === 'no' ? '買うだけ' : '-'
-          ) + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">コンビニ①：<b>' + (S.d.conv1 || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">コンビニ②：<b>' + (S.d.conv2 || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">飲食店①：<b>' + (S.d.restaurant1 || '-') + '</b></div>';
-          h += '<div style="background:#f8faf9;padding:10px;border-radius:10px">飲食店②：<b>' + (S.d.restaurant2 || '-') + '</b></div>';
-          h += '</div></div>';
+            <div class="card">
+              <div class="card-title">編集</div>
+              <button class="btn-primary" onclick="setStep(0)">プロフィールを再編集する</button>
+            </div>
 
-          h += '<button class="btn-primary" onclick="S.step=0;save();render()">プロフィールを見直す</button>';
-          app.innerHTML = h + tabBar();
+            ${tabBar()}
+          `;
           return;
         }
 
         if (S.tab === "goal") {
-          const startW = p.currentWeight || 70;
-          const tgtW = p.targetWeight || startW;
+          const startW = p.currentWeight;
+          const tgtW = p.targetWeight;
           const months = p.months || 1;
           const pace = p.pace || 0;
           const isCut = p.isCut;
           const now = new Date();
           const goalActuals = S.log.goalActuals || {};
 
-          let h = '<div class="goal-header"><div style="font-size:12px;font-weight:700;opacity:0.7;margin-bottom:6px">🎯 最終目標</div>';
-          h += '<div style="display:flex;justify-content:center;align-items:baseline;gap:8px;margin-bottom:8px"><div><div style="font-size:42px;font-weight:800;line-height:1">' + tgtW + '</div><div style="font-size:12px;opacity:0.7">kg</div></div><div style="font-size:20px;opacity:0.5">/</div><div><div style="font-size:42px;font-weight:800;line-height:1">' + (p.targetBf || '−') + '</div><div style="font-size:12px;opacity:0.7">%</div></div></div>';
-          h += '<div style="display:flex;justify-content:center;gap:16px;font-size:12px;opacity:0.8"><span>' + (isCut ? '🔥 減量' : p.isBulk ? '💪 増量' : '⚖️ 維持') + '</span><span>現在 ' + startW + 'kg</span><span>あと ' + p.weightDiff.toFixed(1) + 'kg</span></div>';
-          h += '<div style="display:flex;justify-content:center;gap:12px;margin-top:10px;font-size:11px;opacity:0.7"><span>📅 約' + months + 'ヶ月計画</span><span>🔥 ' + p.dailyCal + 'kcal/日</span></div>';
-          h += '<div style="display:flex;justify-content:center;gap:12px;margin-top:4px;font-size:11px;opacity:0.7"><span>P:' + p.proteinG + 'g</span><span>F:' + p.fatG + 'g</span><span>C:' + p.carbG + 'g</span></div></div>';
+          let h = `
+            <div class="goal-header">
+              <div style="font-size:12px;font-weight:700;opacity:.7;margin-bottom:6px">🎯 最終目標</div>
+              <div style="display:flex;justify-content:center;align-items:baseline;gap:8px;margin-bottom:8px">
+                <div><div style="font-size:42px;font-weight:800;line-height:1">${tgtW}</div><div style="font-size:12px;opacity:.7">kg</div></div>
+                <div style="font-size:20px;opacity:.5">/</div>
+                <div><div style="font-size:42px;font-weight:800;line-height:1">${p.targetBf || "−"}</div><div style="font-size:12px;opacity:.7">%</div></div>
+              </div>
+              <div style="display:flex;justify-content:center;gap:16px;font-size:12px;opacity:.8">
+                <span>${isCut ? "🔥 減量" : p.isBulk ? "💪 増量" : "⚖️ 維持"}</span>
+                <span>現在 ${startW}kg</span>
+                <span>あと ${p.weightDiff.toFixed(1)}kg</span>
+              </div>
+              <div style="display:flex;justify-content:center;gap:12px;margin-top:10px;font-size:11px;opacity:.7">
+                <span>📅 約${months}ヶ月</span>
+                <span>🔥 ${p.dailyCal}kcal/日</span>
+              </div>
+              <div style="display:flex;justify-content:center;gap:12px;margin-top:4px;font-size:11px;opacity:.7">
+                <span>P:${p.proteinG}g</span><span>F:${p.fatG}g</span><span>C:${p.carbG}g</span>
+              </div>
+            </div>
 
-          h += '<div style="font-size:14px;font-weight:800;color:#1a2e23;margin-bottom:10px">📊 月間マイルストーン</div>';
+            <div style="font-size:14px;font-weight:800;color:#1a2e23;margin-bottom:10px">📊 月間マイルストーン</div>
+          `;
 
           for (let i = 0; i <= Math.min(months, 12); i++) {
-            const mDate = new Date(now.getFullYear(), now.getMonth() + i, 30);
-            const expectedW = isCut ? Math.max(startW - pace * i, tgtW) : Math.min(startW + pace * i, tgtW);
-            const eW = Math.round(expectedW * 10) / 10;
+            const mD = new Date(now.getFullYear(), now.getMonth() + i, 30);
+            const expW = isCut ? Math.max(startW - pace * i, tgtW) : Math.min(startW + pace * i, tgtW);
+            const eW = Math.round(expW * 10) / 10;
             const aV = goalActuals[i];
             const hasA = aV !== undefined && aV !== "";
-            const diff = hasA ? (parseFloat(aV) - eW) : null;
-            const isFirst = i === 0;
+            const diff = hasA ? parseFloat(aV) - eW : null;
             const isLast = i === Math.min(months, 12);
 
-            h += '<div style="display:flex;align-items:stretch">';
-            h += '<div style="width:40px;display:flex;flex-direction:column;align-items:center">';
-            h += '<div style="width:14px;height:14px;border-radius:50%;background:' + (isLast ? '#2d8a6e' : hasA ? '#3aaf8a' : '#c8ddd2') + ';border:' + (isLast ? '3px solid #1a2e23' : '2px solid #fff') + ';box-shadow:0 1px 4px rgba(0,0,0,0.1)"></div>';
-            if (!isLast) h += '<div style="flex:1;width:2px;background:#e0e5e2"></div>';
-            h += '</div>';
-
-            h += '<div style="flex:1;background:' + (isLast ? '#edf7f2' : '#fff') + ';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,0.04);border:' + (isLast ? '2px solid #2d8a6e' : '1px solid #f0f0f0') + '">';
-            h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div><span style="font-size:13px;font-weight:800;color:' + (isLast ? '#2d8a6e' : '#1a2e23') + '">' + (mDate.getMonth() + 1) + '/' + mDate.getDate() + '</span>' +
-              (isFirst ? '<span style="font-size:9px;color:#888;margin-left:6px">スタート</span>' : '') +
-              (isLast ? '<span style="font-size:9px;color:#2d8a6e;margin-left:6px;font-weight:700">🏁 ゴール</span>' : '') +
-              '</div><div style="font-size:12px;color:#888;font-weight:600">目標 ' + eW + 'kg</div></div>';
-
-            h += '<div style="display:flex;align-items:center;gap:8px"><div style="font-size:11px;color:#5a6e62;font-weight:600;white-space:nowrap">実績:</div>';
-            h += '<input type="number" value="' + esc(aV ?? "") + '" onchange="setGoalActual(' + i + ',this.value)" placeholder="−" style="width:80px;padding:6px 10px;border-radius:8px;border:1.5px solid #e8ece9;font-size:14px;font-weight:800;outline:none;background:#f8faf9;text-align:center">';
-            h += '<span style="font-size:12px;color:#888">kg</span>';
-            if (diff !== null) {
-              h += '<span style="font-size:11px;font-weight:700;color:' + (((isCut && diff <= 0) || (!isCut && diff >= 0)) ? '#2d8a6e' : '#c0392b') + ';margin-left:4px">' + (diff > 0 ? '+' : '') + diff.toFixed(1) + 'kg</span>';
-            }
-            h += '</div></div></div>';
+            h += `
+              <div style="display:flex;align-items:stretch">
+                <div style="width:40px;display:flex;flex-direction:column;align-items:center">
+                  <div style="width:14px;height:14px;border-radius:50%;background:${isLast ? "#2d8a6e" : hasA ? "#3aaf8a" : "#c8ddd2"};border:${isLast ? "3px solid #1a2e23" : "2px solid #fff"}"></div>
+                  ${isLast ? "" : `<div style="flex:1;width:2px;background:#e0e5e2"></div>`}
+                </div>
+                <div style="flex:1;background:${isLast ? "#edf7f2" : "#fff"};border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,.04);border:${isLast ? "2px solid #2d8a6e" : "1px solid #f0f0f0"}">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <div>
+                      <span style="font-size:13px;font-weight:800;color:${isLast ? "#2d8a6e" : "#1a2e23"}">${mD.getMonth()+1}/${mD.getDate()}</span>
+                      ${i===0 ? `<span style="font-size:9px;color:#888;margin-left:6px">スタート</span>` : ``}
+                      ${isLast ? `<span style="font-size:9px;color:#2d8a6e;margin-left:6px;font-weight:700">🏁 ゴール</span>` : ``}
+                    </div>
+                    <div style="font-size:12px;color:#888;font-weight:600">目標 ${eW}kg</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="font-size:11px;color:#5a6e62;font-weight:600;white-space:nowrap">実績:</div>
+                    <input type="number" value="${aV ?? ""}" onchange="setGoalActual(${i},this.value)" placeholder="−" style="width:80px;padding:6px 10px;border-radius:8px;border:1.5px solid #e8ece9;font-size:14px;font-weight:800;outline:none;background:#f8faf9;text-align:center">
+                    <span style="font-size:12px;color:#888">kg</span>
+                    ${diff !== null ? `<span style="font-size:11px;font-weight:700;color:${(isCut && diff <= 0) || (!isCut && diff >= 0) ? "#2d8a6e" : "#c0392b"};margin-left:4px">${diff > 0 ? "+" : ""}${diff.toFixed(1)}kg</span>` : ""}
+                  </div>
+                </div>
+              </div>
+            `;
           }
 
           if (S.bodyLog.length > 0) {
-            h += '<div class="card"><div class="card-title">📈 体重推移グラフ</div><div style="display:flex;align-items:flex-end;gap:4px;height:80px">';
             const ws = S.bodyLog.map(b => b.w);
             const mn = Math.min(...ws) - 2;
             const mx = Math.max(...ws) + 2;
             const rng = mx - mn || 1;
-            S.bodyLog.forEach((b, i) => {
-              const ht = Math.max(((b.w - mn) / rng) * 65 + 10, 10);
-              const isL = i === S.bodyLog.length - 1;
-              h += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:7px;color:' + (isL ? '#2d8a6e' : '#999') + ';font-weight:' + (isL ? '800' : '500') + '">' + b.w + '</div><div style="width:100%;height:' + ht + 'px;border-radius:3px;background:' + (isL ? 'linear-gradient(180deg,#2d8a6e,#3aaf8a)' : '#c8ddd2') + '"></div><div style="font-size:6px;color:#bbb">' + b.date + '</div></div>';
-            });
-            h += '</div></div>';
+            h += `
+              <div class="card">
+                <div class="card-title">📈 体重推移グラフ</div>
+                <div style="display:flex;align-items:flex-end;gap:4px;height:80px">
+                  ${S.bodyLog.map((b, i) => {
+                    const ht = Math.max(((b.w - mn) / rng) * 65 + 10, 10);
+                    const isL = i === S.bodyLog.length - 1;
+                    return `
+                      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+                        <div style="font-size:7px;color:${isL ? "#2d8a6e" : "#999"};font-weight:${isL ? 800 : 500}">${b.w}</div>
+                        <div style="width:100%;height:${ht}px;border-radius:3px;background:${isL ? "linear-gradient(180deg,#2d8a6e,#3aaf8a)" : "#c8ddd2"}"></div>
+                        <div style="font-size:6px;color:#bbb">${b.date}</div>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>
+              </div>
+            `;
           }
 
           app.innerHTML = h + tabBar();
@@ -1510,59 +1642,96 @@
         }
 
         if (S.tab === "weekly") {
-          let h = '<div style="text-align:center;margin-bottom:16px"><div style="font-size:32px">📅</div><h2 style="font-size:20px;font-weight:800;color:#1a2e23">週間予定</h2><div style="font-size:12px;color:#7a8f82">1週間の提案メニュー</div></div>';
-          h += '<div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">';
-          S.meal.weeklyPlan.forEach((dy, i) => {
-            h += '<button class="day-btn ' + (S.selDay === i ? 'active' : 'inactive') + '" onclick="S.selDay=' + i + ';render()">' + dy.day.replace('曜日', '') + '</button>';
-          });
-          h += '</div>';
+          let h = `
+            <div style="text-align:center;margin-bottom:16px">
+              <div style="font-size:32px">📅</div>
+              <h2 style="font-size:20px;font-weight:800;color:#1a2e23">週間予定</h2>
+            </div>
 
-          const wd = S.meal.weeklyPlan[S.selDay];
-          const mealKeys = MO.filter(k => wd?.meals?.[k]);
+            <div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
+              ${S.meal.weeklyPlan.map((dy, i) => `<button class="day-btn ${S.selDay===i?"active":"inactive"}" onclick="S.selDay=${i};render()">${dy.day.replace("曜日","")}</button>`).join("")}
+            </div>
+          `;
 
-          if (wd) {
-            h += '<div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-around;text-align:center">';
-            h += '<div><div style="font-size:10px;color:#5a6e62">合計</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">' + wd.totalKcal + 'kcal</div></div>';
-            h += '<div><div style="font-size:10px;color:#e74c3c">P</div><div style="font-size:16px;font-weight:800;color:#e74c3c">' + wd.totalP + 'g</div></div>';
-            h += '<div><div style="font-size:10px;color:#f39c12">F</div><div style="font-size:16px;font-weight:800;color:#f39c12">' + wd.totalF + 'g</div></div>';
-            h += '<div><div style="font-size:10px;color:#2ecc71">C</div><div style="font-size:16px;font-weight:800;color:#2ecc71">' + wd.totalC + 'g</div></div></div>';
+          if (dd) {
+            h += `
+              <div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-around;text-align:center">
+                <div><div style="font-size:10px;color:#5a6e62">合計</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">${dd.totalKcal}kcal</div></div>
+                <div><div style="font-size:10px;color:#e74c3c">P</div><div style="font-size:16px;font-weight:800;color:#e74c3c">${dd.totalP}g</div></div>
+                <div><div style="font-size:10px;color:#f39c12">F</div><div style="font-size:16px;font-weight:800;color:#f39c12">${dd.totalF}g</div></div>
+                <div><div style="font-size:10px;color:#2ecc71">C</div><div style="font-size:16px;font-weight:800;color:#2ecc71">${dd.totalC}g</div></div>
+              </div>
+            `;
 
-            mealKeys.forEach(k => {
-              const m = wd.meals[k];
-              h += '<div class="meal-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-size:13px;font-weight:800;color:#1a2e23">' + ML[k] + '</div><div style="font-size:11px;color:#888">' + m.time + ' ・ ' + m.kcal + 'kcal</div></div>';
-              m.items?.forEach(it => {
-                h += it.startsWith("📍") ? '<div class="item-src">' + esc(it) + '</div>' : '<div class="item-line">' + esc(it) + '</div>';
-              });
-              h += '<div style="display:flex;gap:12px;font-size:10px;font-weight:600;margin-top:6px"><span style="color:#e74c3c">P:' + m.p + 'g</span><span style="color:#f39c12">F:' + m.f + 'g</span><span style="color:#2ecc71">C:' + m.c + 'g</span></div>';
-              if (m.tip) h += '<div class="tip-box">💡 ' + esc(m.tip) + '</div>';
-              h += '</div>';
+            moKeys.forEach(k => {
+              const m = dd.meals[k];
+              h += `
+                <div class="meal-card">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                    <div style="font-size:13px;font-weight:800;color:#1a2e23">${ML[k]}</div>
+                    <div style="font-size:11px;color:#888">${m.time} ・ ${m.kcal}kcal</div>
+                  </div>
+                  ${m.items?.map(it => it.startsWith("📍")
+                    ? `<div class="item-src">${esc(it)}</div>`
+                    : `<div class="item-line">${esc(it)}</div>`).join("")}
+                  <div style="display:flex;gap:12px;font-size:10px;font-weight:600;margin-top:6px">
+                    <span style="color:#e74c3c">P:${m.p}g</span>
+                    <span style="color:#f39c12">F:${m.f}g</span>
+                    <span style="color:#2ecc71">C:${m.c}g</span>
+                  </div>
+                  ${m.tip ? `<div class="tip-box">💡 ${esc(m.tip)}</div>` : ""}
+                </div>
+              `;
             });
 
-            if (wd.alcohol) {
-              h += '<div style="background:#FFF8E1;border-radius:14px;padding:14px;margin-bottom:8px;border:1px solid #FFE082"><div style="font-size:13px;font-weight:800;color:#F57F17;margin-bottom:6px">🍺 お酒</div>';
-              wd.alcohol.items?.forEach(it => { h += '<div style="font-size:13px;color:#795548">' + esc(it) + '</div>'; });
-              h += '<div style="font-size:11px;color:#999;margin-top:4px">' + wd.alcohol.kcal + 'kcal</div></div>';
+            if (dd.alcohol) {
+              h += `
+                <div style="background:#FFF8E1;border-radius:14px;padding:14px;margin-bottom:8px;border:1px solid #FFE082">
+                  <div style="font-size:13px;font-weight:800;color:#F57F17;margin-bottom:6px">🍺 お酒</div>
+                  ${dd.alcohol.items?.map(it => `<div style="font-size:13px;color:#795548">${esc(it)}</div>`).join("")}
+                  <div style="font-size:11px;color:#999;margin-top:4px">${dd.alcohol.kcal}kcal</div>
+                </div>
+              `;
             }
           }
 
-          h += '<button class="btn-primary" onclick="genMeal()">🔄 別メニューを提案</button>';
+          if (S.meal.generalTips) {
+            h += `
+              <div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:16px;margin-top:12px;margin-bottom:8px">
+                <div style="font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:10px">💡 アドバイス</div>
+                ${S.meal.generalTips.map(t => `<div style="font-size:12px;color:#3d5c4a;line-height:1.6;padding-left:8px;border-left:2px solid rgba(45,138,110,.25);margin-bottom:6px">${esc(t)}</div>`).join("")}
+              </div>
+            `;
+          }
+
+          if (S.meal.alcoholAdvice) {
+            h += `
+              <div style="background:#FFF8E1;border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid #FFE082">
+                <div style="font-size:12px;font-weight:800;color:#F57F17;margin-bottom:6px">🍺 お酒のアドバイス</div>
+                <div style="font-size:12px;color:#795548;line-height:1.6">${esc(S.meal.alcoholAdvice)}</div>
+              </div>
+            `;
+          }
+
+          h += `
+            <button class="btn-primary" onclick="genMeal()">🔄 別メニューを提案</button>
+            <button style="width:100%;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px" onclick="S.step=5;render()">← プラン結果に戻る</button>
+          `;
+
           app.innerHTML = h + tabBar();
           return;
         }
 
-        if (S.tab === "today") {
-          const dayIdx = new Date().getDay();
-          const todayIdx = dayIdx === 0 ? 6 : dayIdx - 1;
+        if (S.tab === "daily") {
+          const todayIdx = getTodayIndex();
           const tp = S.meal.weeklyPlan[todayIdx];
           const tLog = S.log[todayIdx] || {};
           const tEaten = tLog.eaten || {};
           const isDone = S.dailyDone[todayIdx];
-          const DAYS = ["日","月","火","水","木","金","土"];
-          const tLabel = (new Date().getMonth() + 1) + '/' + new Date().getDate() + '（' + DAYS[dayIdx] + '）';
           const catKeys = MO.filter(k => tp?.meals?.[k]);
-
           const allE = [];
           catKeys.forEach(k => { (tEaten[k] || []).forEach(e => allE.push(e)); });
+
           const eK = allE.reduce((s, e) => s + (e.kcal || 0), 0);
           const eP = Math.round(allE.reduce((s, e) => s + (e.p || 0), 0) * 10) / 10;
           const eF = Math.round(allE.reduce((s, e) => s + (e.f || 0), 0) * 10) / 10;
@@ -1570,98 +1739,123 @@
           const tgtK = p?.dailyCal || 2000;
           const pct = Math.min(Math.round(eK / tgtK * 100), 150);
 
-          let h = '<div style="text-align:center;margin-bottom:16px"><div style="font-size:12px;color:#7a8f82;font-weight:600">' + tLabel + '</div><h2 style="font-size:22px;font-weight:800;color:#1a2e23;margin:4px 0">📝 本日予定</h2></div>';
+          let h = `
+            <div style="text-align:center;margin-bottom:16px">
+              <div style="font-size:12px;color:#7a8f82;font-weight:600">${getTodayLabel()}</div>
+              <h2 style="font-size:22px;font-weight:800;color:#1a2e23;margin:4px 0">📝 本日予定</h2>
+            </div>
 
-          h += '<div style="background:linear-gradient(135deg,#2d8a6e,#3aaf8a);border-radius:16px;padding:16px 18px;margin-bottom:12px;color:#fff">';
-          h += '<div style="font-size:11px;font-weight:700;opacity:0.8;margin-bottom:8px">🎯 あなたの目標</div>';
-          h += '<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:700">' + (p?.isCut ? "減量" : p?.isBulk ? "増量" : "維持") + ' ' + p?.targetWeight + 'kg（体脂肪' + p?.targetBf + '%）</div><div style="font-size:11px;opacity:0.8;margin-top:2px">現在 ' + p?.currentWeight + 'kg → あと' + p?.weightDiff?.toFixed(1) + 'kg</div></div><div style="text-align:center"><div style="font-size:24px;font-weight:800">' + tgtK + '</div><div style="font-size:10px;opacity:0.8">kcal/日</div></div></div>';
-          h += '<div style="display:flex;gap:12px;margin-top:10px;font-size:11px;opacity:0.9"><span>P:' + p?.proteinG + 'g</span><span>F:' + p?.fatG + 'g</span><span>C:' + p?.carbG + 'g</span></div></div>';
+            <div style="background:linear-gradient(135deg,#2d8a6e,#3aaf8a);border-radius:16px;padding:16px 18px;margin-bottom:12px;color:#fff">
+              <div style="font-size:11px;font-weight:700;opacity:.8;margin-bottom:8px">🎯 あなたの目標</div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-size:13px;font-weight:700">${p?.isCut ? "減量" : p?.isBulk ? "増量" : "維持"} ${p?.targetWeight}kg（体脂肪${p?.targetBf}%）</div>
+                  <div style="font-size:11px;opacity:.8;margin-top:2px">現在 ${p?.currentWeight}kg → あと${p?.weightDiff?.toFixed(1)}kg</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:24px;font-weight:800">${tgtK}</div>
+                  <div style="font-size:10px;opacity:.8">kcal/日</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:10px;font-size:11px;opacity:.9">
+                <span>P:${p?.proteinG}g</span>
+                <span>F:${p?.fatG}g</span>
+                <span>C:${p?.carbG}g</span>
+              </div>
+            </div>
 
-          h += '<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px #0000000a"><div style="font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:10px">📊 現在の摂取状況</div>';
-          h += '<div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:8px">';
-          h += '<div><div style="font-size:10px;color:#5a6e62">摂取</div><div style="font-size:22px;font-weight:800;color:' + (pct > 110 ? '#c0392b' : '#2d8a6e') + '">' + eK + '</div><div style="font-size:10px;color:#888">/ ' + tgtK + 'kcal</div></div>';
-          h += '<div><div style="font-size:10px;color:#e74c3c">P</div><div style="font-size:16px;font-weight:800;color:#e74c3c">' + eP + 'g</div><div style="font-size:10px;color:#888">/ ' + p?.proteinG + 'g</div></div>';
-          h += '<div><div style="font-size:10px;color:#f39c12">F</div><div style="font-size:16px;font-weight:800;color:#f39c12">' + eF + 'g</div><div style="font-size:10px;color:#888">/ ' + p?.fatG + 'g</div></div>';
-          h += '<div><div style="font-size:10px;color:#2ecc71">C</div><div style="font-size:16px;font-weight:800;color:#2ecc71">' + eC + 'g</div><div style="font-size:10px;color:#888">/ ' + p?.carbG + 'g</div></div>';
-          h += '</div>';
-          h += '<div style="background:#c8ddd2;border-radius:6px;height:10px;overflow:hidden"><div style="width:' + Math.min(pct,100) + '%;height:100%;border-radius:6px;background:' + (pct > 110 ? '#c0392b' : pct >= 90 ? '#2d8a6e' : '#f39c12') + '"></div></div>';
-          h += '<div style="text-align:center;font-size:11px;color:#5a6e62;margin-top:4px;font-weight:600">' + pct + '%</div></div>';
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+              <div class="meal-card" style="margin-bottom:0">
+                <div style="font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:8px">⚖️ 体重・体脂肪</div>
+                <div style="display:flex;gap:6px;margin-bottom:6px">
+                  <input id="bw-input" class="input" type="number" placeholder="体重kg" step="0.1" style="font-size:13px;padding:10px">
+                  <input id="bf-input" class="input" type="number" placeholder="体脂肪%" step="0.1" style="font-size:13px;padding:10px">
+                </div>
+                <button style="width:100%;padding:10px;border:none;border-radius:10px;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:700;font-size:12px" onclick="addBodyLog()">記録</button>
+                ${S.bodyLog.length ? `<div style="margin-top:8px;font-size:11px;color:#5a6e62">最新：${S.bodyLog[S.bodyLog.length-1].w}kg / ${S.bodyLog[S.bodyLog.length-1].bf || "-"}%</div>` : `<div style="margin-top:8px;font-size:11px;color:#999">まだ記録なし</div>`}
+              </div>
+
+              <div class="meal-card" style="margin-bottom:0">
+                <div style="font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:10px">💧 水分摂取</div>
+                <div style="font-size:11px;color:${(S.water[todayWaterKey()]||0)>=8 ? "#2d8a6e" : "#888"};font-weight:700;margin-bottom:8px">${S.water[todayWaterKey()]||0}/8杯（${((S.water[todayWaterKey()]||0)*0.25).toFixed(1)}L / 2L）</div>
+                <div style="display:flex;gap:4px;margin-bottom:8px">
+                  ${Array.from({length:8}).map((_,i)=>`<div class="water-bar ${(i < (S.water[todayWaterKey()]||0)) ? "filled" : ""}" onclick="setWater('${todayWaterKey()}',${i+1})"></div>`).join("")}
+                </div>
+                <div style="display:flex;gap:8px;justify-content:center">
+                  <button style="width:36px;height:36px;border-radius:10px;border:2px solid #e8ece9;background:#fff;font-size:18px;color:#888" onclick="setWater('${todayWaterKey()}',Math.max(${S.water[todayWaterKey()]||0}-1,0))">−</button>
+                  <button style="width:36px;height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,#3498db,#5bc0de);font-size:18px;color:#fff" onclick="setWater('${todayWaterKey()}',Math.min(${S.water[todayWaterKey()]||0}+1,12))">＋</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+              <div style="font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:10px">📊 現在の摂取状況</div>
+              <div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:8px">
+                <div><div style="font-size:10px;color:#5a6e62">摂取</div><div style="font-size:22px;font-weight:800;color:${pct>110 ? "#c0392b" : "#2d8a6e"}">${eK}</div><div style="font-size:10px;color:#888">/ ${tgtK}kcal</div></div>
+                <div><div style="font-size:10px;color:#e74c3c">P</div><div style="font-size:16px;font-weight:800;color:#e74c3c">${eP}g</div><div style="font-size:10px;color:#888">/ ${p?.proteinG}g</div></div>
+                <div><div style="font-size:10px;color:#f39c12">F</div><div style="font-size:16px;font-weight:800;color:#f39c12">${eF}g</div><div style="font-size:10px;color:#888">/ ${p?.fatG}g</div></div>
+                <div><div style="font-size:10px;color:#2ecc71">C</div><div style="font-size:16px;font-weight:800;color:#2ecc71">${eC}g</div><div style="font-size:10px;color:#888">/ ${p?.carbG}g</div></div>
+              </div>
+              <div style="background:#c8ddd2;border-radius:6px;height:10px;overflow:hidden"><div style="width:${Math.min(pct,100)}%;height:100%;border-radius:6px;background:${pct>110 ? "#c0392b" : pct>=90 ? "#2d8a6e" : "#f39c12"}"></div></div>
+              <div style="text-align:center;font-size:11px;color:#5a6e62;margin-top:4px;font-weight:600">${pct}%</div>
+            </div>
+          `;
 
           catKeys.forEach(k => {
             const m = tp.meals[k];
             const ce = tEaten[k] || [];
             const cK = ce.reduce((s, e) => s + (e.kcal || 0), 0);
 
-            h += '<div class="meal-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:13px;font-weight:800;color:#1a2e23">' + ML[k] + '</div><div style="font-size:10px;color:#888">予定 ' + m.kcal + 'kcal → 実績 <span style="font-weight:800;color:' + (cK > 0 ? '#2d8a6e' : '#ccc') + '">' + cK + 'kcal</span></div></div>';
+            h += `
+              <div class="meal-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <div style="font-size:13px;font-weight:800;color:#1a2e23">${ML[k]}</div>
+                  <div style="font-size:10px;color:#888">予定 ${m.kcal}kcal → 実績 <span style="font-weight:800;color:${cK>0?"#2d8a6e":"#ccc"}">${cK}kcal</span></div>
+                </div>
 
-            h += '<div style="background:#f8faf9;border-radius:10px;padding:8px 10px;margin-bottom:8px;opacity:0.7"><div style="font-size:10px;color:#7a8f82;font-weight:600;margin-bottom:4px">📋 提案メニュー</div>';
-            m.items?.filter(it => !it.startsWith("📍")).forEach(it => { h += '<div style="font-size:11px;color:#5a6e62;line-height:1.5">' + esc(it) + '</div>'; });
-            h += '</div>';
+                <div style="background:#f8faf9;border-radius:10px;padding:8px 10px;margin-bottom:8px;opacity:.7">
+                  <div style="font-size:10px;color:#7a8f82;font-weight:600;margin-bottom:4px">📋 提案メニュー</div>
+                  ${m.items?.filter(it => !it.startsWith("📍")).map(it => `<div style="font-size:11px;color:#5a6e62;line-height:1.5">${esc(it)}</div>`).join("")}
+                </div>
 
-            ce.forEach((item, idx) => {
-              const bg = item.warn ? "#FFF5F5" : item.drink ? "#FFF8E1" : "#edf7f2";
-              const tc = item.warn ? "#c0392b" : item.drink ? "#E65100" : "#2d8a6e";
-              const ic = item.warn ? "⚠️" : item.drink ? "🍺" : "✓";
-              h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;' + (idx < ce.length - 1 ? 'border-bottom:1px solid #f0f0f0' : '') + '"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;width:18px;height:18px;border-radius:6px;background:' + bg + ';display:flex;align-items:center;justify-content:center;color:' + tc + ';font-weight:700">' + ic + '</span><div><div style="font-size:12px;font-weight:600;color:' + tc + '">' + (item.time ? '<span style="font-size:10px;color:#888;margin-right:4px">' + item.time + '</span>' : '') + esc(item.name) + '</div><div style="font-size:9px;color:#999">' + item.kcal + 'kcal P:' + item.p + 'g F:' + item.f + 'g C:' + item.c + 'g</div></div></div><button style="width:22px;height:22px;border-radius:6px;border:none;background:#f5f5f5;color:#ccc;font-size:12px" onclick="removeTodayItem(' + todayIdx + ',\'' + k + '\',' + idx + ')">×</button></div>';
-            });
+                ${ce.map((item, idx) => {
+                  const bg = item.warn ? "#FFF5F5" : item.drink ? "#FFF8E1" : "#edf7f2";
+                  const tc = item.warn ? "#c0392b" : item.drink ? "#E65100" : "#2d8a6e";
+                  const ic = item.warn ? "⚠️" : item.drink ? "🍺" : "✓";
+                  return `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;${idx < ce.length-1 ? "border-bottom:1px solid #f0f0f0" : ""}">
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-size:10px;width:18px;height:18px;border-radius:6px;background:${bg};display:flex;align-items:center;justify-content:center;color:${tc};font-weight:700">${ic}</span>
+                        <div>
+                          <div style="font-size:12px;font-weight:600;color:${tc}">${item.time ? `<span style="font-size:10px;color:#888;margin-right:4px">${item.time}</span>` : ""}${esc(item.name)}</div>
+                          <div style="font-size:9px;color:#999">${item.kcal}kcal P:${item.p}g F:${item.f}g C:${item.c}g</div>
+                        </div>
+                      </div>
+                      <button style="width:22px;height:22px;border-radius:6px;border:none;background:#f5f5f5;color:#ccc;font-size:12px;cursor:pointer" onclick="removeTodayItem(${todayIdx},'${k}',${idx})">×</button>
+                    </div>
+                  `;
+                }).join("")}
 
-            if (S.addMode && S.addCat === k) {
-              h += renderAddPanel(k);
-            } else {
-              h += '<button style="width:100%;padding:8px;border-radius:8px;border:1.5px dashed #c8ddd2;background:transparent;color:#2d8a6e;font-weight:700;font-size:11px;margin-top:6px" onclick="openAddFood(\'' + k + '\')">＋ 食べたものを追加</button>';
-            }
-
-            h += '</div>';
+                ${S.addMode && S.addCat === k
+                  ? renderAddPanel(k)
+                  : `<button style="width:100%;padding:8px;border-radius:8px;border:1.5px dashed #c8ddd2;background:transparent;color:#2d8a6e;font-weight:700;font-size:11px;cursor:pointer;margin-top:6px" onclick="openAddFood('${k}')">＋ 食べたものを追加</button>`
+                }
+              </div>
+            `;
           });
 
-          const wKey = new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate();
-          const cups = S.water[wKey] || 0;
-          h += '<div class="meal-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:13px;font-weight:800;color:#1a2e23">💧 水分摂取</div><div style="font-size:11px;color:' + (cups >= 8 ? '#2d8a6e' : '#888') + ';font-weight:700">' + cups + '/8杯（' + (cups * 0.25).toFixed(1) + 'L / 2L）</div></div>';
-          h += '<div style="display:flex;gap:4px;margin-bottom:8px">';
-          for (let i = 0; i < 8; i++) {
-            h += '<div class="water-bar ' + (i < cups ? 'filled' : '') + '" onclick="setWater(\'' + wKey + '\',' + (i + 1) + ')"></div>';
-          }
-          h += '</div><div style="display:flex;gap:8px;justify-content:center"><button style="width:36px;height:36px;border-radius:10px;border:2px solid #e8ece9;background:#fff;font-size:18px;color:#888" onclick="setWater(\'' + wKey + '\',Math.max(' + cups + '-1,0))">−</button><button style="width:36px;height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,#3498db,#5bc0de);font-size:18px;color:#fff" onclick="setWater(\'' + wKey + '\',Math.min(' + cups + '+1,12))">＋</button></div>';
-          if (cups >= 8) h += '<div style="text-align:center;font-size:11px;color:#2d8a6e;font-weight:700;margin-top:6px">🎉 今日の水分目標達成！</div>';
-          h += '</div>';
-
-          h += '<div style="font-size:13px;font-weight:800;color:#1a2e23;margin-top:16px;margin-bottom:8px">📊 体重・体脂肪の記録</div>';
-          h += '<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 8px #0000000a">';
-          h += '<div style="display:flex;gap:8px;margin-bottom:10px">';
-          h += '<div style="flex:1"><div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px">体重（kg）</div><input id="bw-input-today" class="input" type="number" placeholder="kg" step="0.1" style="font-size:13px;padding:10px"></div>';
-          h += '<div style="flex:1"><div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px">体脂肪率（%）</div><input id="bf-input-today" class="input" type="number" placeholder="%" step="0.1" style="font-size:13px;padding:10px"></div>';
-          h += '<button style="align-self:flex-end;padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:700;font-size:12px" onclick="addBodyLogToday()">記録</button>';
-          h += '</div>';
-
-          if (S.bodyLog.length > 0) {
-            h += '<div style="display:flex;align-items:flex-end;gap:4px;height:80px">';
-            const ws = S.bodyLog.map(b => b.w);
-            const mn = Math.min(...ws) - 2;
-            const mx = Math.max(...ws) + 2;
-            const rng = mx - mn || 1;
-            S.bodyLog.forEach((b, i) => {
-              const ht = Math.max(((b.w - mn) / rng) * 65 + 10, 10);
-              const isL = i === S.bodyLog.length - 1;
-              h += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:7px;color:' + (isL ? '#2d8a6e' : '#999') + ';font-weight:' + (isL ? '800' : '500') + '">' + b.w + '</div><div style="width:100%;height:' + ht + 'px;border-radius:3px;background:' + (isL ? 'linear-gradient(180deg,#2d8a6e,#3aaf8a)' : '#c8ddd2') + '"></div><div style="font-size:6px;color:#bbb">' + b.date + '</div></div>';
-            });
-            h += '</div>';
-            if (p?.targetWeight) {
-              h += '<div style="font-size:10px;color:#2d8a6e;font-weight:600;text-align:center;margin-top:4px">🎯 目標 ' + p.targetWeight + 'kg → 現在 ' + S.bodyLog[S.bodyLog.length - 1].w + 'kg</div>';
-            }
-            h += '<button style="width:100%;margin-top:4px;padding:6px;border:none;background:transparent;color:#ccc;font-size:10px" onclick="S.bodyLog.pop();save();render()">取り消す</button>';
-          } else {
-            h += '<div style="text-align:center;color:#ccc;font-size:12px;padding:10px 0">まだ記録なし</div>';
-          }
-          h += '</div>';
-
           if (!isDone) {
-            h += '<button style="width:100%;padding:16px;border-radius:14px;border:none;background:' + (allE.length === 0 ? '#ccc' : 'linear-gradient(135deg,#e74c3c,#c0392b)') + ';color:#fff;font-weight:800;font-size:16px;margin-top:12px" ' + (allE.length === 0 ? 'disabled' : '') + ' onclick="completeMeal(' + todayIdx + ')">🏁 今日の食事を完了する</button>';
+            h += `<button style="width:100%;padding:16px;border-radius:14px;border:none;background:${allE.length===0?"#ccc":"linear-gradient(135deg,#e74c3c,#c0392b)"};color:#fff;font-weight:800;font-size:16px;cursor:${allE.length===0?"default":"pointer"};margin-top:12px" ${allE.length===0?"disabled":""} onclick="completeMeal(${todayIdx})">🏁 今日の食事を完了する</button>`;
           } else {
-            h += '<div style="margin-top:12px"><div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:16px;margin-bottom:8px"><div style="font-size:14px;font-weight:800;color:#2d8a6e;margin-bottom:10px;text-align:center">🏁 本日の食事レポート</div>';
-            isDone.forEach(msg => {
-              h += '<div style="font-size:12px;color:#3d5c4a;line-height:1.7;padding-left:10px;border-left:2px solid #2d8a6e40;margin-bottom:8px">' + esc(msg) + '</div>';
-            });
-            h += '</div><button style="width:100%;padding:12px;border-radius:12px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:13px" onclick="undoComplete(' + todayIdx + ')">修正して再記録する</button></div>';
+            h += `
+              <div style="margin-top:12px">
+                <div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:16px;margin-bottom:8px">
+                  <div style="font-size:14px;font-weight:800;color:#2d8a6e;margin-bottom:10px;text-align:center">🏁 本日の食事レポート</div>
+                  ${isDone.map(msg => `<div style="font-size:12px;color:#3d5c4a;line-height:1.7;padding-left:10px;border-left:2px solid rgba(45,138,110,.25);margin-bottom:8px">${esc(msg)}</div>`).join("")}
+                </div>
+                <button style="width:100%;padding:12px;border-radius:12px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:13px;cursor:pointer" onclick="undoComplete(${todayIdx})">修正して再記録する</button>
+              </div>
+            `;
           }
 
           app.innerHTML = h + tabBar();
@@ -1669,7 +1863,7 @@
         }
       }
 
-      app.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#888">読み込み中…</div>';
+      app.innerHTML = `<div style="text-align:center;padding:60px 20px;color:#888">読み込み中…</div>`;
     }
 
     load();
