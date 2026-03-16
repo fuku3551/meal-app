@@ -1,1035 +1,1219 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>食事管理アプリ Ver.6</title>
-  <style>
-    :root{
-      --bg1:#f0f5f2; --bg2:#e8ede9; --card:#ffffff; --text:#1a2e23; --sub:#6d8176;
-      --green:#2d8a6e; --green2:#3aaf8a; --line:#e3e8e5; --red:#e74c3c; --yellow:#f39c12; --blue:#3498db;
-    }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
-      background:linear-gradient(180deg,var(--bg1),var(--bg2));
-      color:var(--text);
-    }
-    .wrap{max-width:460px;margin:0 auto;padding:18px 14px 96px;min-height:100vh}
-    .hero{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-radius:20px;padding:20px 18px;box-shadow:0 8px 24px rgba(45,138,110,.22)}
-    .hero h1{margin:0 0 6px;font-size:24px}
-    .hero p{margin:0;font-size:12px;opacity:.92;line-height:1.6}
-    .card{background:var(--card);border-radius:18px;padding:16px;margin-top:14px;box-shadow:0 2px 14px rgba(0,0,0,.05)}
-    .title{font-size:13px;font-weight:800;color:var(--green);margin:0 0 12px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-    .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    label{display:block;font-size:12px;font-weight:700;color:#5a6e62;margin-bottom:6px}
-    input,select,button{font:inherit}
-    input,select{
-      width:100%;border:2px solid var(--line);background:#f8faf9;border-radius:14px;
-      padding:13px 14px;font-size:16px;outline:none
-    }
-    input:focus,select:focus{border-color:#a7cfbf;background:#fff}
-    .btn{border:none;border-radius:14px;padding:14px 16px;font-weight:800;cursor:pointer}
-    .btn-main{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 6px 18px rgba(45,138,110,.22)}
-    .btn-sub{background:#fff;color:#6f7f76;border:2px solid var(--line)}
-    .btn-red{background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff}
-    .btn-blue{background:linear-gradient(135deg,#3498db,#5dade2);color:#fff}
-    .btn-small{padding:10px 12px;border-radius:12px;font-size:13px}
-    .pill-row{display:flex;flex-wrap:wrap;gap:8px}
-    .pill{padding:10px 12px;border-radius:999px;border:2px solid var(--line);background:#fff;font-weight:700;font-size:13px;cursor:pointer}
-    .stat{background:#f8faf9;border-radius:14px;padding:12px 8px;text-align:center}
-    .stat .n{font-size:22px;font-weight:800}
-    .muted{color:var(--sub)}
-    .tiny{font-size:11px}
-    .progress{height:10px;background:#d7e3dc;border-radius:999px;overflow:hidden}
-    .bar{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));width:0}
-    .meal-tabs{display:flex;gap:8px;overflow:auto;padding-bottom:2px}
-    .meal-tab{white-space:nowrap;padding:9px 12px;border:none;background:#fff;border-radius:12px;font-weight:800;color:#5c6f64;cursor:pointer}
-    .meal-tab.active{background:var(--green);color:#fff}
-    .list{display:flex;flex-direction:column;gap:8px}
-    .item{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f2f1}
-    .item:last-child{border-bottom:none}
-    .food-name{font-size:13px;font-weight:700}
-    .macro{font-size:10px;color:#8a9891;margin-top:3px}
-    .tag{display:inline-block;font-size:10px;background:#edf7f2;color:var(--green);padding:4px 7px;border-radius:999px;font-weight:800;margin-bottom:5px}
-    .danger{background:#fff4f3;color:#c0392b}
-    .drink{background:#fff8e9;color:#d68910}
-    .summary-line{display:flex;justify-content:space-between;font-size:12px;margin:8px 0}
-    .empty{font-size:12px;color:#9aa6a0;text-align:center;padding:12px 0}
-    .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-    .day-box{background:#f8faf9;border-radius:12px;padding:8px 6px;text-align:center}
-    .day-box .day{font-size:10px;color:#6e7f77;font-weight:700;margin-bottom:4px}
-    .day-box .kc{font-size:13px;font-weight:800}
-    .day-box.good{background:#edf7f2}
-    .day-box.over{background:#fff4f3}
-    .water-row{display:flex;gap:4px;margin:10px 0}
-    .water-cup{flex:1;height:24px;border-radius:8px;background:#e3e8e5;cursor:pointer;transition:.2s}
-    .water-cup.on{background:linear-gradient(180deg,#5bc0de,#3498db)}
-    .record-row{display:flex;gap:8px;align-items:flex-end}
-    .calc-box{background:linear-gradient(135deg,#edf7f2,#e6f3ed);border-radius:16px;padding:14px;margin-top:10px}
-    .suggest{background:#f8faf9;border-radius:14px;padding:12px;margin-top:10px}
-    .suggest h4{margin:0 0 8px;font-size:13px;color:#1a2e23}
-    .plan-day{background:#f8faf9;border-radius:14px;padding:12px;margin-top:10px}
-    .plan-day h4{margin:0 0 8px;font-size:13px;color:#1a2e23}
-    .footer-space{height:10px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="食事管理">
+<title>食事管理アプリ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans JP','Hiragino Sans',sans-serif;background:linear-gradient(180deg,#f0f5f2,#e8ede9);min-height:100vh;min-height:100dvh}
+input,select,button{font-family:'Noto Sans JP',sans-serif;touch-action:manipulation}
+button{cursor:pointer;-webkit-appearance:none}
+.app{max-width:440px;margin:0 auto;padding:20px 16px 90px}
+.shell{min-height:100vh;min-height:100dvh;display:flex;justify-content:center;background:linear-gradient(180deg,#f0f5f2,#e8ede9)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.3s ease}
+.progress{display:flex;gap:4px;padding:0 4px;margin-bottom:20px}
+.progress div{flex:1;height:4px;border-radius:2px;background:#e0e5e2}
+.progress div.active{background:linear-gradient(90deg,#2d8a6e,#3aaf8a)}
+.title-icon{font-size:28px;margin-bottom:6px}
+.title-h{font-size:20px;font-weight:800;color:#1a2e23;margin:0 0 4px;letter-spacing:-0.5px}
+.title-sub{font-size:13px;color:#7a8f82;margin:0}
+.label{display:block;font-size:12px;font-weight:700;color:#5a6e62;margin-bottom:6px}
+.input{width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;font-size:16px;outline:none;background:#f8faf9;box-sizing:border-box}
+.input:focus{border-color:#2d8a6e}
+.select{width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;font-size:16px;outline:none;background:#f8faf9;appearance:auto;box-sizing:border-box}
+.btn-primary{width:100%;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:800;font-size:16px;cursor:pointer;box-shadow:0 4px 16px #2d8a6e4d;margin-top:8px}
+.btn-primary:disabled{background:#ccc;box-shadow:none;cursor:default}
+.btn-back{flex:1;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:15px;cursor:pointer}
+.btn-next{flex:1;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+.btn-next:disabled{background:#ccc;cursor:default}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 12px #0000000a}
+.card-title{font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:14px}
+.gender-btn{flex:1;padding:18px 10px;border-radius:14px;border:2px solid #e8ece9;background:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.gender-btn.active{border-color:#2d8a6e;background:#edf7f2}
+.goal-btn{padding:20px 18px;border-radius:16px;border:2px solid #e8ece9;background:#fff;cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px;width:100%}
+.goal-btn.active{border-color:#2d8a6e;background:#edf7f2}
+.pace-btn{padding:16px 18px;border-radius:14px;border:2px solid #e8ece9;background:#fff;cursor:pointer;text-align:left;font-size:14px;font-weight:700;width:100%}
+.pace-btn.active{border-color:#2d8a6e;background:#edf7f2;color:#2d8a6e}
+.split-btn{padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;background:#fff;cursor:pointer;text-align:left;font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;width:100%}
+.split-btn.active{border-color:#2d8a6e;background:#edf7f2;color:#2d8a6e}
+.cook-btn{padding:14px 16px;border-radius:14px;border:2px solid #e8ece9;background:#fff;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%}
+.cook-btn.active{border-color:#2d8a6e;background:#edf7f2}
+.s2-badge{display:inline-block;background:#2d8a6e;color:#fff;padding:4px 12px;border-radius:8px;font-size:10px;font-weight:700;margin-bottom:12px;letter-spacing:1px}
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:6px 0;padding-bottom:max(6px,env(safe-area-inset-bottom));z-index:500;box-shadow:0 -2px 12px #0000000d}
+.tab-btn{flex:1;background:none;border:none;cursor:pointer;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px}
+.tab-icon{font-size:20px;transition:opacity 0.2s}
+.tab-label{font-size:9px;font-weight:500;color:#999}
+.tab-label.active{font-weight:800;color:#2d8a6e}
+.tab-dot{width:16px;height:2.5px;border-radius:2px;background:#2d8a6e;margin-top:1px}
+.pfc-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-bottom:14px}
+.day-btn{flex:0 0 auto;padding:8px 14px;border-radius:10px;border:none;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
+.day-btn.active{background:#2d8a6e;color:#fff}
+.day-btn.inactive{background:#fff;color:#555}
+.check-btn{width:34px;height:34px;border-radius:8px;border:2px solid #e8ece9;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.meal-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 8px #0000000a}
+.item-line{font-size:13px;color:#444;padding-left:8px;border-left:3px solid #2d8a6e40;line-height:1.5;margin-bottom:4px}
+.item-src{font-size:11px;color:#2d8a6e;font-weight:700;margin-bottom:4px;padding:3px 8px;background:#edf7f2;border-radius:6px;display:inline-block}
+.tip-box{margin-top:6px;font-size:11px;color:#2d8a6e;background:#edf7f2;border-radius:8px;padding:6px 10px}
+.water-bar{flex:1;height:24px;border-radius:6px;background:#e8ece9;cursor:pointer;transition:background 0.3s}
+.water-bar.filled{background:linear-gradient(180deg,#5bc0de,#3498db)}
+.fav-tag{padding:4px 10px;border-radius:8px;border:1px solid #FFE082;background:#FFFDE7;font-size:11px;font-weight:600;color:#E65100;cursor:pointer}
+.search-result{width:100%;padding:6px 8px;border-radius:6px;border:none;cursor:pointer;text-align:left;margin-bottom:3px}
+.timeline-dot{width:14px;height:14px;border-radius:50%;z-index:1;box-shadow:0 1px 4px #0000001a}
+.timeline-line{flex:1;width:2px;background:#e0e5e2}
+.goal-header{background:linear-gradient(135deg,#1a2e23,#2d8a6e);border-radius:20px;padding:24px 20px;margin-bottom:16px;color:#fff;text-align:center}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <h1>🍽️ 食事管理アプリ Ver.6</h1>
-      <p>Ver.5 の自動計算・食事提案に加えて、1週間メニュー自動作成機能を追加した版です。目標に合った食事の組み立てを見やすくしました。</p>
-    </div>
+<div class="shell"><div class="app" id="app"></div></div>
+<script>
+const FOOD_DB = {
+  "セブンイレブン": {
+    breakfast: [
+      { name: "鶏むね肉サラダ", kcal: 152, p: 21.3, f: 5.2, c: 5.8 },
+      { name: "味付き半熟ゆでたまご", kcal: 65, p: 5.8, f: 4.3, c: 0.6 },
+      { name: "手巻おにぎり 鮭", kcal: 183, p: 5.1, f: 1.5, c: 38.2 },
+      { name: "サラダチキンバー", kcal: 98, p: 16.5, f: 2.8, c: 2.1 },
+      { name: "ギリシャヨーグルト", kcal: 59, p: 10.6, f: 0, c: 4.8 },
+      { name: "たまごサンド", kcal: 302, p: 11.5, f: 18.2, c: 22.8 },
+      { name: "手巻おにぎり 昆布", kcal: 170, p: 3.8, f: 0.8, c: 37.5 },
+      { name: "7P バナナ", kcal: 86, p: 1.1, f: 0.2, c: 20.5 },
+      { name: "豆腐バー 枝豆と塩昆布", kcal: 108, p: 11.2, f: 5.5, c: 3.8 },
+    ],
+    lunch: [
+      { name: "サラダチキン プレーン", kcal: 108, p: 23.8, f: 1.2, c: 0.3 },
+      { name: "1/2日分野菜の鶏塩鍋", kcal: 218, p: 19.2, f: 8.5, c: 14.3 },
+      { name: "手巻おにぎり ツナマヨ", kcal: 232, p: 5.8, f: 7.2, c: 36.8 },
+      { name: "鶏むね肉のサラダ", kcal: 128, p: 18.5, f: 3.8, c: 5.2 },
+      { name: "もち麦おにぎり 枝豆", kcal: 172, p: 4.5, f: 1.8, c: 35.2 },
+      { name: "たんぱく質が摂れるチリチキン", kcal: 265, p: 24.5, f: 8.1, c: 23.2 },
+      { name: "海鮮ネバネバサラダ", kcal: 86, p: 8.2, f: 1.5, c: 10.1 },
+      { name: "幕の内弁当", kcal: 528, p: 18.5, f: 14.2, c: 78.5 },
+      { name: "鶏五目ごはん", kcal: 395, p: 12.8, f: 5.5, c: 72.5 },
+    ],
+    dinner: [
+      { name: "炭火焼きチキン", kcal: 145, p: 22.1, f: 5.8, c: 0.8 },
+      { name: "さばの味噌煮", kcal: 246, p: 16.8, f: 15.2, c: 10.5 },
+      { name: "直火焼き 紅しゃけ", kcal: 142, p: 21.5, f: 6.2, c: 0.2 },
+      { name: "豚しゃぶサラダ", kcal: 168, p: 14.2, f: 9.5, c: 6.8 },
+      { name: "10品目ミックスサラダ", kcal: 52, p: 1.8, f: 0.3, c: 10.5 },
+      { name: "おでん たまご", kcal: 80, p: 6.5, f: 5.2, c: 1.8 },
+      { name: "おでん 大根", kcal: 12, p: 0.5, f: 0.1, c: 2.5 },
+      { name: "おでん こんにゃく", kcal: 8, p: 0.3, f: 0, c: 1.8 },
+      { name: "銀だらの西京焼き", kcal: 185, p: 14.5, f: 12.2, c: 4.8 },
+    ],
+    snack: [
+      { name: "プロテインバー", kcal: 183, p: 15.9, f: 8.5, c: 12.1 },
+      { name: "素焼きアーモンド", kcal: 118, p: 4.1, f: 10.2, c: 1.8 },
+      { name: "ギリシャヨーグルト ブルーベリー", kcal: 68, p: 10.2, f: 0, c: 6.5 },
+      { name: "茎わかめ", kcal: 22, p: 0.8, f: 0.2, c: 4.5 },
+      { name: "サラダチキンスティック", kcal: 62, p: 13.2, f: 0.5, c: 0.8 },
+    ],
+  },
+  "ファミリーマート": {
+    breakfast: [
+      { name: "グリルチキン タンドリー", kcal: 118, p: 20.5, f: 3.8, c: 1.2 },
+      { name: "おにぎり 紀州南高梅", kcal: 171, p: 3.5, f: 0.8, c: 37.8 },
+      { name: "全粒粉サンド チキン&たまご", kcal: 226, p: 16.2, f: 8.5, c: 22.8 },
+      { name: "味付け半熟ゆでたまご 2個", kcal: 130, p: 11.6, f: 8.6, c: 1.2 },
+      { name: "RIZAP サラダチキンバー", kcal: 83, p: 14.8, f: 2.1, c: 1.5 },
+      { name: "おにぎり 明太子", kcal: 178, p: 4.2, f: 1.2, c: 37.5 },
+      { name: "ハムチーズたまごサンド", kcal: 285, p: 12.8, f: 15.5, c: 24.2 },
+      { name: "スムージー グリーン", kcal: 92, p: 1.5, f: 0.2, c: 21.8 },
+    ],
+    lunch: [
+      { name: "グリルチキン ブラックペッパー", kcal: 120, p: 21.2, f: 3.5, c: 1.5 },
+      { name: "スーパー大麦 枝豆こんぶ", kcal: 185, p: 4.8, f: 1.5, c: 38.5 },
+      { name: "10品目の豚汁", kcal: 128, p: 6.5, f: 5.8, c: 12.2 },
+      { name: "パリパリ麺のサラダ", kcal: 245, p: 8.5, f: 12.2, c: 25.8 },
+      { name: "1/3日分野菜の焼ビーフン", kcal: 298, p: 8.2, f: 9.5, c: 44.8 },
+      { name: "たんぱく質が摂れるチキンステーキ弁当", kcal: 468, p: 32.5, f: 12.8, c: 52.5 },
+      { name: "おにぎり ツナマヨ", kcal: 225, p: 5.5, f: 6.8, c: 36.5 },
+    ],
+    dinner: [
+      { name: "鶏の炭火焼 柚子こしょう", kcal: 152, p: 23.5, f: 6.2, c: 0.5 },
+      { name: "銀鮭の塩焼き", kcal: 168, p: 19.8, f: 9.5, c: 0.8 },
+      { name: "海藻サラダ", kcal: 42, p: 1.5, f: 0.2, c: 8.8 },
+      { name: "炙り焼 鯖", kcal: 228, p: 18.2, f: 16.5, c: 1.2 },
+      { name: "チキンと野菜のグリル", kcal: 195, p: 22.8, f: 8.5, c: 5.8 },
+      { name: "枝豆", kcal: 62, p: 5.8, f: 2.5, c: 4.2 },
+      { name: "豆腐の味噌汁", kcal: 45, p: 3.2, f: 1.5, c: 4.8 },
+    ],
+    snack: [
+      { name: "素焼きミックスナッツ", kcal: 132, p: 4.2, f: 11.5, c: 2.8 },
+      { name: "RIZAP チョコチップスコーン", kcal: 155, p: 8.2, f: 8.5, c: 14.2 },
+      { name: "ファミチキ", kcal: 252, p: 12.8, f: 16.2, c: 14.5 },
+      { name: "プロテインバー キャラメル", kcal: 175, p: 15.5, f: 7.8, c: 13.5 },
+    ],
+  },
+  "ローソン": {
+    breakfast: [
+      { name: "ブランパン 2個入", kcal: 120, p: 10.4, f: 3.6, c: 10.8 },
+      { name: "蒸し鶏のサラダ", kcal: 138, p: 20.5, f: 4.2, c: 5.8 },
+      { name: "おにぎり 焼さけハラミ", kcal: 192, p: 6.2, f: 3.5, c: 35.8 },
+      { name: "味付たまご 2個入", kcal: 128, p: 11.2, f: 8.5, c: 1.5 },
+      { name: "たまごドッグ", kcal: 278, p: 9.8, f: 14.5, c: 26.8 },
+      { name: "おにぎり 鮭", kcal: 185, p: 5.5, f: 1.8, c: 37.2 },
+      { name: "グリーンスムージー", kcal: 78, p: 1.2, f: 0.2, c: 18.5 },
+    ],
+    lunch: [
+      { name: "サラダチキン スモーク", kcal: 112, p: 22.8, f: 2.1, c: 0.5 },
+      { name: "もち麦おにぎり 枝豆塩昆布", kcal: 175, p: 4.2, f: 1.5, c: 36.8 },
+      { name: "1食分野菜のちゃんぽん", kcal: 345, p: 15.2, f: 11.8, c: 42.5 },
+      { name: "サラダチキン ハーブ", kcal: 105, p: 21.5, f: 1.8, c: 1.2 },
+      { name: "玉子を楽しむサンド", kcal: 312, p: 12.5, f: 18.8, c: 22.5 },
+      { name: "1/2日分野菜のビビンバ", kcal: 435, p: 16.8, f: 11.2, c: 65.5 },
+    ],
+    dinner: [
+      { name: "さばの味噌煮", kcal: 235, p: 15.8, f: 14.5, c: 11.2 },
+      { name: "焼鮭", kcal: 148, p: 20.2, f: 7.2, c: 0.5 },
+      { name: "大根サラダ", kcal: 35, p: 0.8, f: 0.2, c: 7.5 },
+      { name: "豚の角煮", kcal: 268, p: 15.5, f: 18.2, c: 8.5 },
+      { name: "鶏のから揚げ", kcal: 285, p: 18.5, f: 18.8, c: 10.2 },
+      { name: "ポテトサラダ", kcal: 122, p: 2.2, f: 7.8, c: 11.5 },
+    ],
+    snack: [
+      { name: "プロテインヨーグルト", kcal: 75, p: 12.5, f: 0, c: 6.2 },
+      { name: "素焼きくるみ", kcal: 145, p: 3.2, f: 13.5, c: 2.1 },
+      { name: "からあげクン レギュラー", kcal: 220, p: 14.2, f: 14.5, c: 8.8 },
+    ],
+  },
+  "自炊": {
+    breakfast: [
+      { name: "鶏むね肉100g＋味噌汁", kcal: 175, p: 24.5, f: 4.2, c: 7.5 },
+      { name: "オートミール＋プロテイン", kcal: 248, p: 26.5, f: 4.8, c: 28.2 },
+      { name: "卵2個＋全粒粉トースト", kcal: 328, p: 18.2, f: 14.5, c: 30.8 },
+      { name: "納豆ごはん＋味噌汁", kcal: 385, p: 14.8, f: 6.5, c: 62.5 },
+      { name: "ゆで卵2個＋ブロッコリー", kcal: 165, p: 14.2, f: 10.5, c: 3.2 },
+      { name: "プロテインスムージー（バナナ＋豆乳）", kcal: 215, p: 22.5, f: 3.8, c: 24.5 },
+      { name: "ツナ缶サラダ＋玄米おにぎり", kcal: 312, p: 18.5, f: 8.2, c: 40.2 },
+      { name: "目玉焼き＋ウインナー＋食パン", kcal: 395, p: 16.5, f: 20.2, c: 35.8 },
+      { name: "鮭フレークごはん＋味噌汁", kcal: 362, p: 16.2, f: 5.8, c: 58.5 },
+    ],
+    lunch: [
+      { name: "鶏むねソテー＋サラダ＋玄米", kcal: 452, p: 35.2, f: 8.5, c: 55.8 },
+      { name: "豚もも生姜焼き＋キャベツ＋ご飯", kcal: 520, p: 28.5, f: 12.8, c: 68.5 },
+      { name: "サバ缶のっけ丼", kcal: 445, p: 24.8, f: 14.2, c: 52.5 },
+      { name: "ささみと野菜のパスタ", kcal: 425, p: 28.2, f: 8.5, c: 58.8 },
+      { name: "豆腐ハンバーグ＋サラダ＋雑穀米", kcal: 418, p: 22.5, f: 12.2, c: 52.8 },
+      { name: "鶏そぼろ弁当", kcal: 485, p: 26.5, f: 10.8, c: 65.2 },
+      { name: "親子丼", kcal: 520, p: 25.8, f: 12.5, c: 72.5 },
+      { name: "ツナと卵のチャーハン", kcal: 485, p: 20.5, f: 15.2, c: 62.8 },
+      { name: "牛肉とブロッコリーの炒め＋ご飯", kcal: 545, p: 30.2, f: 16.8, c: 62.5 },
+    ],
+    dinner: [
+      { name: "鶏むね蒸し焼き＋温野菜", kcal: 225, p: 32.5, f: 5.8, c: 10.2 },
+      { name: "刺身盛り＋味噌汁＋ご飯少なめ", kcal: 382, p: 28.5, f: 8.2, c: 42.5 },
+      { name: "豚しゃぶサラダ＋ポン酢", kcal: 285, p: 22.8, f: 15.2, c: 12.5 },
+      { name: "サーモンのホイル焼き＋サラダ", kcal: 245, p: 26.2, f: 12.8, c: 5.5 },
+      { name: "豆腐と野菜の鍋", kcal: 298, p: 25.8, f: 12.5, c: 18.2 },
+      { name: "鶏もも肉の照り焼き＋ブロッコリー", kcal: 320, p: 28.5, f: 15.8, c: 12.5 },
+      { name: "カツオのたたき＋薬味", kcal: 145, p: 25.2, f: 2.8, c: 3.5 },
+      { name: "麻婆豆腐＋ご飯少なめ", kcal: 415, p: 18.5, f: 18.2, c: 42.8 },
+      { name: "肉じゃが", kcal: 255, p: 12.8, f: 8.5, c: 32.5 },
+      { name: "焼き魚（ほっけ）＋大根おろし", kcal: 168, p: 22.5, f: 8.2, c: 0.5 },
+    ],
+    snack: [
+      { name: "プロテインシェイク", kcal: 105, p: 21.5, f: 1.2, c: 2.8 },
+      { name: "ゆで卵＋ナッツ少々", kcal: 128, p: 8.5, f: 9.2, c: 1.5 },
+      { name: "ギリシャヨーグルト＋はちみつ", kcal: 95, p: 12.5, f: 0.5, c: 9.8 },
+      { name: "バナナ＋ピーナッツバター", kcal: 185, p: 5.2, f: 8.5, c: 24.8 },
+      { name: "プロテインバー（自前）", kcal: 170, p: 20.5, f: 6.5, c: 10.8 },
+      { name: "カッテージチーズ＋フルーツ", kcal: 115, p: 14.2, f: 2.5, c: 8.8 },
+    ],
+  },
+  "吉野家": {
+    lunch: [
+      { name: "牛丼（小盛）", kcal: 488, p: 15.5, f: 15.2, c: 69.5 },
+      { name: "ライザップ牛サラダ", kcal: 398, p: 28.2, f: 25.5, c: 14.8 },
+      { name: "牛丼（並）", kcal: 635, p: 20.2, f: 20.5, c: 89.8 },
+      { name: "鶏すき丼（並）", kcal: 548, p: 25.8, f: 12.5, c: 78.5 },
+      { name: "サラダ牛丼", kcal: 545, p: 18.5, f: 18.8, c: 72.5 },
+    ],
+    dinner: [
+      { name: "ライザップ牛サラダ", kcal: 398, p: 28.2, f: 25.5, c: 14.8 },
+      { name: "牛丼（小盛）＋サラダ", kcal: 528, p: 17.8, f: 16.5, c: 72.5 },
+      { name: "牛鮭定食", kcal: 620, p: 28.5, f: 16.2, c: 82.5 },
+    ],
+  },
+  "松屋": {
+    lunch: [
+      { name: "牛めし（ミニ）", kcal: 505, p: 16.8, f: 16.5, c: 69.8 },
+      { name: "鶏の甘辛味噌定食", kcal: 620, p: 32.5, f: 18.2, c: 72.8 },
+      { name: "牛めし（並）", kcal: 692, p: 22.5, f: 22.8, c: 95.2 },
+      { name: "ネギたっぷり旨辛牛めし", kcal: 725, p: 24.8, f: 26.5, c: 92.5 },
+    ],
+    dinner: [
+      { name: "牛めし（ミニ）＋生野菜", kcal: 535, p: 17.5, f: 17.2, c: 72.5 },
+      { name: "豚肩ロースの生姜焼定食", kcal: 685, p: 28.5, f: 25.2, c: 75.8 },
+    ],
+  },
+  "すき家": {
+    lunch: [
+      { name: "牛丼ライト", kcal: 356, p: 24.5, f: 20.8, c: 18.2 },
+      { name: "牛丼（ミニ）", kcal: 496, p: 14.8, f: 17.2, c: 68.5 },
+      { name: "鶏そぼろ丼（並）", kcal: 558, p: 22.5, f: 10.8, c: 88.5 },
+    ],
+    dinner: [
+      { name: "鮭定食", kcal: 548, p: 28.5, f: 12.2, c: 72.8 },
+      { name: "牛丼ライト＋みそ汁", kcal: 395, p: 25.8, f: 21.5, c: 21.8 },
+    ],
+  },
+  "サイゼリヤ": {
+    lunch: [
+      { name: "若鶏のグリル＋サラダ", kcal: 438, p: 35.2, f: 22.8, c: 20.5 },
+      { name: "ほうれん草のソテー", kcal: 128, p: 5.2, f: 8.5, c: 7.8 },
+      { name: "ミラノ風ドリア", kcal: 521, p: 15.8, f: 22.5, c: 62.8 },
+    ],
+    dinner: [
+      { name: "若鶏のグリル＋青豆サラダ", kcal: 478, p: 38.5, f: 24.2, c: 18.5 },
+      { name: "チキンとブロッコリーサラダ", kcal: 252, p: 22.8, f: 14.5, c: 8.2 },
+    ],
+  },
+  "大戸屋": {
+    lunch: [
+      { name: "しまほっけ炭火焼き定食", kcal: 540, p: 32.5, f: 15.8, c: 58.2 },
+      { name: "鶏むね黒酢あん定食", kcal: 605, p: 28.8, f: 14.2, c: 78.5 },
+      { name: "チキン南蛮定食", kcal: 685, p: 25.5, f: 28.2, c: 75.8 },
+    ],
+    dinner: [
+      { name: "ばくだん丼", kcal: 518, p: 28.5, f: 8.2, c: 75.8 },
+      { name: "鶏の竜田揚げ野菜定食", kcal: 580, p: 25.2, f: 18.5, c: 68.2 },
+    ],
+  },
+  "マクドナルド": {
+    lunch: [
+      { name: "チキンクリスプ", kcal: 345, p: 15.5, f: 15.8, c: 35.2 },
+      { name: "エッグマックマフィン", kcal: 311, p: 19.2, f: 13.5, c: 27.8 },
+      { name: "サラダ（サイド）", kcal: 10, p: 0.5, f: 0.1, c: 1.8 },
+    ],
+    dinner: [
+      { name: "チキンマックナゲット5個", kcal: 270, p: 15.8, f: 16.2, c: 13.5 },
+    ],
+  },
+  "CoCo壱番屋": {
+    lunch: [
+      { name: "ハーフカレー＋サラダ", kcal: 425, p: 8.5, f: 10.2, c: 72.5 },
+      { name: "手仕込ささみカツカレー", kcal: 825, p: 28.5, f: 22.8, c: 118.5 },
+    ],
+    dinner: [
+      { name: "低糖質カレー（カリフラワー）", kcal: 352, p: 12.5, f: 18.2, c: 32.5 },
+    ],
+  },
+};
 
-    <div class="card">
-      <div class="title">🧠 自動カロリー計算</div>
-      <div class="grid2">
-        <div>
-          <label>性別</label>
-          <select id="calcGender">
-            <option value="">選択してください</option>
-            <option value="male">男性</option>
-            <option value="female">女性</option>
-          </select>
-        </div>
-        <div>
-          <label>年齢</label>
-          <input id="calcAge" type="number" placeholder="例：35">
-        </div>
-        <div>
-          <label>身長（cm）</label>
-          <input id="calcHeight" type="number" placeholder="例：170">
-        </div>
-        <div>
-          <label>体重（kg）</label>
-          <input id="calcWeight" type="number" placeholder="例：72">
-        </div>
-        <div>
-          <label>体脂肪率（%）</label>
-          <input id="calcBodyFat" type="number" placeholder="例：20">
-        </div>
-        <div>
-          <label>目標</label>
-          <select id="calcGoal">
-            <option value="maintain">維持</option>
-            <option value="cut">減量</option>
-            <option value="bulk">増量</option>
-          </select>
-        </div>
-        <div>
-          <label>仕事内容</label>
-          <select id="calcJob">
-            <option value="1.15">ゆったり生活・在宅中心</option>
-            <option value="1.20">デスクワーク中心</option>
-            <option value="1.375">立ち仕事（販売・接客）</option>
-            <option value="1.55">体を動かす仕事（介護・配送）</option>
-            <option value="1.725">肉体労働（建設・農業）</option>
-          </select>
-        </div>
-        <div>
-          <label>運動習慣</label>
-          <select id="calcExercise">
-            <option value="0">ほぼなし</option>
-            <option value="0.025">週1回</option>
-            <option value="0.05">週2〜3回</option>
-            <option value="0.10">週4〜5回</option>
-            <option value="0.15">ほぼ毎日</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid2" style="margin-top:10px;">
-        <button class="btn btn-main" id="runCalc">自動計算する</button>
-        <button class="btn btn-sub" id="useCalcResult">結果を目標に反映</button>
-      </div>
-      <div class="calc-box">
-        <div class="grid2">
-          <div class="stat"><div class="tiny muted">基礎代謝</div><div id="calcBmr" class="n">0</div><div class="tiny muted">kcal</div></div>
-          <div class="stat"><div class="tiny muted">推定消費</div><div id="calcTdee" class="n">0</div><div class="tiny muted">kcal</div></div>
-          <div class="stat"><div class="tiny muted">目標摂取</div><div id="calcTargetKcal" class="n" style="color:#2d8a6e">0</div><div class="tiny muted">kcal</div></div>
-          <div class="stat"><div class="tiny muted">除脂肪体重</div><div id="calcLBM" class="n">0</div><div class="tiny muted">kg</div></div>
-        </div>
-        <div style="margin-top:10px;" class="grid3">
-          <div class="stat"><div class="tiny" style="color:#e74c3c">P</div><div id="calcP" class="n" style="color:#e74c3c">0</div><div class="tiny muted">g</div></div>
-          <div class="stat"><div class="tiny" style="color:#f39c12">F</div><div id="calcF" class="n" style="color:#f39c12">0</div><div class="tiny muted">g</div></div>
-          <div class="stat"><div class="tiny" style="color:#2ecc71">C</div><div id="calcC" class="n" style="color:#2ecc71">0</div><div class="tiny muted">g</div></div>
-        </div>
-        <div style="margin-top:8px;" id="calcMemo" class="tiny muted">まずは情報を入れて「自動計算する」を押してください。</div>
-      </div>
-    </div>
+// ── 一般食品DB ──
+const COMMON_FOODS = [
+// 主食
+{ name: “白米ご飯 少なめ（100g）”, kcal: 156, p: 2.5, f: 0.3, c: 35.6, cat: “主食” },
+{ name: “白米ご飯 1膳（150g）”, kcal: 234, p: 3.8, f: 0.5, c: 53.4, cat: “主食” },
+{ name: “白米ご飯 大盛り（200g）”, kcal: 312, p: 5.0, f: 0.6, c: 71.2, cat: “主食” },
+{ name: “玄米ご飯 1膳（150g）”, kcal: 228, p: 4.2, f: 1.5, c: 49.5, cat: “主食” },
+{ name: “食パン 6枚切り1枚”, kcal: 158, p: 5.6, f: 2.6, c: 28.0, cat: “主食” },
+{ name: “うどん 1玉”, kcal: 252, p: 6.5, f: 1.0, c: 52.0, cat: “主食” },
+{ name: “そば 1玉”, kcal: 264, p: 9.6, f: 1.5, c: 50.5, cat: “主食” },
+{ name: “パスタ 乾麺100g”, kcal: 378, p: 13.0, f: 2.0, c: 72.0, cat: “主食” },
+{ name: “オートミール 40g”, kcal: 152, p: 5.5, f: 2.3, c: 27.5, cat: “主食” },
+// 高タンパク食品
+{ name: “鶏ハム 100g”, kcal: 115, p: 24.5, f: 1.5, c: 0, cat: “高タンパク” },
+{ name: “鶏むね肉（皮なし）100g”, kcal: 108, p: 22.3, f: 1.5, c: 0, cat: “高タンパク” },
+{ name: “鶏もも肉（皮なし）100g”, kcal: 116, p: 18.8, f: 3.9, c: 0, cat: “高タンパク” },
+{ name: “ささみ 1本（50g）”, kcal: 52, p: 11.5, f: 0.4, c: 0, cat: “高タンパク” },
+{ name: “ゆで卵 1個”, kcal: 76, p: 6.2, f: 5.2, c: 0.3, cat: “高タンパク” },
+{ name: “納豆 1パック”, kcal: 95, p: 8.3, f: 5.0, c: 6.1, cat: “高タンパク” },
+{ name: “豆腐（木綿）半丁”, kcal: 108, p: 9.9, f: 6.3, c: 2.4, cat: “高タンパク” },
+{ name: “ツナ缶（水煮）1缶”, kcal: 71, p: 16.0, f: 0.7, c: 0.1, cat: “高タンパク” },
+{ name: “ツナ缶（油漬）1缶”, kcal: 200, p: 14.5, f: 15.8, c: 0.1, cat: “高タンパク” },
+{ name: “プロテインパウダー 1杯”, kcal: 100, p: 21.0, f: 1.0, c: 2.5, cat: “高タンパク” },
+// 魚介
+{ name: “鯖の塩焼き 1切”, kcal: 248, p: 20.5, f: 17.8, c: 0.2, cat: “魚介” },
+{ name: “鮭の塩焼き 1切”, kcal: 165, p: 22.8, f: 7.8, c: 0.1, cat: “魚介” },
+{ name: “刺身盛り合わせ 1人前”, kcal: 180, p: 28.5, f: 6.5, c: 1.2, cat: “魚介” },
+{ name: “マグロ刺身 5切”, kcal: 85, p: 18.5, f: 0.5, c: 0, cat: “魚介” },
+{ name: “サーモン刺身 5切”, kcal: 125, p: 15.2, f: 6.8, c: 0, cat: “魚介” },
+{ name: “サバ缶（水煮）1缶”, kcal: 280, p: 26.8, f: 18.5, c: 0.2, cat: “魚介” },
+// 汁物・野菜
+{ name: “味噌汁 1杯”, kcal: 40, p: 2.8, f: 1.2, c: 4.2, cat: “汁物” },
+{ name: “豚汁 1杯”, kcal: 120, p: 6.5, f: 5.8, c: 10.5, cat: “汁物” },
+{ name: “サラダ（ドレッシング付き）”, kcal: 85, p: 1.5, f: 5.8, c: 6.2, cat: “野菜” },
+{ name: “ブロッコリー 100g”, kcal: 33, p: 4.3, f: 0.5, c: 3.5, cat: “野菜” },
+{ name: “枝豆 小鉢”, kcal: 68, p: 5.8, f: 3.2, c: 4.5, cat: “野菜” },
+// 家庭料理
+{ name: “生姜焼き定食”, kcal: 650, p: 28.5, f: 22.8, c: 72.5, cat: “家庭料理” },
+{ name: “唐揚げ 5個”, kcal: 380, p: 22.5, f: 22.8, c: 18.5, cat: “家庭料理” },
+{ name: “肉じゃが 1人前”, kcal: 255, p: 12.8, f: 8.5, c: 32.5, cat: “家庭料理” },
+{ name: “カレーライス 1人前”, kcal: 685, p: 18.5, f: 20.2, c: 98.5, cat: “家庭料理” },
+{ name: “ハンバーグ 1個”, kcal: 340, p: 20.5, f: 22.8, c: 12.5, cat: “家庭料理” },
+{ name: “麻婆豆腐 1人前”, kcal: 295, p: 15.8, f: 18.2, c: 15.5, cat: “家庭料理” },
+// フィットネス食品
+{ name: “マッスル冷凍弁当（男性ダイエット用）”, kcal: 450, p: 40.0, f: 15.0, c: 35.0, cat: “フィットネス食品” },
+{ name: “マッスル冷凍弁当（女性ダイエット用）”, kcal: 350, p: 30.0, f: 10.0, c: 30.0, cat: “フィットネス食品” },
+{ name: “マッスル冷凍弁当（リーンバルク用）”, kcal: 550, p: 50.0, f: 17.0, c: 45.0, cat: “フィットネス食品” },
+{ name: “MRP（ミールリプレイスメント）1杯”, kcal: 380, p: 40.0, f: 5.0, c: 42.0, cat: “フィットネス食品” },
+{ name: “プロテインバー 1本”, kcal: 180, p: 16.0, f: 7.5, c: 15.0, cat: “フィットネス食品” },
+{ name: “BCAA ドリンク 1杯”, kcal: 20, p: 5.0, f: 0, c: 0, cat: “フィットネス食品” },
+// 🚨 お菓子・スイーツ
+{ name: “ポテトチップス 1袋（60g）”, kcal: 336, p: 3.1, f: 21.5, c: 32.8, cat: “🚨お菓子” },
+{ name: “チョコレート 板チョコ1枚”, kcal: 390, p: 5.0, f: 22.8, c: 42.5, cat: “🚨お菓子” },
+{ name: “クッキー 3枚”, kcal: 210, p: 2.5, f: 10.2, c: 28.5, cat: “🚨お菓子” },
+{ name: “アイスクリーム 1個”, kcal: 270, p: 4.5, f: 14.2, c: 32.5, cat: “🚨スイーツ” },
+{ name: “ショートケーキ 1切”, kcal: 345, p: 4.8, f: 18.5, c: 40.2, cat: “🚨スイーツ” },
+{ name: “シュークリーム 1個”, kcal: 228, p: 5.2, f: 12.8, c: 24.5, cat: “🚨スイーツ” },
+{ name: “大福もち 1個”, kcal: 235, p: 4.5, f: 0.5, c: 52.8, cat: “🚨スイーツ” },
+{ name: “どら焼き 1個”, kcal: 285, p: 6.2, f: 2.5, c: 58.5, cat: “🚨スイーツ” },
+{ name: “コンビニスイーツ（プリン等）”, kcal: 245, p: 4.2, f: 12.5, c: 30.8, cat: “🚨スイーツ” },
+{ name: “菓子パン 1個”, kcal: 385, p: 7.5, f: 12.8, c: 58.5, cat: “🚨お菓子” },
+{ name: “ドーナツ 1個”, kcal: 302, p: 4.2, f: 16.5, c: 35.8, cat: “🚨スイーツ” },
+{ name: “たい焼き 1個”, kcal: 225, p: 5.8, f: 2.2, c: 45.5, cat: “🚨スイーツ” },
+// 🚨 飲み物
+{ name: “コーラ 500ml”, kcal: 225, p: 0, f: 0, c: 56.5, cat: “🚨飲み物” },
+{ name: “タピオカミルクティー”, kcal: 380, p: 2.5, f: 8.5, c: 72.5, cat: “🚨飲み物” },
+{ name: “缶コーヒー（微糖）”, kcal: 65, p: 1.2, f: 1.0, c: 12.5, cat: “飲み物” },
+{ name: “ブラックコーヒー”, kcal: 6, p: 0.3, f: 0, c: 1.0, cat: “飲み物” },
+{ name: “プロテインドリンク 紙パック”, kcal: 105, p: 15.5, f: 0.8, c: 10.2, cat: “飲み物” },
+// 🍺 お酒
+{ name: “ビール 350ml缶”, kcal: 140, p: 1.0, f: 0, c: 10.5, cat: “🍺お酒” },
+{ name: “ビール 500ml缶”, kcal: 200, p: 1.5, f: 0, c: 15.0, cat: “🍺お酒” },
+{ name: “ビール 中ジョッキ（400ml）”, kcal: 160, p: 1.2, f: 0, c: 12.4, cat: “🍺お酒” },
+{ name: “チューハイ 350ml缶（5%）”, kcal: 150, p: 0, f: 0, c: 18.5, cat: “🍺お酒” },
+{ name: “チューハイ 500ml缶（5%）”, kcal: 215, p: 0, f: 0, c: 26.5, cat: “🍺お酒” },
+{ name: “ストロング系チューハイ 500ml（9%）”, kcal: 265, p: 0, f: 0, c: 10.5, cat: “🚨お酒” },
+{ name: “ハイボール 1杯”, kcal: 70, p: 0, f: 0, c: 0, cat: “🍺お酒” },
+{ name: “日本酒 1合（180ml）”, kcal: 185, p: 0.7, f: 0, c: 6.5, cat: “🍺お酒” },
+{ name: “ワイン グラス1杯（125ml）”, kcal: 90, p: 0.1, f: 0, c: 2.0, cat: “🍺お酒” },
+{ name: “ワイン ボトル半分”, kcal: 270, p: 0.3, f: 0, c: 6.0, cat: “🚨お酒” },
+{ name: “焼酎ロック 1杯（60ml）”, kcal: 85, p: 0, f: 0, c: 0, cat: “🍺お酒” },
+{ name: “ウイスキー シングル（30ml）”, kcal: 70, p: 0, f: 0, c: 0, cat: “🍺お酒” },
+{ name: “レモンサワー 1杯”, kcal: 150, p: 0, f: 0, c: 10.5, cat: “🍺お酒” },
+{ name: “梅酒ロック 1杯（90ml）”, kcal: 140, p: 0, f: 0, c: 18.5, cat: “🍺お酒” },
+{ name: “カクテル（甘め）1杯”, kcal: 160, p: 0.2, f: 0, c: 20.0, cat: “🚨お酒” },
+];
 
-    <div class="card">
-      <div class="title">🥗 食事提案</div>
-      <div class="grid2">
-        <div>
-          <label>お店</label>
-          <select id="suggestStore">
-            <option value="セブンイレブン">セブンイレブン</option>
-            <option value="ファミリーマート">ファミリーマート</option>
-            <option value="ローソン">ローソン</option>
-            <option value="吉野家">吉野家</option>
-            <option value="松屋">松屋</option>
-            <option value="すき家">すき家</option>
-          </select>
-        </div>
-        <div>
-          <label>食事タイミング</label>
-          <select id="suggestMeal">
-            <option value="breakfast">朝食</option>
-            <option value="lunch">昼食</option>
-            <option value="dinner">夕食</option>
-            <option value="snack">間食</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid2" style="margin-top:10px;">
-        <button class="btn btn-main" id="runSuggest">提案を見る</button>
-        <button class="btn btn-sub" id="pickSuggestion">1件目を入力欄へ</button>
-      </div>
-      <div class="suggest">
-        <h4>提案結果</h4>
-        <div id="suggestList" class="muted tiny">まだ提案していません。</div>
-      </div>
-    </div>
+const DRINK_TYPES = [
+{ label: “ビール（350ml缶）”, kcal: 140, unit: “缶” },
+{ label: “ビール（500ml缶）”, kcal: 200, unit: “缶” },
+{ label: “チューハイ（350ml缶）”, kcal: 150, unit: “缶” },
+{ label: “ストロング系（500ml缶）”, kcal: 265, unit: “缶” },
+{ label: “ハイボール（1杯）”, kcal: 70, unit: “杯” },
+{ label: “日本酒（1合）”, kcal: 185, unit: “合” },
+{ label: “ワイン（グラス1杯）”, kcal: 90, unit: “杯” },
+{ label: “焼酎ロック（1杯）”, kcal: 85, unit: “杯” },
+{ label: “レモンサワー（1杯）”, kcal: 150, unit: “杯” },
+];
+const DFM = { “毎日”: 7, “週5〜6回”: 5.5, “週3〜4回”: 3.5, “週1〜2回”: 1.5, “月2〜3回”: 0.6, “飲まない”: 0 };
+const DF = Object.keys(DFM);
+const JOBS = [{ label: “ゆったり生活（定年後・在宅中心）”, factor: 1.15 }, { label: “デスクワーク中心”, factor: 1.2 }, { label: “立ち仕事（販売・接客）”, factor: 1.375 }, { label: “体を動かす仕事（介護・配送）”, factor: 1.55 }, { label: “肉体労働（建設・農業）”, factor: 1.725 }];
+const EX = [“ウォーキング”, “ジョギング”, “筋トレ（自重）”, “筋トレ（ジム）”, “ヨガ・ピラティス”, “水泳”, “サイクリング”, “ダンス・エアロビクス”, “格闘技”, “球技（サッカー等）”, “なし”];
+const FRQ = [{ label: “週1回”, add: 0.025 }, { label: “週2〜3回”, add: 0.05 }, { label: “週4〜5回”, add: 0.1 }, { label: “ほぼ毎日”, add: 0.15 }];
+const GLS = [{ id: “cut”, label: “減量（しぼる）”, icon: “🔥”, desc: “体脂肪を減らしてスッキリ” }, { id: “maintain”, label: “維持（キープ）”, icon: “⚖️”, desc: “今の体型を健康的にキープ” }, { id: “bulk”, label: “増量（バルクアップ）”, icon: “💪”, desc: “筋肉を増やしてたくましく” }];
+const PC = [{ label: “月0.5kg（ゆっくり）”, value: 0.5 }, { label: “月1kg（標準）”, value: 1 }, { label: “月1.5kg（ハイペース）”, value: 1.5 }, { label: “月2kg（短期集中）”, value: 2 }];
+const PB2 = [{ label: “月0.5kg（リーンバルク）”, value: 0.5 }, { label: “月1kg（標準）”, value: 1 }, { label: “月1.5kg（しっかり）”, value: 1.5 }, { label: “月2kg（ハイペース）”, value: 2 }];
+const MS = [{ id: “3meals”, label: “朝・昼・夜の3食”, icon: “🍽️” }, { id: “3meals1snack”, label: “3食＋間食1回”, icon: “🥤” }, { id: “3meals2snack”, label: “3食＋間食2回”, icon: “🍌” }];
+const CVS = [“セブンイレブン”, “ファミリーマート”, “ローソン”, “ミニストップ”, “使わない”];
 
-    <div class="card">
-      <div class="title">🗓️ 1週間メニュー自動作成</div>
-      <div class="grid2">
-        <button class="btn btn-main" id="generateWeeklyPlan">週間プランを作成</button>
-        <button class="btn btn-sub" id="clearWeeklyPlan">プランを消去</button>
-      </div>
-      <div id="weeklyPlanWrap" class="muted tiny" style="margin-top:10px;">まだ週間プランは作成されていません。</div>
-    </div>
+function genMealLocal(plan, d, alDK) {
+const foodCal = plan.dailyCal - alDK;
+const srcs = [];
+if (d.canCook === “yes” || d.canCook === “some”) srcs.push(“自炊”);
+[d.conv1, d.conv2].filter(s => s && s !== “使わない” && FOOD_DB[s]).forEach(s => srcs.push(s));
+[d.restaurant1, d.restaurant2].filter(Boolean).forEach(r => { if (FOOD_DB[r]) srcs.push(r); });
+if (srcs.length === 0) srcs.push(“セブンイレブン”);
+const dis = (d.dislikedFoods || “”).split(/[,、，]/).map(s => s.trim().toLowerCase()).filter(Boolean);
+const ok = item => !dis.some(x => item.name.toLowerCase().includes(x));
 
-    <div class="card">
-      <div class="title">🎯 目標設定</div>
-      <div class="grid2">
-        <div><label>1日の目標カロリー</label><input id="targetKcal" type="number" placeholder="例：2000"></div>
-        <div><label>目標たんぱく質（g）</label><input id="targetP" type="number" placeholder="例：120"></div>
-        <div><label>目標脂質（g）</label><input id="targetF" type="number" placeholder="例：50"></div>
-        <div><label>目標炭水化物（g）</label><input id="targetC" type="number" placeholder="例：220"></div>
-      </div>
-      <div class="grid2" style="margin-top:10px;">
-        <button class="btn btn-main" id="saveTarget">保存する</button>
-        <button class="btn btn-sub" id="fillExample">サンプル入力</button>
-      </div>
-    </div>
+function poolBySrc(mt) {
+const byS = {};
+// ユーザー選択ソースを優先
+srcs.forEach(s => {
+if (FOOD_DB[s]?.[mt]) {
+const items = FOOD_DB[s][mt].filter(ok).map(i => ({ …i, src: s }));
+if (items.length) byS[s] = items;
+}
+});
+// フォールバック：コンビニ3社
+[“セブンイレブン”, “ファミリーマート”, “ローソン”].forEach(s => {
+if (!byS[s] && FOOD_DB[s]?.[mt]) {
+const items = FOOD_DB[s][mt].filter(ok).map(i => ({ …i, src: s }));
+if (items.length) byS[s] = items;
+}
+});
+return byS;
+}
 
-    <div class="card">
-      <div class="title">📅 今日の合計</div>
-      <div class="grid4">
-        <div class="stat"><div class="tiny muted">kcal</div><div id="sumKcal" class="n">0</div></div>
-        <div class="stat"><div class="tiny" style="color:#e74c3c">P</div><div id="sumP" class="n" style="color:#e74c3c">0</div></div>
-        <div class="stat"><div class="tiny" style="color:#f39c12">F</div><div id="sumF" class="n" style="color:#f39c12">0</div></div>
-        <div class="stat"><div class="tiny" style="color:#2ecc71">C</div><div id="sumC" class="n" style="color:#2ecc71">0</div></div>
-      </div>
-      <div style="margin-top:12px;">
-        <div class="summary-line"><span>カロリー達成率</span><strong id="rateLabel">0%</strong></div>
-        <div class="progress"><div id="rateBar" class="bar"></div></div>
-      </div>
-      <div class="summary-line"><span>目標との差</span><strong id="diffLabel">0 kcal</strong></div>
-    </div>
+const hasS1 = d.mealSplit !== “3meals”, hasS2 = d.mealSplit === “3meals2snack”;
+const sn = (hasS1 ? 1 : 0) + (hasS2 ? 1 : 0);
+const se = sn > 0 ? Math.round(foodCal * 0.08) : 0;
+const mc = foodCal - se * sn;
+const bC = Math.round(mc * 0.28), lC = Math.round(mc * 0.40), dC = mc - bC - lC;
+const w = parseInt(d.wakeTime) || 7, sl = parseInt(d.sleepTime) || 23;
+const bT = `${String(w + 1).padStart(2, "0")}:00`;
+const lT = `${String(Math.max(w + 5, 12)).padStart(2, "0")}:00`;
+const dT = `${String(Math.min(sl - 2, 20)).padStart(2, "0")}:00`;
+const s1T = `${String(Math.max(w + 3, 10)).padStart(2, "0")}:00`;
+const s2T = `${String(Math.round((parseInt(lT) + parseInt(dT)) / 2)).padStart(2, "0")}:00`;
+const tips = [“野菜→タンパク質→炭水化物の順で”, “よく噛んでゆっくり食べましょう”, “食前にコップ1杯の水を”, “タンパク質は毎食バランスよく”, “食物繊維を先に食べると血糖値◎”, “夜は炭水化物控えめに”, “間食はタンパク質系がおすすめ”];
 
-    <div class="card">
-      <div class="title">💧 水分記録</div>
-      <div class="summary-line"><span>今日の水分</span><strong id="waterLabel">0 / 8 杯（0.0L）</strong></div>
-      <div class="water-row" id="waterCups"></div>
-      <div class="grid2">
-        <button class="btn btn-blue btn-small" id="waterMinus">− 1杯</button>
-        <button class="btn btn-blue btn-small" id="waterPlus">＋ 1杯</button>
-      </div>
-    </div>
+function pickFromSrc(srcItems, tgt) {
+if (!srcItems.length) return [];
+const sh = […srcItems].sort(() => Math.random() - 0.5);
+const sel = [];
+let rem = tgt;
+// まず高タンパク品を1つ
+const hp = sh.filter(i => i.p >= 10 && i.kcal <= rem + 100);
+if (hp.length) { const p = hp[Math.floor(Math.random() * hp.length)]; sel.push(p); rem -= p.kcal; }
+// 残りを同じソースから埋める（最大5品）
+for (let i = 0; i < 20 && sel.length < 5 && rem > 50; i++) {
+const c = sh.filter(x => !sel.find(s => s.name === x.name) && x.kcal <= rem + 80 && x.kcal >= 15);
+if (!c.length) break;
+const p = c[Math.floor(Math.random() * c.length)]; sel.push(p); rem -= p.kcal;
+}
+// まだ100kcal以上足りなければ「ご飯」で補充
+if (rem > 100) {
+const rice = Math.round(rem / 235);
+if (rice >= 1) {
+sel.push({ name: `白米ご飯${rice > 1 ? rice + "杯" : "1杯"}`, kcal: rice * 235, p: rice * 4.0, f: rice * 0.5, c: rice * 53.4, src: sel[0]?.src || “自炊” });
+rem -= rice * 235;
+}
+} else if (rem > 50) {
+sel.push({ name: “白米ご飯（小）”, kcal: 118, p: 2.0, f: 0.3, c: 26.7, src: sel[0]?.src || “自炊” });
+rem -= 118;
+}
+return sel;
+}
 
-    <div class="card">
-      <div class="title">⚖️ 体重・体脂肪記録</div>
-      <div class="record-row">
-        <div style="flex:1;"><label>体重（kg）</label><input id="bodyWeight" type="number" placeholder="例：72.5"></div>
-        <div style="flex:1;"><label>体脂肪率（%）</label><input id="bodyFat" type="number" placeholder="例：18.5"></div>
-      </div>
-      <div class="grid2" style="margin-top:10px;">
-        <button class="btn btn-main" id="saveBody">記録する</button>
-        <button class="btn btn-sub" id="clearBodyForm">クリア</button>
-      </div>
-      <div style="margin-top:12px;">
-        <div class="tiny muted" style="margin-bottom:6px;">最新の記録</div>
-        <div id="latestBody" class="muted" style="font-size:13px;">まだ記録がありません。</div>
-      </div>
-    </div>
+// 1食ごとにランダムにソースを1つ選び、そのソースから組み合わせ
+function pickMeal(mt, tgt) {
+const byS = poolBySrc(mt);
+const srcKeys = Object.keys(byS);
+if (!srcKeys.length) return [];
+const chosen = srcKeys[Math.floor(Math.random() * srcKeys.length)];
+return pickFromSrc(byS[chosen], tgt);
+}
 
-    <div class="card">
-      <div class="title">🍱 記録する食事</div>
-      <div class="meal-tabs" id="mealTabs"></div>
-      <div style="margin-top:12px;" class="grid2">
-        <div><label>食べた時間</label><input id="eatTime" type="time"></div>
-        <div><label>分類</label><select id="foodType"><option value="normal">通常の食事</option><option value="sweet">お菓子・スイーツ</option><option value="drink">お酒・飲み物</option></select></div>
-      </div>
-      <div style="margin-top:10px;"><label>食べ物の名前</label><input id="foodName" type="text" placeholder="例：サラダチキン、鮭おにぎり、プロテインバー"></div>
-      <div class="grid2" style="margin-top:10px;">
-        <div><label>カロリー</label><input id="foodKcal" type="number" placeholder="例：180"></div>
-        <div><label>たんぱく質 P（g）</label><input id="foodP" type="number" placeholder="例：20"></div>
-        <div><label>脂質 F（g）</label><input id="foodF" type="number" placeholder="例：6"></div>
-        <div><label>炭水化物 C（g）</label><input id="foodC" type="number" placeholder="例：18"></div>
-      </div>
-      <div class="grid2" style="margin-top:10px;">
-        <button class="btn btn-main" id="addFood">＋ 追加する</button>
-        <button class="btn btn-sub" id="clearFoodForm">入力をクリア</button>
-      </div>
-      <div class="pill-row" style="margin-top:12px;" id="quickFoods"></div>
-    </div>
+const drDays = new Set();
+const dpw = DFM[d.drinkAllowFreq] || 0;
+if (dpw >= 7) { for (let i = 0; i < 7; i++) drDays.add(i); }
+else if (dpw > 0) { [4, 5, 6, 3, 2, 1, 0].slice(0, Math.round(dpw)).forEach(i => drDays.add(i)); }
 
-    <div class="card">
-      <div class="title">📝 今日の記録一覧</div>
-      <div id="todayList" class="list"></div>
-      <div class="grid2" style="margin-top:12px;">
-        <button class="btn btn-sub btn-small" id="exportText">テキスト確認</button>
-        <button class="btn btn-red btn-small" id="clearToday">今日の記録を全削除</button>
-      </div>
-    </div>
+const DAYS = [“月曜日”, “火曜日”, “水曜日”, “木曜日”, “金曜日”, “土曜日”, “日曜日”];
+const sm = items => ({
+kcal: items.reduce((s, i) => s + i.kcal, 0),
+p: Math.round(items.reduce((s, i) => s + i.p, 0) * 10) / 10,
+f: Math.round(items.reduce((s, i) => s + i.f, 0) * 10) / 10,
+c: Math.round(items.reduce((s, i) => s + i.c, 0) * 10) / 10,
+});
+const fmtItems = (items) => {
+if (!items.length) return [];
+const src = items[0]?.src;
+const srcLabel = src && src !== “自炊” ? `📍 ${src}` : src === “自炊” ? “📍 自炊” : “”;
+const names = items.map(i => i.name);
+return srcLabel ? [srcLabel, …names] : names;
+};
 
-    <div class="card">
-      <div class="title">📊 週間管理</div>
-      <div class="week-grid" id="weekGrid"></div>
-      <div style="margin-top:10px;" class="tiny muted">目安：目標カロリーに近い日は緑、オーバー日は赤っぽく表示されます。</div>
-    </div>
+const wp = DAYS.map((day, idx) => {
+const bI = pickMeal(“breakfast”, bC), lI = pickMeal(“lunch”, lC), dI = pickMeal(“dinner”, dC);
+const meals = {
+breakfast: { time: bT, items: fmtItems(bI), …sm(bI), tip: tips[idx % 7] },
+lunch: { time: lT, items: fmtItems(lI), …sm(lI), tip: tips[(idx + 1) % 7] },
+dinner: { time: dT, items: fmtItems(dI), …sm(dI), tip: tips[(idx + 2) % 7] },
+};
+if (hasS1) { const s = pickMeal(“snack”, se); meals.snack1 = { time: s1T, items: fmtItems(s), …sm(s), tip: “タンパク質系の間食がおすすめ” }; }
+if (hasS2) { const s = pickMeal(“snack”, se); meals.snack2 = { time: s2T, items: fmtItems(s), …sm(s), tip: “ナッツや果物でエネルギー補給” }; }
+let alcohol = null, ak = 0;
+if (drDays.has(idx) && d.drinkAllowType) {
+const dt = DRINK_TYPES.find(t => t.label === d.drinkAllowType);
+const amt = parseInt(d.drinkAllowAmount) || 1;
+if (dt) { ak = dt.kcal * amt; alcohol = { items: [`${d.drinkAllowType} × ${amt}${dt.unit}`], kcal: ak }; }
+}
+const tK = Object.values(meals).reduce((s, m) => s + m.kcal, 0) + ak;
+const tP = Math.round(Object.values(meals).reduce((s, m) => s + m.p, 0) * 10) / 10;
+const tF = Math.round(Object.values(meals).reduce((s, m) => s + m.f, 0) * 10) / 10;
+const tC = Math.round(Object.values(meals).reduce((s, m) => s + m.c, 0) * 10) / 10;
+return { day, meals, alcohol, totalKcal: tK, totalP: tP, totalF: tF, totalC: tC };
+});
 
-    <div class="card">
-      <div class="title">💡 ひとことアドバイス</div>
-      <div id="advice" class="muted" style="font-size:13px; line-height:1.8;">まずは1日の記録を始めましょう。</div>
-    </div>
+return {
+weeklyPlan: wp,
+generalTips: [
+plan.isCut ? “タンパク質をしっかり摂って筋肉キープ” : plan.isBulk ? “炭水化物を恐れずトレーニング前後に” : “バランスの良い食事で体調維持”,
+“水分は1日2L以上。代謝アップに効果的”,
+“食べる順番は「野菜→タンパク質→炭水化物」”,
+],
+alcoholAdvice: dpw > 0 && d.drinkAllowType
+? `お酒は週${Math.round(dpw)}回程度に。ハイボールや焼酎は糖質少なめでおすすめ。おつまみは枝豆・刺身・サラダなど高タンパクなものを。`
+: “禁酒で目標達成を加速！全カロリーを栄養ある食事に使えます。”
+};
+}
 
-    <div class="footer-space"></div>
-  </div>
+// ═══ State ═══
+let S = {
+step: 0,
+d: { gender:””,age:””,height:””,weight:””,bodyFat:””,job:””,exercise:””,exerciseFreq:””,goal:””,targetWeight:””,targetBf:””,pace:””,wakeTime:“07”,sleepTime:“23”,mealSplit:””,drinkType:””,drinkAmount:“0”,drinkFreq:””,drinkAllowType:””,drinkAllowAmount:“0”,drinkAllowFreq:””,dislikedFoods:””,conv1:””,conv2:””,restaurant1:””,restaurant2:””,canCook:”” },
+plan: null, meal: null, selDay: 0, tab: “today”,
+log: {}, dailyDone: {}, water: {}, bodyLog: [], favorites: [],
+addMode: false, addCat: “”, addTime: “”, foodSearch: “”,
+customName: “”, customKcal: “”, customP: “”, customF: “”, customC: “”
+};
 
-  <script>
-    const STORAGE_KEY = 'meal-app-ver6-data';
+// ═══ Persistence ═══
+function save() {
+try { localStorage.setItem(“meal-app”, JSON.stringify({ d:S.d, plan:S.plan, meal:S.meal, log:S.log, dailyDone:S.dailyDone, water:S.water, bodyLog:S.bodyLog, favorites:S.favorites })); } catch(e) {}
+}
+function load() {
+try {
+const r = JSON.parse(localStorage.getItem(“meal-app”));
+if (r) {
+if (r.d) S.d = r.d;
+if (r.plan) S.plan = r.plan;
+if (r.meal) { S.meal = r.meal; S.step = 10; }
+if (r.log) S.log = r.log;
+if (r.dailyDone) S.dailyDone = r.dailyDone;
+if (r.water) S.water = r.water;
+if (r.bodyLog) S.bodyLog = r.bodyLog;
+if (r.favorites) S.favorites = r.favorites;
+}
+} catch(e) {}
+}
+function resetAll() {
+localStorage.removeItem(“meal-app”);
+S.step=0; S.plan=null; S.meal=null; S.log={}; S.dailyDone={}; S.water={}; S.bodyLog=[]; S.favorites=[];
+S.d = { gender:””,age:””,height:””,weight:””,bodyFat:””,job:””,exercise:””,exerciseFreq:””,goal:””,targetWeight:””,targetBf:””,pace:””,wakeTime:“07”,sleepTime:“23”,mealSplit:””,drinkType:””,drinkAmount:“0”,drinkFreq:””,drinkAllowType:””,drinkAllowAmount:“0”,drinkAllowFreq:””,dislikedFoods:””,conv1:””,conv2:””,restaurant1:””,restaurant2:””,canCook:”” };
+render();
+}
 
-    const FOOD_DB = {
-      'セブンイレブン': {
-        breakfast: [
-          {name:'サラダチキンバー',kcal:98,p:16.5,f:2.8,c:2.1,type:'normal'},
-          {name:'手巻おにぎり 鮭',kcal:183,p:5.1,f:1.5,c:38.2,type:'normal'},
-          {name:'ギリシャヨーグルト',kcal:59,p:10.6,f:0,c:4.8,type:'normal'}
-        ],
-        lunch: [
-          {name:'サラダチキン プレーン',kcal:108,p:23.8,f:1.2,c:0.3,type:'normal'},
-          {name:'1/2日分野菜の鶏塩鍋',kcal:218,p:19.2,f:8.5,c:14.3,type:'normal'},
-          {name:'もち麦おにぎり 枝豆',kcal:172,p:4.5,f:1.8,c:35.2,type:'normal'}
-        ],
-        dinner: [
-          {name:'炭火焼きチキン',kcal:145,p:22.1,f:5.8,c:0.8,type:'normal'},
-          {name:'直火焼き 紅しゃけ',kcal:142,p:21.5,f:6.2,c:0.2,type:'normal'},
-          {name:'10品目ミックスサラダ',kcal:52,p:1.8,f:0.3,c:10.5,type:'normal'}
-        ],
-        snack: [
-          {name:'プロテインバー',kcal:183,p:15.9,f:8.5,c:12.1,type:'normal'},
-          {name:'ギリシャヨーグルト ブルーベリー',kcal:68,p:10.2,f:0,c:6.5,type:'normal'}
-        ]
-      },
-      'ファミリーマート': {
-        breakfast: [
-          {name:'グリルチキン タンドリー',kcal:118,p:20.5,f:3.8,c:1.2,type:'normal'},
-          {name:'味付け半熟ゆでたまご 2個',kcal:130,p:11.6,f:8.6,c:1.2,type:'normal'}
-        ],
-        lunch: [
-          {name:'グリルチキン ブラックペッパー',kcal:120,p:21.2,f:3.5,c:1.5,type:'normal'},
-          {name:'10品目の豚汁',kcal:128,p:6.5,f:5.8,c:12.2,type:'normal'},
-          {name:'スーパー大麦 枝豆こんぶ',kcal:185,p:4.8,f:1.5,c:38.5,type:'normal'}
-        ],
-        dinner: [
-          {name:'鶏の炭火焼 柚子こしょう',kcal:152,p:23.5,f:6.2,c:0.5,type:'normal'},
-          {name:'海藻サラダ',kcal:42,p:1.5,f:0.2,c:8.8,type:'normal'}
-        ],
-        snack: [
-          {name:'素焼きミックスナッツ',kcal:132,p:4.2,f:11.5,c:2.8,type:'normal'},
-          {name:'プロテインバー キャラメル',kcal:175,p:15.5,f:7.8,c:13.5,type:'normal'}
-        ]
-      },
-      'ローソン': {
-        breakfast: [
-          {name:'ブランパン 2個入',kcal:120,p:10.4,f:3.6,c:10.8,type:'normal'},
-          {name:'蒸し鶏のサラダ',kcal:138,p:20.5,f:4.2,c:5.8,type:'normal'}
-        ],
-        lunch: [
-          {name:'サラダチキン スモーク',kcal:112,p:22.8,f:2.1,c:0.5,type:'normal'},
-          {name:'もち麦おにぎり 枝豆塩昆布',kcal:175,p:4.2,f:1.5,c:36.8,type:'normal'}
-        ],
-        dinner: [
-          {name:'焼鮭',kcal:148,p:20.2,f:7.2,c:0.5,type:'normal'},
-          {name:'大根サラダ',kcal:35,p:0.8,f:0.2,c:7.5,type:'normal'}
-        ],
-        snack: [
-          {name:'プロテインヨーグルト',kcal:75,p:12.5,f:0,c:6.2,type:'normal'},
-          {name:'素焼きくるみ',kcal:145,p:3.2,f:13.5,c:2.1,type:'normal'}
-        ]
-      },
-      '吉野家': {
-        lunch: [
-          {name:'ライザップ牛サラダ',kcal:398,p:28.2,f:25.5,c:14.8,type:'normal'},
-          {name:'牛丼（小盛）',kcal:488,p:15.5,f:15.2,c:69.5,type:'normal'}
-        ],
-        dinner: [
-          {name:'ライザップ牛サラダ',kcal:398,p:28.2,f:25.5,c:14.8,type:'normal'},
-          {name:'牛鮭定食',kcal:620,p:28.5,f:16.2,c:82.5,type:'normal'}
-        ]
-      },
-      '松屋': {
-        lunch: [
-          {name:'牛めし（ミニ）',kcal:505,p:16.8,f:16.5,c:69.8,type:'normal'},
-          {name:'鶏の甘辛味噌定食',kcal:620,p:32.5,f:18.2,c:72.8,type:'normal'}
-        ],
-        dinner: [
-          {name:'牛めし（ミニ）＋生野菜',kcal:535,p:17.5,f:17.2,c:72.5,type:'normal'}
-        ]
-      },
-      'すき家': {
-        lunch: [
-          {name:'牛丼ライト',kcal:356,p:24.5,f:20.8,c:18.2,type:'normal'},
-          {name:'牛丼（ミニ）',kcal:496,p:14.8,f:17.2,c:68.5,type:'normal'}
-        ],
-        dinner: [
-          {name:'牛丼ライト＋みそ汁',kcal:395,p:25.8,f:21.5,c:21.8,type:'normal'}
-        ]
-      }
-    };
+// ═══ Helpers ═══
+const EXLIST = [“ウォーキング”,“ジョギング”,“筋トレ（自重）”,“筋トレ（ジム）”,“ヨガ・ピラティス”,“水泳”,“サイクリング”,“ダンス・エアロビクス”,“格闘技”,“球技（サッカー等）”,“なし”];
+const PCut = [{label:“月0.5kg（ゆっくり）”,v:0.5},{label:“月1kg（標準）”,v:1},{label:“月1.5kg（ハイペース）”,v:1.5},{label:“月2kg（短期集中）”,v:2}];
+const PBulk = [{label:“月0.5kg（リーンバルク）”,v:0.5},{label:“月1kg（標準）”,v:1},{label:“月1.5kg（しっかり）”,v:1.5},{label:“月2kg（ハイペース）”,v:2}];
+const MSplits = [{id:“3meals”,label:“朝・昼・夜の3食”,icon:“🍽️”},{id:“3meals1snack”,label:“3食＋間食1回”,icon:“🥤”},{id:“3meals2snack”,label:“3食＋間食2回”,icon:“🍌”}];
+const ML = {breakfast:“🌅 朝食”,snack1:“🍌 間食①”,lunch:“☀️ 昼食”,snack2:“🍎 間食②”,dinner:“🌙 夕食”};
+const MO = [“breakfast”,“snack1”,“lunch”,“snack2”,“dinner”];
 
-    const mealLabels = { breakfast:'🌅 朝食', lunch:'☀️ 昼食', dinner:'🌙 夕食', snack:'🍌 間食' };
-    const mealKeys = Object.keys(mealLabels);
-    const dayLabels = ['月曜日','火曜日','水曜日','木曜日','金曜日','土曜日','日曜日'];
+function calc() {
+const d = S.d;
+const nA=parseFloat(d.age)||0, nH=parseFloat(d.height)||0, nW=parseFloat(d.weight)||0, nBf=parseFloat(d.bodyFat)||0;
+const lbm = nW>0&&nBf>0 ? nW*(1-nBf/100) : 0;
+const jO = JOBS.find(j=>j.label===d.job);
+const fO = FRQ.find(f=>f.label===d.exerciseFreq);
+const bMSJ = d.gender&&nA&&nH&&nW ? (d.gender===“male”?10*nW+6.25*nH-5*nA+5:10*nW+6.25*nH-5*nA-161) : 0;
+const bKM = lbm>0 ? 370+21.6*lbm : 0;
+const bmr = bKM>0 ? Math.round((bMSJ+bKM)/2) : Math.round(bMSJ);
+const tdee = bmr&&jO ? Math.round(bmr*(jO.factor+(fO?fO.add:0))) : 0;
+return { nA,nH,nW,nBf,lbm,fatM:nW-lbm,bmr,tdee };
+}
+function curDrinkKcal() {
+const dt=DRINK_TYPES.find(t=>t.label===S.d.drinkType);
+return dt ? Math.round(dt.kcal*(parseInt(S.d.drinkAmount)||0)*(DFM[S.d.drinkFreq]||0)/7) : 0;
+}
+function allowDrinkKcal() {
+const dt=DRINK_TYPES.find(t=>t.label===S.d.drinkAllowType);
+return dt ? Math.round(dt.kcal*(parseInt(S.d.drinkAllowAmount)||0)*(DFM[S.d.drinkAllowFreq]||0)/7) : 0;
+}
+function genPlan() {
+const c = calc();
+const d=S.d, tw=parseFloat(d.targetWeight)||c.nW, tbf=parseFloat(d.targetBf)||c.nBf, pace=parseFloat(d.pace)||1;
+const wd=Math.abs(tw-c.nW), mo=wd>0?Math.ceil(wd/pace):1;
+const iC=d.goal===“cut”, iB=d.goal===“bulk”;
+let dc=c.tdee; if(iC) dc=Math.round(c.tdee-(pace*7700/30)); if(iB) dc=Math.round(c.tdee+(pace*7700/30));
+dc=Math.max(dc,d.gender===“male”?1400:1200);
+let pG,fG;
+if(iC){pG=Math.round(c.lbm>0?c.lbm*2.2:c.nW*1.8);fG=Math.round(c.nW*0.8)}
+else if(iB){pG=Math.round(c.lbm>0?c.lbm*2.0:c.nW*1.6);fG=Math.round(c.nW*0.9)}
+else{pG=Math.round(c.lbm>0?c.lbm*1.6:c.nW*1.2);fG=Math.round(c.nW*0.8)}
+const cG=Math.round(Math.max((dc-pG*4-fG*9)/4,50)), aC=pG*4+fG*9+cG*4;
+S.plan={currentWeight:c.nW,currentBf:c.nBf,lbm:c.lbm,fatMass:c.fatM,targetWeight:tw,targetBf:tbf,targetLBM:tw*(1-tbf/100),weightDiff:wd,months:mo,pace,tdee:c.tdee,dailyCal:dc,actualCal:aC,proteinG:pG,fatG:fG,carbG:cG,isCut:iC,isBulk:iB,bmr:c.bmr};
+S.step=5; save(); render();
+}
+function genMeal() {
+S.meal = genMealLocal(S.plan, S.d, allowDrinkKcal());
+S.selDay=0; S.step=10; S.tab=“today”; save(); render();
+}
+function setStep(n) { S.step=n; render(); }
+function setTab(t) { S.tab=t; S.addMode=false; render(); }
+function upd(k,v) { S.d[k]=v; save(); }
+function updR(k,v) { S.d[k]=v; save(); render(); }
+function getAllFoods() {
+const all=[];
+Object.entries(FOOD_DB).forEach(([src,cats])=>{Object.values(cats).forEach(items=>{items.forEach(item=>{if(!all.find(f=>f.name===item.name&&f.src===src))all.push({…item,src})})})});
+COMMON_FOODS.forEach(item=>all.push({…item,src:item.cat||“一般”}));
+return all;
+}
 
-    const quickFoodsData = [
-      {name:'サラダチキン', kcal:115, p:24, f:1.5, c:1, type:'normal'},
-      {name:'ゆで卵 1個', kcal:76, p:6.2, f:5.2, c:0.3, type:'normal'},
-      {name:'おにぎり 鮭', kcal:180, p:5, f:2, c:38, type:'normal'},
-      {name:'プロテインバー', kcal:180, p:16, f:7.5, c:15, type:'normal'},
-      {name:'ギリシャヨーグルト', kcal:65, p:10, f:0, c:5, type:'normal'},
-      {name:'ビール 350ml', kcal:140, p:1, f:0, c:10.5, type:'drink'},
-      {name:'チョコ 1枚', kcal:390, p:5, f:22.8, c:42.5, type:'sweet'},
-      {name:'バナナ', kcal:86, p:1.1, f:0.2, c:20.5, type:'normal'}
-    ];
+// ═══ Render helpers ═══
+function h(tag,attrs,children) {
+// Not used - we use innerHTML instead
+}
+function progressBar(c,t) {
+return ‘<div class="progress">’+Array.from({length:t}).map((_,i)=>’<div class="'+(i<=c?'active':'')+'"></div>’).join(’’)+’</div>’;
+}
+function titleBlock(icon,title,sub) {
+return ‘<div style="margin-bottom:24px"><div class="title-icon">’+icon+’</div><h2 class="title-h">’+title+’</h2>’+(sub?’<p class="title-sub">’+sub+’</p>’:’’)+’</div>’;
+}
+function navBtns(backFn,nextFn,disabled,nextLabel) {
+return ‘<div style="display:flex;gap:10px;margin-top:8px"><button class="btn-back" onclick="'+backFn+'">← 戻る</button><button class=“btn-next” ‘+(disabled?‘disabled’:’’)+’ onclick=”’+nextFn+’”>’+(nextLabel||‘次へ →’)+’</button></div>’;
+}
+function tabBar() {
+const tabs=[{id:“menu”,icon:“🍽️”,label:“メニュー”},{id:“today”,icon:“📅”,label:“今日”},{id:“weekly”,icon:“📋”,label:“週間管理”},{id:“goal”,icon:“🎯”,label:“目標”}];
+return ‘<div class="tab-bar">’+tabs.map(t=>’<button class="tab-btn" onclick="setTab(\''+t.id+'\')"><span class="tab-icon" style="opacity:'+(S.tab===t.id?'1':'0.4')+'">’+t.icon+’</span><span class="tab-label '+(S.tab===t.id?'active':'')+'">’+t.label+’</span>’+(S.tab===t.id?’<div class="tab-dot"></div>’:’’)+’</button>’).join(’’)+’</div>’;
+}
+function esc(s) { return String(s).replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’).replace(/’/g,’'’); }
 
-    let state = {
-      activeMeal:'breakfast',
-      target:{ kcal:2000, p:120, f:50, c:220 },
-      logs:{},
-      water:{},
-      bodyLogs:[],
-      lastSuggestions:[],
-      weeklyPlan:[],
-      calc:{ gender:'', age:'', height:'', weight:'', bodyFat:'', goal:'maintain', job:'1.20', exercise:'0', bmr:0, tdee:0, targetKcal:0, p:0, f:0, c:0, lbm:0 }
-    };
+// ═══ Main Render ═══
+function render() {
+const app = document.getElementById(“app”);
+const c = calc();
+const d = S.d;
 
-    function getDateKey(date = new Date()){
-      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+// Step 0-9: Questionnaire
+if (S.step === 0) {
+const cn = d.gender && c.nA>=10 && c.nH>=100 && c.nW>=30 && c.nBf>0;
+app.innerHTML = progressBar(0,5) + titleBlock(“📋”,“基本情報”,“あなたの体の情報を入力してください”) +
+‘<div style="display:flex;flex-direction:column;gap:16px">’ +
+‘<div><span class="label">性別</span><div style="display:flex;gap:10px">’ +
+‘<button class=“gender-btn ‘+(d.gender===“male”?“active”:””)+’” onclick=“updR('gender','male')”><span style="font-size:28px">🙋‍♂️</span><span style=“font-size:14px;font-weight:700;color:’+(d.gender===“male”?”#2d8a6e”:”#888”)+’”>男性</span></button>’ +
+‘<button class=“gender-btn ‘+(d.gender===“female”?“active”:””)+’” onclick=“updR('gender','female')”><span style="font-size:28px">🙋‍♀️</span><span style=“font-size:14px;font-weight:700;color:’+(d.gender===“female”?”#2d8a6e”:”#888”)+’”>女性</span></button>’ +
+‘</div></div>’ +
+‘<div><span class="label">年齢</span><input class="input" type="number" value="'+esc(d.age)+'" oninput="upd(\'age\',this.value)" onblur="render()" placeholder="例：35"></div>’ +
+‘<div><span class="label">身長（cm）</span><input class="input" type="number" value="'+esc(d.height)+'" oninput="upd(\'height\',this.value)" onblur="render()" placeholder="例：170" step="0.1"></div>’ +
+‘<div><span class="label">体重（kg）</span><input class="input" type="number" value="'+esc(d.weight)+'" oninput="upd(\'weight\',this.value)" onblur="render()" placeholder="例：75" step="0.1"></div>’ +
+‘<div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="'+esc(d.bodyFat)+'" oninput="upd(\'bodyFat\',this.value)" onblur="render()" placeholder="例：25" step="0.1"></div>’ +
+(c.nW>0&&c.nBf>0 ? ‘<div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px"><div style="flex:1;text-align:center"><div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">’+c.lbm.toFixed(1)+‘kg</div></div><div style="width:1px;background:#c8ddd2"></div><div style="flex:1;text-align:center"><div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div><div style="font-size:20px;font-weight:800;color:#c0392b">’+c.fatM.toFixed(1)+‘kg</div></div></div>’ : ‘’) +
+‘<button class=“btn-primary” ‘+(cn?’’:‘disabled’)+’ onclick=“setStep(1)”>次へ →</button></div>’;
+return;
+}
+
+if (S.step === 1) {
+const cn = d.job && d.exercise && (d.exercise===“なし”||d.exerciseFreq);
+let h = progressBar(1,5) + titleBlock(“💼”,“生活スタイル”,“仕事と運動について教えてください”) + ‘<div style="display:flex;flex-direction:column;gap:16px">’;
+h += ‘<div><span class="label">仕事内容</span><select class="select" onchange="updR(\'job\',this.value)"><option value="">選択してください</option>’;
+JOBS.forEach(j => { h += ‘<option value=”’+esc(j.label)+’” ‘+(d.job===j.label?‘selected’:’’)+’>’+esc(j.label)+’</option>’; });
+h += ‘</select></div>’;
+h += ‘<div><span class="label">運動項目</span><select class="select" onchange="updR(\'exercise\',this.value);if(this.value===\'なし\')upd(\'exerciseFreq\',\'\')"><option value="">選択してください</option>’;
+EXLIST.forEach(e => { h += ‘<option value=”’+esc(e)+’” ‘+(d.exercise===e?‘selected’:’’)+’>’+esc(e)+’</option>’; });
+h += ‘</select></div>’;
+if (d.exercise && d.exercise!==“なし”) {
+h += ‘<div><span class="label">運動頻度</span><select class="select" onchange="updR(\'exerciseFreq\',this.value)"><option value="">選択してください</option>’;
+FRQ.forEach(f => { h += ‘<option value=”’+esc(f.label)+’” ‘+(d.exerciseFreq===f.label?‘selected’:’’)+’>’+esc(f.label)+’</option>’; });
+h += ‘</select></div>’;
+}
+if (c.tdee > 0) {
+h += ‘<div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:18px 16px;text-align:center"><div style="font-size:11px;color:#5a6e62;font-weight:700;margin-bottom:6px">推定消費カロリー</div><div style="font-size:36px;font-weight:800;color:#2d8a6e">’+c.tdee+’ <span style="font-size:14px">kcal/日</span></div></div>’;
+}
+h += navBtns(‘setStep(0)’,‘setStep(2)’,!cn) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+if (S.step === 2) {
+let h = progressBar(2,5) + titleBlock(“🎯”,“目標体型”,“どんな体を目指しますか？”) + ‘<div style="display:flex;flex-direction:column;gap:12px">’;
+GLS.forEach(g => {
+h += ‘<button class="goal-btn '+(d.goal===g.id?'active':'')+'" onclick="updR(\'goal\',\''+g.id+'\');upd(\'targetWeight\',\'\');upd(\'targetBf\',\'\');upd(\'pace\',\'\')">’;
+h += ‘<span style="font-size:32px">’+g.icon+’</span><div><div style="font-size:16px;font-weight:800;color:'+(d.goal===g.id?'#2d8a6e':'#333')+'">’+g.label+’</div><div style="font-size:12px;color:#888">’+g.desc+’</div></div></button>’;
+});
+h += navBtns(‘setStep(1)’,‘setStep(3)’,!d.goal) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+if (S.step === 3) {
+const iM = d.goal===“maintain”, cn = iM||(d.targetWeight&&d.targetBf);
+let h = progressBar(3,5) + titleBlock(“📐”,“具体的な目標”,iM?“現在の体型をキープ”:“目標の体重・体脂肪率を設定”) + ‘<div style="display:flex;flex-direction:column;gap:16px">’;
+if (!iM) {
+h += ‘<div><span class="label">目標体重（kg）</span><input class=“input” type=“number” value=”’+esc(d.targetWeight)+’” oninput=“upd('targetWeight',this.value)” onblur=“render()” placeholder=”’+(d.goal===“cut”?‘例：’+Math.round(c.nW-5):‘例：’+Math.round(c.nW+5))+’” step=“0.1”></div>’;
+h += ‘<div><span class="label">目標体脂肪率（%）</span><input class="input" type="number" value="'+esc(d.targetBf)+'" oninput="upd(\'targetBf\',this.value)" onblur="render()" placeholder="例：15" step="0.1"></div>’;
+}
+const nextFn = iM ? “upd(‘targetWeight’,’”+c.nW+”’);upd(‘targetBf’,’”+c.nBf+”’);upd(‘pace’,‘0’);setStep(4)” : “setStep(4)”;
+h += navBtns(‘setStep(2)’,nextFn,!cn&&!iM) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+if (S.step === 4) {
+if (d.goal===“maintain”) { genPlan(); return; }
+const po = d.goal===“cut” ? PCut : PBulk;
+let h = progressBar(4,5) + titleBlock(“⏱️”,“ペース設定”,d.goal===“cut”?“月にどのくらい減量？”:“月にどのくらい増量？”) + ‘<div style="display:flex;flex-direction:column;gap:10px">’;
+po.forEach(p => {
+h += ‘<button class="pace-btn '+(d.pace===String(p.v)?'active':'')+'" onclick="updR(\'pace\',\''+p.v+'\')">’+p.label+’</button>’;
+});
+h += navBtns(‘setStep(3)’,‘genPlan()’,!d.pace,‘プラン作成 🚀’) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+// Step 5: Plan result
+if (S.step === 5 && S.plan) {
+const p = S.plan;
+const pP=Math.round(p.proteinG*4/p.actualCal*100), fP=Math.round(p.fatG*9/p.actualCal*100), cP=100-pP-fP;
+let h = ‘<div style="text-align:center;margin-bottom:20px"><div style="font-size:40px;margin-bottom:8px">✅</div><h2 style="font-size:22px;font-weight:800;color:#1a2e23">あなたのプラン</h2></div>’;
+h += ‘<div class="card"><div class="card-title">📊 体組成の変化</div><div style="display:flex;gap:8px"><div style="flex:1;background:#f4f6f5;border-radius:12px;padding:12px;text-align:center"><div style="font-size:9px;color:#888">現在</div><div style="font-size:20px;font-weight:800">’+p.currentWeight+‘kg</div><div style="font-size:11px;color:#888">体脂肪’+p.currentBf+’%</div></div><div style="display:flex;align-items:center;font-size:20px;color:#2d8a6e">→</div><div style="flex:1;background:#edf7f2;border-radius:12px;padding:12px;text-align:center"><div style="font-size:9px;color:#2d8a6e">目標</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">’+p.targetWeight+‘kg</div><div style="font-size:11px;color:#5a6e62">体脂肪’+p.targetBf+’%</div></div></div></div>’;
+h += ‘<div class="card"><div class="card-title">🔥 1日のカロリー</div><div style="text-align:center"><div style="font-size:11px;color:#888">消費 ‘+p.tdee+’ kcal → 摂取目標</div><div style="font-size:42px;font-weight:800;color:#1a2e23">’+p.dailyCal+’ <span style="font-size:16px;color:#888">kcal</span></div></div></div>’;
+h += ‘<div class="card"><div class="card-title">🥗 PFCバランス</div><div class="pfc-bar"><div style="width:'+pP+'%;background:#e74c3c"></div><div style="width:'+fP+'%;background:#f39c12"></div><div style="width:'+cP+'%;background:#2ecc71"></div></div>’;
+h += ‘<div style="display:flex;gap:8px">’;
+[{l:“タンパク質”,g:p.proteinG,pct:pP,c:”#e74c3c”},{l:“脂質”,g:p.fatG,pct:fP,c:”#f39c12”},{l:“炭水化物”,g:p.carbG,pct:cP,c:”#2ecc71”}].forEach(i=>{
+h += ‘<div style="flex:1;background:#f8faf9;border-radius:12px;padding:12px 8px;text-align:center"><div style="width:8px;height:8px;border-radius:50%;background:'+i.c+';margin:0 auto 6px"></div><div style="font-size:10px;color:#888">’+i.l+’</div><div style="font-size:20px;font-weight:800">’+i.g+‘g</div><div style="font-size:10px;color:#aaa">’+i.pct+’%</div></div>’;
+});
+h += ‘</div></div>’;
+h += ‘<div class="card" style="text-align:center"><div style="font-size:16px;font-weight:800;color:#1a2e23;margin-bottom:4px">🍽️ 食事メニューの作成</div><div style="font-size:12px;color:#7a8f82;margin-bottom:14px">生活リズムや好みに合わせた食事プラン</div><button class="btn-primary" onclick="setStep(6)">Step 2 へ進む →</button></div>’;
+h += ‘<button style="width:100%;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:14px;cursor:pointer;margin-top:4px" onclick="resetAll()">最初からやり直す</button>’;
+app.innerHTML = h;
+return;
+}
+
+// Step 6-9: Step2 questionnaire
+if (S.step === 6) {
+const cn = d.wakeTime && d.sleepTime && d.mealSplit;
+let h = progressBar(0,4) + ‘<div class="s2-badge">STEP 2</div>’ + titleBlock(“⏰”,“生活リズム”,“起床・就寝時間と食事回数”) + ‘<div style="display:flex;flex-direction:column;gap:16px">’;
+h += ‘<div><span class="label">起床時間</span><select class="select" onchange="updR(\'wakeTime\',this.value)">’;
+for(let i=4;i<16;i++) h+=’<option value=”’+i+’” ‘+(d.wakeTime==String(i)?‘selected’:’’)+’>’+String(i).padStart(2,‘0’)+’:00</option>’;
+h += ‘</select></div>’;
+h += ‘<div><span class="label">就寝時間</span><select class="select" onchange="updR(\'sleepTime\',this.value)">’;
+for(let i=20;i<30;i++){const v=i>23?i-24:i; h+=’<option value=”’+v+’” ‘+(d.sleepTime==String(v)?‘selected’:’’)+’>’+String(v).padStart(2,‘0’)+’:00</option>’;}
+h += ‘</select></div>’;
+h += ‘<div><span class="label">食事回数</span><div style="display:flex;flex-direction:column;gap:8px">’;
+MSplits.forEach(m=>{h+=’<button class="split-btn '+(d.mealSplit===m.id?'active':'')+'" onclick="updR(\'mealSplit\',\''+m.id+'\')"><span style="font-size:22px">’+m.icon+’</span> ‘+m.label+’</button>’;});
+h += ‘</div></div>’;
+h += navBtns(‘setStep(5)’,‘setStep(7)’,!cn) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+if (S.step === 7) {
+const nD=d.drinkFreq===“飲まない”;
+const cn=d.drinkFreq&&(nD||(d.drinkType&&parseInt(d.drinkAmount)>0));
+const shA=cn&&!nD;
+const nAD=d.drinkAllowFreq===“飲まない”;
+const aR=nD||(d.drinkAllowFreq&&(nAD||(d.drinkAllowType&&parseInt(d.drinkAllowAmount)>0)));
+let h = progressBar(1,4) + ‘<div class="s2-badge">STEP 2</div>’ + titleBlock(“🍺”,“お酒について”,“現在の飲酒量と目標中の許容量”) + ‘<div style="display:flex;flex-direction:column;gap:16px">’;
+h += ‘<div style="background:#fff;border-radius:16px;padding:16px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;color:#1a2e23;margin-bottom:12px">📊 現在の飲酒量</div>’;
+h += ‘<div><span class="label">飲む頻度</span><select class="select" onchange="updR(\'drinkFreq\',this.value);if(this.value===\'飲まない\'){upd(\'drinkType\',\'\');upd(\'drinkAmount\',\'0\');upd(\'drinkAllowFreq\',\'飲まない\');upd(\'drinkAllowType\',\'\');upd(\'drinkAllowAmount\',\'0\')}"><option value="">選択してください</option>’;
+DF.forEach(f=>{h+=’<option value=”’+esc(f)+’” ‘+(d.drinkFreq===f?‘selected’:’’)+’>’+esc(f)+’</option>’;});
+h += ‘</select></div>’;
+if(!nD&&d.drinkFreq){
+h += ‘<div style="margin-top:12px"><span class="label">よく飲むお酒</span><select class="select" onchange="updR(\'drinkType\',this.value)"><option value="">選択してください</option>’;
+DRINK_TYPES.forEach(t=>{h+=’<option value=”’+esc(t.label)+’” ‘+(d.drinkType===t.label?‘selected’:’’)+’>’+esc(t.label)+’（約’+t.kcal+‘kcal）</option>’;});
+h += ‘</select></div>’;
+h += ‘<div style="margin-top:12px"><span class="label">1回に飲む量</span><input class="input" type="number" value="'+esc(d.drinkAmount)+'" oninput="upd(\'drinkAmount\',this.value)" onblur="render()" placeholder="例：2" min="0"></div>’;
+}
+const cDK = curDrinkKcal();
+if(cDK>0){
+const dt=DRINK_TYPES.find(t=>t.label===d.drinkType);
+const perT=dt?dt.kcal*(parseInt(d.drinkAmount)||0):0;
+h+=’<div style="background:#FFF5F5;border-radius:12px;padding:12px;text-align:center;margin-top:12px"><div style="font-size:11px;color:#c0392b;font-weight:600">飲む日1回あたり</div><div style="font-size:24px;font-weight:800;color:#c0392b">’+perT+’ kcal</div><div style="font-size:10px;color:#888;margin-top:4px">1日平均 ‘+cDK+’ kcal</div></div>’;
+}
+h += ‘</div>’;
+if(shA){
+h += ‘<div style="background:#fff;border-radius:16px;padding:16px;border:2px solid #2d8a6e20"><div style="font-size:13px;font-weight:800;color:#2d8a6e;margin-bottom:12px">🎯 目標期間中の許容量</div>’;
+h += ‘<div><span class="label">頻度</span><select class="select" onchange="updR(\'drinkAllowFreq\',this.value);if(this.value===\'飲まない\'){upd(\'drinkAllowType\',\'\');upd(\'drinkAllowAmount\',\'0\')}"><option value="">選択してください</option>’;
+DF.forEach(f=>{h+=’<option value=”’+esc(f)+’” ‘+(d.drinkAllowFreq===f?‘selected’:’’)+’>’+esc(f)+’</option>’;});
+h += ‘</select></div>’;
+if(d.drinkAllowFreq&&!nAD){
+h += ‘<div style="margin-top:12px"><span class="label">お酒の種類</span><select class="select" onchange="updR(\'drinkAllowType\',this.value)"><option value="">選択してください</option>’;
+DRINK_TYPES.forEach(t=>{h+=’<option value=”’+esc(t.label)+’” ‘+(d.drinkAllowType===t.label?‘selected’:’’)+’>’+esc(t.label)+’</option>’;});
+h += ‘</select></div>’;
+h += ‘<div style="margin-top:12px"><span class="label">1回の量</span><input class="input" type="number" value="'+esc(d.drinkAllowAmount)+'" oninput="upd(\'drinkAllowAmount\',this.value)" onblur="render()" placeholder="例：1" min="0"></div>’;
+}
+if(nAD) h+=’<div style="background:#edf7f2;border-radius:12px;padding:12px;text-align:center;margin-top:12px"><div style="font-size:13px;font-weight:700;color:#2d8a6e">💪 禁酒で目標達成を加速！</div></div>’;
+h += ‘</div>’;
+}
+h += navBtns(‘setStep(6)’,‘setStep(8)’,!aR) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+if (S.step === 8) {
+let h = progressBar(2,4) + ‘<div class="s2-badge">STEP 2</div>’ + titleBlock(“🥕”,“食の好み”,“苦手な食材と調理について”) + ‘<div style="display:flex;flex-direction:column;gap:16px">’;
+h += ‘<div><span class="label">苦手な食材・アレルギー</span><input class="input" value="'+esc(d.dislikedFoods)+'" oninput="upd(\'dislikedFoods\',this.value)" onblur="render()" placeholder="例：セロリ、レバー"><p style="font-size:11px;color:#999;margin:6px 0 0">カンマ区切り。なければ空欄OK</p></div>’;
+h += ‘<div><span class="label">調理できますか？</span><div style="display:flex;flex-direction:column;gap:8px">’;
+[[“yes”,“👨‍🍳”,“自炊できる”],[“some”,“🍳”,“簡単なものなら”],[“no”,“🛒”,“買うだけ”]].forEach(([id,ic,lb])=>{
+h += ‘<button class="cook-btn '+(d.canCook===id?'active':'')+'" onclick="updR(\'canCook\',\''+id+'\')"><span style="font-size:24px">’+ic+’</span><span style="font-size:14px;font-weight:700;color:'+(d.canCook===id?'#2d8a6e':'#333')+'">’+lb+’</span></button>’;
+});
+h += ‘</div></div>’;
+h += navBtns(‘setStep(7)’,‘setStep(9)’,!d.canCook) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+if (S.step === 9) {
+let h = progressBar(3,4) + ‘<div class="s2-badge">STEP 2</div>’ + titleBlock(“🏪”,“よく使うお店”,“メニュー提案の参考にします”) + ‘<div style="display:flex;flex-direction:column;gap:16px">’;
+h += ‘<div style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;margin-bottom:10px">🏪 コンビニ</div>’;
+h += ‘<select class="select" onchange="updR(\'conv1\',this.value)"><option value="">1店目</option>’;
+CVS.forEach(s=>{h+=’<option value=”’+esc(s)+’” ‘+(d.conv1===s?‘selected’:’’)+’>’+esc(s)+’</option>’;});
+h += ‘</select><select class="select" style="margin-top:8px" onchange="updR(\'conv2\',this.value)"><option value="">2店目（任意）</option>’;
+CVS.filter(s=>s!==d.conv1).forEach(s=>{h+=’<option value=”’+esc(s)+’” ‘+(d.conv2===s?‘selected’:’’)+’>’+esc(s)+’</option>’;});
+h += ‘</select></div>’;
+h += ‘<div style="background:#fff;border-radius:14px;padding:14px;border:1px solid #e8ece9"><div style="font-size:13px;font-weight:800;margin-bottom:10px">🍜 飲食店</div>’;
+h += ‘<input class="input" value="'+esc(d.restaurant1)+'" oninput="upd(\'restaurant1\',this.value)" onblur="render()" placeholder="例：吉野家">’;
+h += ‘<input class="input" style="margin-top:8px" value="'+esc(d.restaurant2)+'" oninput="upd(\'restaurant2\',this.value)" onblur="render()" placeholder="例：松屋（任意）"></div>’;
+h += navBtns(‘setStep(8)’,‘genMeal()’,’’,‘🍽️ メニューを作成！’) + ‘</div>’;
+app.innerHTML = h;
+return;
+}
+
+// Step 10: Main app (4 tabs)
+if (S.step === 10 && S.meal) {
+const p = S.plan;
+const dd = S.meal.weeklyPlan[S.selDay];
+const moKeys = MO.filter(k=>dd?.meals?.[k]);
+
+```
+if (S.tab === "menu") {
+  let h = '<div style="text-align:center;margin-bottom:16px"><div style="font-size:36px">🍽️</div><h2 style="font-size:20px;font-weight:800;color:#1a2e23">あなた専用メニュー</h2></div>';
+  h += '<div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">';
+  S.meal.weeklyPlan.forEach((dy,i)=>{h+='<button class="day-btn '+(S.selDay===i?'active':'inactive')+'" onclick="S.selDay='+i+';render()">'+dy.day.replace('曜日','')+'</button>';});
+  h += '</div>';
+  if(dd){
+    h+='<div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:14px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-around;text-align:center">';
+    h+='<div><div style="font-size:10px;color:#5a6e62">合計</div><div style="font-size:20px;font-weight:800;color:#2d8a6e">'+dd.totalKcal+'kcal</div></div>';
+    h+='<div><div style="font-size:10px;color:#e74c3c">P</div><div style="font-size:16px;font-weight:800;color:#e74c3c">'+dd.totalP+'g</div></div>';
+    h+='<div><div style="font-size:10px;color:#f39c12">F</div><div style="font-size:16px;font-weight:800;color:#f39c12">'+dd.totalF+'g</div></div>';
+    h+='<div><div style="font-size:10px;color:#2ecc71">C</div><div style="font-size:16px;font-weight:800;color:#2ecc71">'+dd.totalC+'g</div></div></div>';
+    moKeys.forEach(k=>{
+      const m=dd.meals[k];
+      h+='<div class="meal-card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-size:13px;font-weight:800;color:#1a2e23">'+ML[k]+'</div><div style="font-size:11px;color:#888">'+m.time+' ・ '+m.kcal+'kcal</div></div>';
+      m.items?.forEach(it=>{h+=it.startsWith('📍')?'<div class="item-src">'+esc(it)+'</div>':'<div class="item-line">'+esc(it)+'</div>';});
+      h+='<div style="display:flex;gap:12px;font-size:10px;font-weight:600;margin-top:6px"><span style="color:#e74c3c">P:'+m.p+'g</span><span style="color:#f39c12">F:'+m.f+'g</span><span style="color:#2ecc71">C:'+m.c+'g</span></div>';
+      if(m.tip) h+='<div class="tip-box">💡 '+esc(m.tip)+'</div>';
+      h+='</div>';
+    });
+    if(dd.alcohol){h+='<div style="background:#FFF8E1;border-radius:14px;padding:14px;margin-bottom:8px;border:1px solid #FFE082"><div style="font-size:13px;font-weight:800;color:#F57F17;margin-bottom:6px">🍺 お酒</div>';dd.alcohol.items?.forEach(it=>{h+='<div style="font-size:13px;color:#795548">'+esc(it)+'</div>';});h+='<div style="font-size:11px;color:#999;margin-top:4px">'+dd.alcohol.kcal+'kcal</div></div>';}
+  }
+  h+='<button class="btn-primary" onclick="genMeal()">🔄 別メニューを提案</button>';
+  h+='<button style="width:100%;padding:14px;border-radius:14px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:14px;cursor:pointer;margin-top:8px" onclick="S.step=5;render()">← プラン結果に戻る</button>';
+  h+='<button style="width:100%;padding:12px;border-radius:14px;border:none;background:transparent;color:#c0392b;font-weight:600;font-size:12px;cursor:pointer;margin-top:4px" onclick="resetAll()">🔄 プランを最初から作り直す</button>';
+  app.innerHTML = h + tabBar();
+  return;
+}
+
+if (S.tab === "today") {
+  const dayIdx = new Date().getDay(); const todayIdx = dayIdx===0?6:dayIdx-1;
+  const tp = S.meal.weeklyPlan[todayIdx]; const tLog = S.log[todayIdx]||{}; const tEaten = tLog.eaten||{};
+  const isDone = S.dailyDone[todayIdx];
+  const DAYS=["日","月","火","水","木","金","土"];
+  const tLabel = (new Date().getMonth()+1)+'/'+(new Date().getDate())+'（'+DAYS[dayIdx]+'）';
+  const catKeys = MO.filter(k=>tp?.meals?.[k]);
+  const allE=[]; catKeys.forEach(k=>{(tEaten[k]||[]).forEach(e=>allE.push(e))});
+  const eK=allE.reduce((s,e)=>s+(e.kcal||0),0);
+  const eP=Math.round(allE.reduce((s,e)=>s+(e.p||0),0)*10)/10;
+  const eF=Math.round(allE.reduce((s,e)=>s+(e.f||0),0)*10)/10;
+  const eC=Math.round(allE.reduce((s,e)=>s+(e.c||0),0)*10)/10;
+  const tgtK=p?.dailyCal||2000;
+  const pct=Math.min(Math.round(eK/tgtK*100),150);
+
+  let h = '<div style="text-align:center;margin-bottom:16px"><div style="font-size:12px;color:#7a8f82;font-weight:600">'+tLabel+'</div><h2 style="font-size:22px;font-weight:800;color:#1a2e23;margin:4px 0">📅 今日のプラン</h2></div>';
+  // 目標カード
+  h += '<div style="background:linear-gradient(135deg,#2d8a6e,#3aaf8a);border-radius:16px;padding:16px 18px;margin-bottom:12px;color:#fff"><div style="font-size:11px;font-weight:700;opacity:0.8;margin-bottom:8px">🎯 あなたの目標</div>';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:700">'+(p.isCut?'減量':p.isBulk?'増量':'維持')+' '+p.targetWeight+'kg</div><div style="font-size:11px;opacity:0.8;margin-top:2px">現在'+p.currentWeight+'kg → あと'+p.weightDiff.toFixed(1)+'kg</div></div>';
+  h += '<div style="text-align:center"><div style="font-size:24px;font-weight:800">'+tgtK+'</div><div style="font-size:10px;opacity:0.8">kcal/日</div></div></div>';
+  h += '<div style="display:flex;gap:12px;margin-top:10px;font-size:11px;opacity:0.9"><span>P:'+p.proteinG+'g</span><span>F:'+p.fatG+'g</span><span>C:'+p.carbG+'g</span></div></div>';
+  // 摂取状況
+  h += '<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 12px #0000000a"><div style="font-size:12px;font-weight:800;color:#2d8a6e;margin-bottom:10px">📊 現在の摂取状況</div>';
+  h += '<div style="display:flex;justify-content:space-around;text-align:center;margin-bottom:8px">';
+  h += '<div><div style="font-size:10px;color:#5a6e62">摂取</div><div style="font-size:22px;font-weight:800;color:'+(pct>110?'#c0392b':'#2d8a6e')+'">'+eK+'</div><div style="font-size:10px;color:#888">/ '+tgtK+'kcal</div></div>';
+  h += '<div><div style="font-size:10px;color:#e74c3c">P</div><div style="font-size:16px;font-weight:800;color:#e74c3c">'+eP+'g</div><div style="font-size:10px;color:#888">/ '+p.proteinG+'g</div></div>';
+  h += '<div><div style="font-size:10px;color:#f39c12">F</div><div style="font-size:16px;font-weight:800;color:#f39c12">'+eF+'g</div><div style="font-size:10px;color:#888">/ '+p.fatG+'g</div></div>';
+  h += '<div><div style="font-size:10px;color:#2ecc71">C</div><div style="font-size:16px;font-weight:800;color:#2ecc71">'+eC+'g</div><div style="font-size:10px;color:#888">/ '+p.carbG+'g</div></div></div>';
+  h += '<div style="background:#c8ddd2;border-radius:6px;height:10px;overflow:hidden"><div style="width:'+Math.min(pct,100)+'%;height:100%;border-radius:6px;background:'+(pct>110?'#c0392b':pct>=90?'#2d8a6e':'#f39c12')+'"></div></div>';
+  h += '<div style="text-align:center;font-size:11px;color:#5a6e62;margin-top:4px;font-weight:600">'+pct+'%</div></div>';
+  // カテゴリ別食事
+  catKeys.forEach(k=>{
+    const m=tp.meals[k]; const ce=tEaten[k]||[]; const cK=ce.reduce((s,e)=>s+(e.kcal||0),0);
+    h+='<div class="meal-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:13px;font-weight:800;color:#1a2e23">'+ML[k]+'</div><div style="font-size:10px;color:#888">予定'+m.kcal+'kcal → 実績 <span style="font-weight:800;color:'+(cK>0?'#2d8a6e':'#ccc')+'">'+cK+'kcal</span></div></div>';
+    h+='<div style="background:#f8faf9;border-radius:10px;padding:8px 10px;margin-bottom:8px;opacity:0.7"><div style="font-size:10px;color:#7a8f82;font-weight:600;margin-bottom:4px">📋 提案メニュー</div>';
+    m.items?.filter(it=>!it.startsWith('📍')).forEach(it=>{h+='<div style="font-size:11px;color:#5a6e62;line-height:1.5">'+esc(it)+'</div>';});
+    h+='</div>';
+    ce.forEach((item,idx)=>{
+      const bg=item.warn?'#FFF5F5':item.drink?'#FFF8E1':'#edf7f2';
+      const tc=item.warn?'#c0392b':item.drink?'#E65100':'#2d8a6e';
+      const ic=item.warn?'⚠️':item.drink?'🍺':'✓';
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;'+(idx<ce.length-1?'border-bottom:1px solid #f0f0f0':'')+'"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;width:18px;height:18px;border-radius:6px;background:'+bg+';display:flex;align-items:center;justify-content:center;color:'+tc+';font-weight:700">'+ic+'</span><div><div style="font-size:12px;font-weight:600;color:'+tc+'">'+(item.time?'<span style="font-size:10px;color:#888;margin-right:4px">'+item.time+'</span>':'')+esc(item.name)+'</div><div style="font-size:9px;color:#999">'+item.kcal+'kcal P:'+item.p+'g F:'+item.f+'g C:'+item.c+'g</div></div></div>';
+      h+='<button style="width:22px;height:22px;border-radius:6px;border:none;background:#f5f5f5;color:#ccc;font-size:12px;cursor:pointer" onclick="removeTodayItem('+todayIdx+',\''+k+'\','+idx+')">×</button></div>';
+    });
+    if (S.addMode && S.addCat === k) {
+      h += renderAddPanel(k);
+    } else {
+      h+='<button style="width:100%;padding:8px;border-radius:8px;border:1.5px dashed #c8ddd2;background:transparent;color:#2d8a6e;font-weight:700;font-size:11px;cursor:pointer;margin-top:6px" onclick="openAddFood(\''+k+'\')">＋ 食べたものを追加</button>';
     }
-
-    const todayKey = getDateKey();
-
-    function load(){
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(raw) state = JSON.parse(raw);
-      } catch(e){}
-      if(!state.logs) state.logs = {};
-      if(!state.water) state.water = {};
-      if(!state.bodyLogs) state.bodyLogs = [];
-      if(!state.lastSuggestions) state.lastSuggestions = [];
-      if(!state.weeklyPlan) state.weeklyPlan = [];
-      if(!state.calc){
-        state.calc = { gender:'', age:'', height:'', weight:'', bodyFat:'', goal:'maintain', job:'1.20', exercise:'0', bmr:0, tdee:0, targetKcal:0, p:0, f:0, c:0, lbm:0 };
-      }
-      ensureToday();
-    }
-
-    function save(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function num(v){
-      return Math.round((Number(v||0))*10)/10;
-    }
-
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
-    }
-
-    function ensureToday(){
-      if(!state.logs[todayKey]) state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
-      mealKeys.forEach(k => { if(!state.logs[todayKey][k]) state.logs[todayKey][k] = []; });
-      if(typeof state.water[todayKey] !== 'number') state.water[todayKey] = 0;
-    }
-
-    function renderMealTabs(){
-      const el = document.getElementById('mealTabs');
-      el.innerHTML = mealKeys.map(k => `<button class="meal-tab ${state.activeMeal===k?'active':''}" data-meal="${k}">${mealLabels[k]}</button>`).join('');
-      el.querySelectorAll('[data-meal]').forEach(btn => {
-        btn.onclick = () => {
-          state.activeMeal = btn.dataset.meal;
-          renderMealTabs();
-        };
-      });
-    }
-
-    function renderQuickFoods(){
-      const box = document.getElementById('quickFoods');
-      box.innerHTML = quickFoodsData.map((f,i)=>`<button class="pill" data-idx="${i}">${f.name}</button>`).join('');
-      box.querySelectorAll('[data-idx]').forEach(btn => {
-        btn.onclick = () => {
-          const f = quickFoodsData[Number(btn.dataset.idx)];
-          foodName.value = f.name;
-          foodKcal.value = f.kcal;
-          foodP.value = f.p;
-          foodF.value = f.f;
-          foodC.value = f.c;
-          foodType.value = f.type;
-        };
-      });
-    }
-
-    function renderTargets(){
-      targetKcal.value = state.target.kcal || '';
-      targetP.value = state.target.p || '';
-      targetF.value = state.target.f || '';
-      targetC.value = state.target.c || '';
-    }
-
-    function renderCalcInputs(){
-      calcGender.value = state.calc.gender || '';
-      calcAge.value = state.calc.age || '';
-      calcHeight.value = state.calc.height || '';
-      calcWeight.value = state.calc.weight || '';
-      calcBodyFat.value = state.calc.bodyFat || '';
-      calcGoal.value = state.calc.goal || 'maintain';
-      calcJob.value = state.calc.job || '1.20';
-      calcExercise.value = state.calc.exercise || '0';
-      calcBmr.textContent = Math.round(state.calc.bmr || 0);
-      calcTdee.textContent = Math.round(state.calc.tdee || 0);
-      calcTargetKcal.textContent = Math.round(state.calc.targetKcal || 0);
-      calcLBM.textContent = num(state.calc.lbm || 0);
-      calcP.textContent = Math.round(state.calc.p || 0);
-      calcF.textContent = Math.round(state.calc.f || 0);
-      calcC.textContent = Math.round(state.calc.c || 0);
-    }
-
-    function getTodayAll(){
-      ensureToday();
-      const day = state.logs[todayKey];
-      return mealKeys.flatMap(k => (day[k]||[]).map(item => ({...item, meal:k})));
-    }
-
-    function totals(items){
-      return items.reduce((acc,it)=>{
-        acc.kcal += Number(it.kcal||0);
-        acc.p += Number(it.p||0);
-        acc.f += Number(it.f||0);
-        acc.c += Number(it.c||0);
-        return acc;
-      }, {kcal:0,p:0,f:0,c:0});
-    }
-
-    function runAutoCalc(){
-      const gender = calcGender.value;
-      const age = Number(calcAge.value || 0);
-      const height = Number(calcHeight.value || 0);
-      const weight = Number(calcWeight.value || 0);
-      const bodyFat = Number(calcBodyFat.value || 0);
-      const goal = calcGoal.value;
-      const job = Number(calcJob.value || 1.2);
-      const exercise = Number(calcExercise.value || 0);
-
-      if(!gender || !age || !height || !weight){
-        alert('性別・年齢・身長・体重を入力してください。');
-        return;
-      }
-
-      const lbm = bodyFat > 0 ? weight * (1 - bodyFat / 100) : 0;
-      const bmrMsj = gender === 'male'
-        ? 10 * weight + 6.25 * height - 5 * age + 5
-        : 10 * weight + 6.25 * height - 5 * age - 161;
-
-      const bmrKatch = lbm > 0 ? 370 + 21.6 * lbm : 0;
-      const bmr = bmrKatch > 0 ? Math.round((bmrMsj + bmrKatch) / 2) : Math.round(bmrMsj);
-      const tdee = Math.round(bmr * (job + exercise));
-
-      let targetKcal = tdee;
-      if(goal === 'cut') targetKcal = Math.round(tdee - 500);
-      if(goal === 'bulk') targetKcal = Math.round(tdee + 300);
-      targetKcal = Math.max(targetKcal, gender === 'male' ? 1400 : 1200);
-
-      let p=0, f=0, c=0;
-      if(goal === 'cut'){
-        p = Math.round((lbm > 0 ? lbm * 2.2 : weight * 1.8));
-        f = Math.round(weight * 0.8);
-      } else if(goal === 'bulk'){
-        p = Math.round((lbm > 0 ? lbm * 2.0 : weight * 1.6));
-        f = Math.round(weight * 0.9);
-      } else {
-        p = Math.round((lbm > 0 ? lbm * 1.6 : weight * 1.2));
-        f = Math.round(weight * 0.8);
-      }
-      c = Math.round(Math.max((targetKcal - p * 4 - f * 9) / 4, 50));
-
-      state.calc = { gender, age, height, weight, bodyFat, goal, job:String(job), exercise:String(exercise), bmr, tdee, targetKcal, p, f, c, lbm:num(lbm) };
-      save();
-      renderCalcInputs();
-      calcMemo.textContent = `${goal==='cut'?'減量':goal==='bulk'?'増量':'維持'}向けに自動計算しました。`;
-    }
-
-    function applyCalcToTargets(){
-      if(!state.calc.targetKcal){
-        alert('先に自動計算をしてください。');
-        return;
-      }
-      state.target = {
-        kcal: state.calc.targetKcal,
-        p: state.calc.p,
-        f: state.calc.f,
-        c: state.calc.c
-      };
-      save();
-      renderTargets();
-      renderSummary();
-      renderWeek();
-      alert('自動計算の結果を目標設定へ反映しました。');
-    }
-
-    function renderSuggestions(){
-      const suggestList = document.getElementById('suggestList');
-      if(!state.lastSuggestions.length){
-        suggestList.innerHTML = 'まだ提案していません。';
-        return;
-      }
-      suggestList.innerHTML = state.lastSuggestions.map((f,i)=>`
-        <div class="item">
-          <div>
-            <div class="food-name">${i+1}. ${escapeHtml(f.name)}</div>
-            <div class="macro">${Math.round(f.kcal)}kcal / P ${num(f.p)}g / F ${num(f.f)}g / C ${num(f.c)}g</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function runSuggestAction(){
-      const store = suggestStore.value;
-      const meal = suggestMeal.value;
-      const pool = ((FOOD_DB[store] || {})[meal] || []).slice();
-
-      if(!pool.length){
-        state.lastSuggestions = [];
-        save();
-        renderSuggestions();
-        document.getElementById('suggestList').innerHTML = 'この組み合わせの提案データはまだありません。';
-        return;
-      }
-
-      const goal = state.calc.goal || 'maintain';
-      let sorted = pool.slice();
-
-      if(goal === 'cut'){
-        sorted.sort((a,b)=> (b.p - a.p) || (a.kcal - b.kcal));
-      } else if(goal === 'bulk'){
-        sorted.sort((a,b)=> (b.kcal - a.kcal) || (b.p - a.p));
-      } else {
-        sorted.sort((a,b)=> Math.abs(a.kcal - 350) - Math.abs(b.kcal - 350));
-      }
-
-      state.lastSuggestions = sorted.slice(0,3);
-      save();
-      renderSuggestions();
-    }
-
-    function pickSuggestionAction(){
-      if(!state.lastSuggestions.length){
-        alert('先に提案を表示してください。');
-        return;
-      }
-      const f = state.lastSuggestions[0];
-      foodName.value = f.name;
-      foodKcal.value = f.kcal;
-      foodP.value = f.p;
-      foodF.value = f.f;
-      foodC.value = f.c;
-      foodType.value = f.type || 'normal';
-      state.activeMeal = suggestMeal.value;
-      renderMealTabs();
-      alert('1件目の提案を入力欄へ入れました。');
-    }
-
-    function pickBestItem(store, meal, goal){
-      const pool = ((FOOD_DB[store] || {})[meal] || []).slice();
-      if(!pool.length) return null;
-      let sorted = pool.slice();
-      if(goal === 'cut'){
-        sorted.sort((a,b)=> (b.p - a.p) || (a.kcal - b.kcal));
-      } else if(goal === 'bulk'){
-        sorted.sort((a,b)=> (b.kcal - a.kcal) || (b.p - a.p));
-      } else {
-        sorted.sort((a,b)=> Math.abs(a.kcal - 350) - Math.abs(b.kcal - 350));
-      }
-      return sorted[0];
-    }
-
-    function generateWeeklyPlanAction(){
-      const goal = state.calc.goal || 'maintain';
-      const stores = ['セブンイレブン','ファミリーマート','ローソン'];
-      const restaurantStores = ['吉野家','松屋','すき家'];
-
-      const plan = dayLabels.map((day, idx) => {
-        const conv = stores[idx % stores.length];
-        const rest = restaurantStores[idx % restaurantStores.length];
-
-        const breakfast = pickBestItem(conv, 'breakfast', goal);
-        const lunch = idx % 2 === 0 ? pickBestItem(conv, 'lunch', goal) : pickBestItem(rest, 'lunch', goal);
-        const dinner = idx % 2 === 0 ? pickBestItem(rest, 'dinner', goal) : pickBestItem(conv, 'dinner', goal);
-        const snack = pickBestItem(conv, 'snack', goal);
-
-        const items = [breakfast,lunch,dinner,snack].filter(Boolean);
-        const total = totals(items);
-
-        return {
-          day,
-          breakfast,
-          lunch,
-          dinner,
-          snack,
-          total
-        };
-      });
-
-      state.weeklyPlan = plan;
-      save();
-      renderWeeklyPlan();
-    }
-
-    function renderWeeklyPlan(){
-      const wrap = document.getElementById('weeklyPlanWrap');
-      if(!state.weeklyPlan || !state.weeklyPlan.length){
-        wrap.innerHTML = 'まだ週間プランは作成されていません。';
-        return;
-      }
-
-      wrap.innerHTML = state.weeklyPlan.map(d => `
-        <div class="plan-day">
-          <h4>${d.day} / 合計 ${Math.round(d.total.kcal)}kcal</h4>
-          ${d.breakfast ? `<div class="tiny">🌅 朝食：${escapeHtml(d.breakfast.name)} (${Math.round(d.breakfast.kcal)}kcal)</div>` : ''}
-          ${d.lunch ? `<div class="tiny" style="margin-top:4px;">☀️ 昼食：${escapeHtml(d.lunch.name)} (${Math.round(d.lunch.kcal)}kcal)</div>` : ''}
-          ${d.dinner ? `<div class="tiny" style="margin-top:4px;">🌙 夕食：${escapeHtml(d.dinner.name)} (${Math.round(d.dinner.kcal)}kcal)</div>` : ''}
-          ${d.snack ? `<div class="tiny" style="margin-top:4px;">🍌 間食：${escapeHtml(d.snack.name)} (${Math.round(d.snack.kcal)}kcal)</div>` : ''}
-          <div class="macro" style="margin-top:6px;">P ${num(d.total.p)}g / F ${num(d.total.f)}g / C ${num(d.total.c)}g</div>
-        </div>
-      `).join('');
-    }
-
-    function renderSummary(){
-      const t = totals(getTodayAll());
-      sumKcal.textContent = Math.round(t.kcal);
-      sumP.textContent = num(t.p);
-      sumF.textContent = num(t.f);
-      sumC.textContent = num(t.c);
-
-      const tk = Number(state.target.kcal || 0);
-      const rate = tk > 0 ? Math.round((t.kcal / tk) * 100) : 0;
-      rateLabel.textContent = `${rate}%`;
-      rateBar.style.width = `${Math.min(rate,100)}%`;
-      rateBar.style.background =
-        rate > 110 ? 'linear-gradient(90deg,#e74c3c,#c0392b)' :
-        rate >= 90 ? 'linear-gradient(90deg,#2d8a6e,#3aaf8a)' :
-        'linear-gradient(90deg,#f39c12,#f1c40f)';
-
-      const diff = Math.round(t.kcal - tk);
-      diffLabel.textContent = `${diff>0?'+':''}${diff} kcal`;
-      diffLabel.style.color = diff > 0 ? '#c0392b' : '#2d8a6e';
-
-      renderAdvice(t);
-    }
-
-    function renderList(){
-      ensureToday();
-      const day = state.logs[todayKey];
-      const hasAny = mealKeys.some(k => (day[k]||[]).length > 0);
-
-      if(!hasAny){
-        todayList.innerHTML = '<div class="empty">まだ記録がありません。下の入力欄から追加してください。</div>';
-        return;
-      }
-
-      let html = '';
-      mealKeys.forEach(meal => {
-        const arr = day[meal] || [];
-        if(!arr.length) return;
-        html += `<div class="tag">${mealLabels[meal]}</div>`;
-        arr.forEach((item,idx) => {
-          const badge = item.type === 'sweet'
-            ? '<span class="tag danger">お菓子</span>'
-            : item.type === 'drink'
-            ? '<span class="tag drink">飲み物/お酒</span>'
-            : '';
-          html += `
-            <div class="item">
-              <div>
-                ${badge}
-                <div class="food-name">${item.time ? `<span class="muted tiny">${item.time}</span> ` : ''}${escapeHtml(item.name)}</div>
-                <div class="macro">${Math.round(item.kcal)}kcal / P ${num(item.p)}g / F ${num(item.f)}g / C ${num(item.c)}g</div>
-              </div>
-              <button class="btn btn-sub btn-small" data-del-meal="${meal}" data-del-idx="${idx}">削除</button>
-            </div>
-          `;
-        });
-      });
-
-      todayList.innerHTML = html;
-      todayList.querySelectorAll('[data-del-meal]').forEach(btn => {
-        btn.onclick = () => {
-          state.logs[todayKey][btn.dataset.delMeal].splice(Number(btn.dataset.delIdx), 1);
-          save();
-          renderAll();
-        };
-      });
-    }
-
-    function renderWater(){
-      ensureToday();
-      const cups = state.water[todayKey] || 0;
-      waterLabel.textContent = `${cups} / 8 杯（${(cups*0.25).toFixed(1)}L）`;
-      waterCups.innerHTML = Array.from({length:8}).map((_,i)=>`<div class="water-cup ${i<cups?'on':''}" data-cup="${i+1}"></div>`).join('');
-      waterCups.querySelectorAll('[data-cup]').forEach(el => {
-        el.onclick = () => {
-          state.water[todayKey] = Number(el.dataset.cup);
-          save();
-          renderWater();
-          renderSummary();
-        };
-      });
-    }
-
-    function renderLatestBody(){
-      if(!state.bodyLogs.length){
-        latestBody.textContent = 'まだ記録がありません。';
-        return;
-      }
-      const last = state.bodyLogs[state.bodyLogs.length - 1];
-      latestBody.innerHTML = `${last.date}：<strong>${last.weight}kg</strong>${last.bodyFat ? ` / 体脂肪 ${last.bodyFat}%` : ''}`;
-    }
-
-    function renderWeek(){
-      const labels = ['日','月','火','水','木','金','土'];
-      const today = new Date();
-      const start = new Date(today);
-      start.setDate(today.getDate() - 6);
-
-      let html = '';
-      for(let i=0;i<7;i++){
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        const key = getDateKey(d);
-        const dayLogs = state.logs[key] || { breakfast:[], lunch:[], dinner:[], snack:[] };
-        const t = totals(mealKeys.flatMap(k => dayLogs[k] || []));
-        const target = Number(state.target.kcal || 0);
-        let cls = '';
-        if(t.kcal > 0){
-          cls = Math.abs(t.kcal - target) <= 150 ? 'good' : (t.kcal > target ? 'over' : '');
-        }
-        html += `
-          <div class="day-box ${cls}">
-            <div class="day">${labels[d.getDay()]}</div>
-            <div class="tiny muted">${d.getMonth()+1}/${d.getDate()}</div>
-            <div class="kc">${Math.round(t.kcal)}</div>
-            <div class="tiny muted">kcal</div>
-          </div>
-        `;
-      }
-      weekGrid.innerHTML = html;
-    }
-
-    function renderAdvice(t){
-      const msgs = [];
-      const tg = state.target;
-      const kcalDiff = Math.round(t.kcal - Number(tg.kcal || 0));
-      const pDiff = num(t.p - Number(tg.p || 0));
-      const fDiff = num(t.f - Number(tg.f || 0));
-      const cDiff = num(t.c - Number(tg.c || 0));
-      const sweets = getTodayAll().filter(x => x.type === 'sweet').length;
-      const drinks = getTodayAll().filter(x => x.type === 'drink').length;
-      const waterCount = state.water[todayKey] || 0;
-
-      if(t.kcal === 0) msgs.push('まずは今日食べたものを1つ追加して、記録の習慣を作りましょう。');
-      else if(Math.abs(kcalDiff) <= 100) msgs.push('カロリーはかなり良い範囲です。この調子です。');
-      else if(kcalDiff > 100) msgs.push(`目標より ${kcalDiff} kcal 多めです。次の食事は軽めにすると整えやすいです。`);
-      else msgs.push(`目標より ${Math.abs(kcalDiff)} kcal 少なめです。たんぱく質を中心に少し足してもOKです。`);
-
-      if(pDiff < -10) msgs.push(`たんぱく質が ${Math.abs(pDiff)} g 不足気味です。サラダチキン、卵、ヨーグルトが足しやすいです。`);
-      else msgs.push('たんぱく質はいい流れです。');
-
-      if(fDiff > 15) msgs.push('脂質が多めです。揚げ物やお菓子を少し控えると整いやすいです。');
-      if(cDiff > 30) msgs.push('炭水化物が多めです。夜は主食を少し軽くするとバランスが取りやすいです。');
-      if(sweets > 0) msgs.push(`お菓子・スイーツが ${sweets} 件あります。`);
-      if(drinks > 0) msgs.push(`飲み物・お酒の記録が ${drinks} 件あります。`);
-      if(waterCount < 6) msgs.push(`水分が ${waterCount} 杯です。あと少し増やして 2L に近づけましょう。`);
-      if(state.calc.targetKcal) msgs.unshift(`現在の自動計算設定では、目標摂取カロリーは ${Math.round(state.calc.targetKcal)} kcal です。`);
-
-      advice.innerHTML = msgs.map(m => `・${escapeHtml(m)}`).join('<br>');
-    }
-
-    function clearFoodFormFn(){
-      foodName.value = '';
-      foodKcal.value = '';
-      foodP.value = '';
-      foodF.value = '';
-      foodC.value = '';
-      foodType.value = 'normal';
-      const now = new Date();
-      eatTime.value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    }
-
-    function clearBodyFn(){
-      bodyWeight.value = '';
-      bodyFat.value = '';
-    }
-
-    function renderAll(){
-      ensureToday();
-      renderMealTabs();
-      renderQuickFoods();
-      renderTargets();
-      renderCalcInputs();
-      renderSuggestions();
-      renderWeeklyPlan();
-      renderSummary();
-      renderList();
-      renderWater();
-      renderLatestBody();
-      renderWeek();
-    }
-
-    saveTarget.onclick = () => {
-      state.target = {
-        kcal: Number(targetKcal.value || 0),
-        p: Number(targetP.value || 0),
-        f: Number(targetF.value || 0),
-        c: Number(targetC.value || 0)
-      };
-      save();
-      renderAll();
-      alert('目標を保存しました。');
-    };
-
-    fillExample.onclick = () => {
-      state.target = { kcal:2000, p:120, f:50, c:220 };
-      save();
-      renderAll();
-    };
-
-    runCalc.onclick = runAutoCalc;
-    useCalcResult.onclick = applyCalcToTargets;
-    runSuggest.onclick = runSuggestAction;
-    pickSuggestion.onclick = pickSuggestionAction;
-    generateWeeklyPlan.onclick = generateWeeklyPlanAction;
-
-    clearWeeklyPlan.onclick = () => {
-      state.weeklyPlan = [];
-      save();
-      renderWeeklyPlan();
-    };
-
-    addFood.onclick = () => {
-      ensureToday();
-      const name = foodName.value.trim();
-      if(!name){
-        alert('食べ物の名前を入れてください。');
-        return;
-      }
-      const item = {
-        name,
-        kcal: Number(foodKcal.value || 0),
-        p: Number(foodP.value || 0),
-        f: Number(foodF.value || 0),
-        c: Number(foodC.value || 0),
-        type: foodType.value,
-        time: eatTime.value || ''
-      };
-      state.logs[todayKey][state.activeMeal].push(item);
-      save();
-      clearFoodFormFn();
-      renderAll();
-    };
-
-    clearFoodForm.onclick = clearFoodFormFn;
-
-    clearToday.onclick = () => {
-      if(!confirm('今日の記録をすべて削除しますか？')) return;
-      state.logs[todayKey] = { breakfast:[], lunch:[], dinner:[], snack:[] };
-      state.water[todayKey] = 0;
-      save();
-      renderAll();
-    };
-
-    exportText.onclick = () => {
-      const all = getTodayAll();
-      if(!all.length){
-        alert('まだ記録がありません。');
-        return;
-      }
-      const t = totals(all);
-      let txt = '【今日の食事記録】\n';
-      mealKeys.forEach(k => {
-        const arr = state.logs[todayKey][k] || [];
-        if(!arr.length) return;
-        txt += `\n${mealLabels[k]}\n`;
-        arr.forEach(it => {
-          txt += `- ${it.time ? it.time + ' ' : ''}${it.name} (${Math.round(it.kcal)}kcal / P${num(it.p)} F${num(it.f)} C${num(it.c)})\n`;
-        });
-      });
-      txt += `\n合計: ${Math.round(t.kcal)}kcal / P${num(t.p)} / F${num(t.f)} / C${num(t.c)}`;
-      alert(txt);
-    };
-
-    waterMinus.onclick = () => {
-      ensureToday();
-      state.water[todayKey] = Math.max((state.water[todayKey] || 0) - 1, 0);
-      save();
-      renderWater();
-      renderSummary();
-    };
-
-    waterPlus.onclick = () => {
-      ensureToday();
-      state.water[todayKey] = Math.min((state.water[todayKey] || 0) + 1, 12);
-      save();
-      renderWater();
-      renderSummary();
-    };
-
-    saveBody.onclick = () => {
-      const w = Number(bodyWeight.value || 0);
-      const bf = Number(bodyFat.value || 0);
-      if(!w){
-        alert('体重を入力してください。');
-        return;
-      }
-      state.bodyLogs.push({
-        date:`${new Date().getMonth()+1}/${new Date().getDate()}`,
-        key:todayKey,
-        weight:num(w),
-        bodyFat:bf ? num(bf) : ''
-      });
-      if(state.bodyLogs.length > 30) state.bodyLogs = state.bodyLogs.slice(-30);
-      save();
-      clearBodyFn();
-      renderLatestBody();
-      alert('体重を記録しました。');
-    };
-
-    clearBodyForm.onclick = clearBodyFn;
-
-    load();
-    clearFoodFormFn();
-    renderAll();
-  </script>
+    h+='</div>';
+  });
+  // 水分トラッカー
+  const wKey = new Date().getFullYear()+'-'+(new Date().getMonth())+'-'+(new Date().getDate());
+  const cups = S.water[wKey]||0;
+  h+='<div class="meal-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:13px;font-weight:800;color:#1a2e23">💧 水分摂取</div><div style="font-size:11px;color:'+(cups>=8?'#2d8a6e':'#888')+';font-weight:700">'+cups+'/8杯（'+(cups*0.25).toFixed(1)+'L / 2L）</div></div>';
+  h+='<div style="display:flex;gap:4px;margin-bottom:8px">';
+  for(let i=0;i<8;i++) h+='<div class="water-bar '+(i<cups?'filled':'')+'" onclick="setWater(\''+wKey+'\','+(i+1)+')"></div>';
+  h+='</div><div style="display:flex;gap:8px;justify-content:center"><button style="width:36px;height:36px;border-radius:10px;border:2px solid #e8ece9;background:#fff;font-size:18px;cursor:pointer;color:#888" onclick="setWater(\''+wKey+'\',Math.max('+cups+'-1,0))">−</button><button style="width:36px;height:36px;border-radius:10px;border:none;background:linear-gradient(135deg,#3498db,#5bc0de);font-size:18px;cursor:pointer;color:#fff" onclick="setWater(\''+wKey+'\',Math.min('+cups+'+1,12))">＋</button></div>';
+  if(cups>=8) h+='<div style="text-align:center;font-size:11px;color:#2d8a6e;font-weight:700;margin-top:6px">🎉 今日の水分目標達成！</div>';
+  h+='</div>';
+  // 食事完了
+  if(!isDone){
+    h+='<button style="width:100%;padding:16px;border-radius:14px;border:none;background:'+(allE.length===0?'#ccc':'linear-gradient(135deg,#e74c3c,#c0392b)')+';color:#fff;font-weight:800;font-size:16px;cursor:'+(allE.length===0?'default':'pointer')+';margin-top:12px" '+(allE.length===0?'disabled':'')+' onclick="completeMeal('+todayIdx+')">🏁 今日の食事を完了する</button>';
+  } else {
+    h+='<div style="margin-top:12px"><div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:16px;padding:16px;margin-bottom:8px"><div style="font-size:14px;font-weight:800;color:#2d8a6e;margin-bottom:10px;text-align:center">🏁 本日の食事レポート</div>';
+    isDone.forEach(msg=>{h+='<div style="font-size:12px;color:#3d5c4a;line-height:1.7;padding-left:10px;border-left:2px solid #2d8a6e40;margin-bottom:8px">'+esc(msg)+'</div>';});
+    h+='</div><button style="width:100%;padding:12px;border-radius:12px;border:2px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:13px;cursor:pointer" onclick="undoComplete('+todayIdx+')">修正して再記録する</button></div>';
+  }
+  app.innerHTML = h + tabBar();
+  return;
+}
+
+if (S.tab === "weekly") {
+  const dayLog = S.log[S.selDay]||{};
+  const eaten = dayLog.eaten||[]; let eatKcal=0;
+  if(Array.isArray(eaten)) eatKcal=eaten.reduce((s,e)=>s+(e.kcal||0),0);
+  else Object.values(eaten).flat().forEach(e=>{eatKcal+=(e.kcal||0);});
+  const tgtK=p?.dailyCal||2000;
+  const pct=Math.min(Math.round(eatKcal/tgtK*100),150);
+  let h='<div style="text-align:center;margin-bottom:16px"><div style="font-size:32px">📋</div><h2 style="font-size:20px;font-weight:800;color:#1a2e23">週間管理</h2></div>';
+  h+='<div style="display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">';
+  S.meal.weeklyPlan.forEach((dy,i)=>{
+    const dl=S.log[i]; const hasD=dl&&(dl.checks||dl.eaten);
+    h+='<button class="day-btn '+(S.selDay===i?'active':'inactive')+'" style="position:relative" onclick="S.selDay='+i+';render()">'+dy.day.replace('曜日','')+(hasD?'<span style="position:absolute;top:2px;right:2px;width:6px;height:6px;border-radius:50%;background:#3aaf8a"></span>':'')+'</button>';
+  });
+  h+='</div>';
+  h+='<div style="background:linear-gradient(135deg,#edf7f2,#e3f1ec);border-radius:14px;padding:14px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:12px;font-weight:800;color:#2d8a6e">📊 カロリー達成度</div><div style="font-size:14px;font-weight:800;color:'+(pct>110?'#c0392b':'#2d8a6e')+'">'+eatKcal+' / '+tgtK+' kcal（'+pct+'%）</div></div><div style="margin-top:8px;background:#c8ddd2;border-radius:6px;height:8px;overflow:hidden"><div style="width:'+Math.min(pct,100)+'%;height:100%;border-radius:6px;background:'+(pct>110?'#c0392b':pct>=90?'#2d8a6e':'#f39c12')+'"></div></div></div>';
+  h+='<div style="font-size:13px;font-weight:800;color:#1a2e23;margin-bottom:8px">🍽️ 食事チェック</div>';
+  moKeys.forEach(k=>{
+    const chk=dayLog.checks?.[k]||'';
+    h+='<div style="background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:6px;box-shadow:0 1px 6px rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:space-between"><div style="font-size:13px;font-weight:700;color:#333">'+ML[k]+'</div><div style="display:flex;gap:6px">';
+    [['◉','#2d8a6e'],['△','#f39c12'],['✖','#c0392b']].forEach(([sym,col])=>{
+      h+='<button class="check-btn" style="border-color:'+(chk===sym?col:'#e8ece9')+';background:'+(chk===sym?col+'15':'#fff')+';color:'+col+'" onclick="setCheck('+S.selDay+',\''+k+'\',\''+sym+'\')">'+sym+'</button>';
+    });
+    h+='</div></div>';
+  });
+  // 体重記録
+  h+='<div style="font-size:13px;font-weight:800;color:#1a2e23;margin-top:16px;margin-bottom:8px">📊 体重・体脂肪の記録</div>';
+  h+='<div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;box-shadow:0 1px 8px #0000000a"><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1"><div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px">体重（kg）</div><input id="bw-input" class="input" type="number" placeholder="kg" step="0.1" style="font-size:13px;padding:10px"></div><div style="flex:1"><div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px">体脂肪率（%）</div><input id="bf-input" class="input" type="number" placeholder="%" step="0.1" style="font-size:13px;padding:10px"></div><button style="align-self:flex-end;padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(135deg,#2d8a6e,#3aaf8a);color:#fff;font-weight:700;font-size:12px;cursor:pointer" onclick="addBodyLog()">記録</button></div>';
+  if(S.bodyLog.length>0){
+    h+='<div style="display:flex;align-items:flex-end;gap:4px;height:80px">';
+    const ws=S.bodyLog.map(b=>b.w);const mn=Math.min(...ws)-2,mx=Math.max(...ws)+2,rng=mx-mn||1;
+    S.bodyLog.forEach((b,i)=>{const ht=Math.max(((b.w-mn)/rng)*65+10,10);const isL=i===S.bodyLog.length-1;
+      h+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="font-size:7px;color:'+(isL?'#2d8a6e':'#999')+';font-weight:'+(isL?'800':'500')+'">'+b.w+'</div><div style="width:100%;height:'+ht+'px;border-radius:3px;background:'+(isL?'linear-gradient(180deg,#2d8a6e,#3aaf8a)':'#c8ddd2')+'"></div><div style="font-size:6px;color:#bbb">'+b.date+'</div></div>';
+    });
+    h+='</div>';
+    if(p?.targetWeight) h+='<div style="font-size:10px;color:#2d8a6e;font-weight:600;text-align:center;margin-top:4px">🎯 目標 '+p.targetWeight+'kg → 現在 '+S.bodyLog[S.bodyLog.length-1].w+'kg</div>';
+    h+='<button style="width:100%;margin-top:4px;padding:6px;border:none;background:transparent;color:#ccc;font-size:10px;cursor:pointer" onclick="S.bodyLog.pop();save();render()">取り消す</button>';
+  } else {
+    h+='<div style="text-align:center;color:#ccc;font-size:12px;padding:10px 0">まだ記録なし</div>';
+  }
+  h+='</div>';
+  app.innerHTML = h + tabBar();
+  return;
+}
+
+if (S.tab === "goal") {
+  const startW=p.currentWeight,tgtW=p.targetWeight,months=p.months||1,pace=p.pace||0,isCut=p.isCut;
+  const now=new Date();
+  let h='<div class="goal-header"><div style="font-size:12px;font-weight:700;opacity:0.7;margin-bottom:6px">🎯 最終目標</div>';
+  h+='<div style="display:flex;justify-content:center;align-items:baseline;gap:8px;margin-bottom:8px"><div><div style="font-size:42px;font-weight:800;line-height:1">'+tgtW+'</div><div style="font-size:12px;opacity:0.7">kg</div></div><div style="font-size:20px;opacity:0.5">/</div><div><div style="font-size:42px;font-weight:800;line-height:1">'+(p.targetBf||'−')+'</div><div style="font-size:12px;opacity:0.7">%</div></div></div>';
+  h+='<div style="display:flex;justify-content:center;gap:16px;font-size:12px;opacity:0.8"><span>'+(isCut?'🔥 減量':p.isBulk?'💪 増量':'⚖️ 維持')+'</span><span>現在 '+startW+'kg</span><span>あと '+p.weightDiff.toFixed(1)+'kg</span></div>';
+  h+='<div style="display:flex;justify-content:center;gap:12px;margin-top:10px;font-size:11px;opacity:0.7"><span>📅 約'+months+'ヶ月</span><span>🔥 '+p.dailyCal+'kcal/日</span></div></div>';
+  h+='<div style="font-size:14px;font-weight:800;color:#1a2e23;margin-bottom:10px">📊 月間マイルストーン</div>';
+  const gA=S.log.goalActuals||{};
+  for(let i=0;i<=Math.min(months,12);i++){
+    const mD=new Date(now.getFullYear(),now.getMonth()+i,30);
+    const expW=isCut?Math.max(startW-pace*i,tgtW):Math.min(startW+pace*i,tgtW);
+    const eW=Math.round(expW*10)/10;
+    const aV=gA[i]; const hasA=aV!==undefined&&aV!=='';
+    const diff=hasA?(parseFloat(aV)-eW):null;
+    const isLast=i===Math.min(months,12);
+    h+='<div style="display:flex;align-items:stretch"><div style="width:40px;display:flex;flex-direction:column;align-items:center;position:relative"><div class="timeline-dot" style="background:'+(isLast?'#2d8a6e':hasA?'#3aaf8a':'#c8ddd2')+';border:'+(isLast?'3px solid #1a2e23':'2px solid #fff')+'"></div>'+(isLast?'':'<div class="timeline-line"></div>')+'</div>';
+    h+='<div style="flex:1;background:'+(isLast?'#edf7f2':'#fff')+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 6px #0000000a;border:'+(isLast?'2px solid #2d8a6e':'1px solid #f0f0f0')+'">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div><span style="font-size:13px;font-weight:800;color:'+(isLast?'#2d8a6e':'#1a2e23')+'">'+(mD.getMonth()+1)+'/'+mD.getDate()+'</span>'+(i===0?'<span style="font-size:9px;color:#888;margin-left:6px">スタート</span>':'')+(isLast?'<span style="font-size:9px;color:#2d8a6e;margin-left:6px;font-weight:700">🏁 ゴール</span>':'')+'</div><div style="font-size:12px;color:#888;font-weight:600">目標 '+eW+'kg</div></div>';
+    h+='<div style="display:flex;align-items:center;gap:8px"><div style="font-size:11px;color:#5a6e62;font-weight:600;white-space:nowrap">実績:</div><input type="number" value="'+(aV??'')+'" onchange="setGoalActual('+i+',this.value)" placeholder="−" style="width:80px;padding:6px 10px;border-radius:8px;border:1.5px solid #e8ece9;font-size:14px;font-weight:800;outline:none;background:#f8faf9;text-align:center"><span style="font-size:12px;color:#888">kg</span>';
+    if(diff!==null) h+='<span style="font-size:11px;font-weight:700;color:'+((isCut&&diff<=0)||(!isCut&&diff>=0)?'#2d8a6e':'#c0392b')+';margin-left:4px">'+(diff>0?'+':'')+diff.toFixed(1)+'kg</span>';
+    h+='</div></div></div>';
+  }
+  app.innerHTML = h + tabBar();
+  return;
+}
+```
+
+}
+
+app.innerHTML = ‘<div style="text-align:center;padding:60px 20px;color:#888">読み込み中…</div>’;
+}
+
+// ═══ Action functions ═══
+function openAddFood(cat) {
+S.addMode = true;
+S.addCat = cat;
+S.foodSearch = ‘’;
+S.addTime = ‘’;
+render();
+}
+function closeAddFood() {
+S.addMode = false;
+S.addCat = ‘’;
+S.foodSearch = ‘’;
+render();
+}
+function addFoodItem(cat, item) {
+const dayIdx = new Date().getDay(); const todayIdx = dayIdx===0?6:dayIdx-1;
+if (!S.log[todayIdx]) S.log[todayIdx] = {};
+if (!S.log[todayIdx].eaten) S.log[todayIdx].eaten = {};
+if (!S.log[todayIdx].eaten[cat]) S.log[todayIdx].eaten[cat] = [];
+S.log[todayIdx].eaten[cat].push(item);
+S.addMode = false; S.addCat = ‘’; S.foodSearch = ‘’;
+save(); render();
+}
+function pickFood(cat, idx) {
+const allFoods = getAllFoods();
+const q = S.foodSearch.toLowerCase();
+const results = allFoods.filter(f => f.name.toLowerCase().includes(q) || (f.cat||’’).toLowerCase().includes(q)).slice(0,10);
+const f = results[idx];
+if (!f) return;
+const isW = (f.cat||f.src||’’).includes(‘🚨’);
+const isD = (f.cat||’’).includes(‘🍺’);
+addFoodItem(cat, { name: f.name, kcal: f.kcal, p: f.p, f: f.f, c: f.c, time: S.addTime, warn: isW, drink: isD });
+}
+function pickFav(cat, idx) {
+const f = S.favorites[idx];
+if (!f) return;
+addFoodItem(cat, { …f, time: S.addTime });
+}
+function addCustomFood(cat) {
+const name = document.getElementById(‘cf-name’)?.value;
+if (!name) return;
+const kcal = parseFloat(document.getElementById(‘cf-kcal’)?.value)||0;
+const p = parseFloat(document.getElementById(‘cf-p’)?.value)||0;
+const f = parseFloat(document.getElementById(‘cf-f’)?.value)||0;
+const c = parseFloat(document.getElementById(‘cf-c’)?.value)||0;
+addFoodItem(cat, { name, kcal, p, f, c, time: S.addTime });
+}
+function toggleFav(idx) {
+const allFoods = getAllFoods();
+const q = S.foodSearch.toLowerCase();
+const results = allFoods.filter(f => f.name.toLowerCase().includes(q) || (f.cat||’’).toLowerCase().includes(q)).slice(0,10);
+const f = results[idx];
+if (!f) return;
+const existing = S.favorites.findIndex(x => x.name === f.name);
+if (existing >= 0) S.favorites.splice(existing, 1);
+else {
+const isW = (f.cat||f.src||’’).includes(‘🚨’);
+const isD = (f.cat||’’).includes(‘🍺’);
+S.favorites.push({ name: f.name, kcal: f.kcal, p: f.p, f: f.f, c: f.c, warn: isW, drink: isD });
+}
+save(); render();
+}
+function updateSearch(v) {
+S.foodSearch = v;
+const el = document.getElementById(‘search-results’);
+if (el) el.innerHTML = renderSearchResults();
+else render();
+}
+function renderSearchResults() {
+const allFoods = getAllFoods();
+const q = S.foodSearch.toLowerCase();
+const cat = S.addCat;
+if (!q) return ‘’;
+const results = allFoods.filter(f => f.name.toLowerCase().includes(q) || (f.cat||’’).toLowerCase().includes(q)).slice(0,10);
+let h = ‘’;
+results.forEach((f, i) => {
+const isW = (f.cat||f.src||’’).includes(‘🚨’);
+const isD = (f.cat||’’).includes(‘🍺’);
+const bg = isW ? ‘#FFF5F5’ : isD ? ‘#FFF8E1’ : ‘#fff’;
+const tc = isW ? ‘#c0392b’ : isD ? ‘#E65100’ : ‘#333’;
+const isFav = S.favorites.some(x => x.name === f.name);
+h += ‘<div style="display:flex;gap:4px;margin-bottom:3px"><button class="search-result" style="background:'+bg+'" onclick="pickFood(&quot;'+cat+'&quot;,'+i+')"><div style="font-size:12px;color:'+tc+';font-weight:600">’+esc(f.name)+’</div><div style="font-size:9px;color:#999">’+f.kcal+‘kcal P:’+f.p+‘g F:’+f.f+‘g C:’+f.c+‘g</div></button>’;
+h += ‘<button style="width:30px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-size:16px;color:'+(isFav?'#f39c12':'#ddd')+'" onclick="toggleFav('+i+')">’+(isFav?‘★’:‘☆’)+’</button></div>’;
+});
+return h;
+}
+function updateAddTime(v) { S.addTime = v; }
+function renderAddPanel(cat) {
+const allFoods = getAllFoods();
+let h = ‘<div style="margin-top:8px;background:#f8faf9;border-radius:10px;padding:10px">’;
+// 時間入力
+h += ‘<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:#5a6e62;white-space:nowrap">🕐 時間</div><input type="time" value="'+esc(S.addTime)+'" onchange="updateAddTime(this.value)" class="input" style="font-size:13px;padding:8px 10px;flex:1"></div>’;
+// お気に入り
+if (S.favorites.length > 0) {
+h += ‘<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:#f39c12;margin-bottom:4px">⭐ お気に入り</div><div style="display:flex;flex-wrap:wrap;gap:4px">’;
+S.favorites.forEach((fv, fi) => {
+h += ‘<button class="fav-tag" onclick="pickFav(\''+cat+'\','+fi+')">’+esc(fv.name)+’ <span style="font-size:9px;color:#999">’+fv.kcal+’</span></button>’;
+});
+h += ‘</div></div>’;
+}
+// 検索
+h += ‘<input class="input" style="font-size:13px;padding:10px 12px;margin-bottom:6px" value="'+esc(S.foodSearch)+'" oninput="updateSearch(this.value)" placeholder="食品名で検索...">’;
+h += ‘<div id="search-results" style="max-height:200px;overflow-y:auto;margin-bottom:6px">’;
+if (S.foodSearch) { h += renderSearchResults(); }
+h += ‘</div>’;
+// 手入力
+h += ‘<div style="font-size:10px;font-weight:700;color:#5a6e62;margin-bottom:4px;margin-top:4px">手入力</div>’;
+h += ‘<input id="cf-name" class="input" style="font-size:12px;padding:8px 10px;margin-bottom:4px" placeholder="品名">’;
+h += ‘<div style="display:flex;gap:4px;margin-bottom:6px"><input id="cf-kcal" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="kcal"><input id="cf-p" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="P"><input id="cf-f" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="F"><input id="cf-c" class="input" type="number" style="flex:1;font-size:11px;padding:8px 6px" placeholder="C"></div>’;
+h += ‘<div style="display:flex;gap:6px"><button style="flex:1;padding:8px;border-radius:8px;border:1px solid #e0e5e2;background:#fff;color:#888;font-weight:700;font-size:12px;cursor:pointer" onclick="closeAddFood()">閉じる</button><button style="flex:1;padding:8px;border-radius:8px;border:none;background:#2d8a6e;color:#fff;font-weight:700;font-size:12px;cursor:pointer" onclick="addCustomFood(\''+cat+'\')">追加</button></div>’;
+h += ‘</div>’;
+return h;
+}
+function removeTodayItem(todayIdx, cat, idx) {
+const dayE = S.log[todayIdx]?.eaten || {};
+const arr = […(dayE[cat]||[])];
+arr.splice(idx, 1);
+if (!S.log[todayIdx]) S.log[todayIdx] = {};
+if (!S.log[todayIdx].eaten) S.log[todayIdx].eaten = {};
+S.log[todayIdx].eaten[cat] = arr;
+save(); render();
+}
+function setWater(key, val) { S.water[key] = val; save(); render(); }
+function setCheck(day, meal, sym) {
+if (!S.log[day]) S.log[day] = {};
+if (!S.log[day].checks) S.log[day].checks = {};
+S.log[day].checks[meal] = sym;
+save(); render();
+}
+function addBodyLog() {
+const bw = parseFloat(document.getElementById(‘bw-input’)?.value);
+const bf = parseFloat(document.getElementById(‘bf-input’)?.value);
+if (!bw) return;
+S.bodyLog.push({ date: (new Date().getMonth()+1)+’/’+(new Date().getDate()), w: bw, bf: bf||0 });
+if (S.bodyLog.length > 12) S.bodyLog = S.bodyLog.slice(-12);
+save(); render();
+}
+function setGoalActual(idx, val) {
+if (!S.log.goalActuals) S.log.goalActuals = {};
+S.log.goalActuals[idx] = val;
+save(); render();
+}
+function completeMeal(todayIdx) {
+const p = S.plan; const tLog = S.log[todayIdx]||{}; const tEaten = tLog.eaten||{};
+const allE=[]; MO.forEach(k=>{(tEaten[k]||[]).forEach(e=>allE.push(e))});
+const eK=allE.reduce((s,e)=>s+(e.kcal||0),0);
+const eP=allE.reduce((s,e)=>s+(e.p||0),0);
+const eF=allE.reduce((s,e)=>s+(e.f||0),0);
+const tgtK=p?.dailyCal||2000;
+const msgs=[];
+const kDiff=eK-tgtK;
+if(Math.abs(kDiff)<=tgtK*0.05) msgs.push(‘🎉 カロリーほぼピッタリ！素晴らしい。’);
+else if(kDiff>0) msgs.push(‘⚡ 目標より’+kDiff+‘kcal多め。明日は間食を控えめに。’);
+else msgs.push(‘📉 目標より’+Math.abs(kDiff)+‘kcal少なめ。’+(p.isCut?‘減量中なのでOK！’:‘もう少し食べてOK。’));
+const pDiff=eP-(p?.proteinG||0);
+if(pDiff<-10) msgs.push(‘💪 タンパク質が’+Math.abs(Math.round(pDiff))+‘g不足。明日はゆで卵やチキンをプラス。’);
+else if(pDiff>=0) msgs.push(‘✅ タンパク質は目標達成！’);
+if(eF-(p?.fatG||0)>15) msgs.push(‘🫒 脂質が多め。揚げ物を蒸し・焼きに変えてみましょう。’);
+const warns=allE.filter(e=>e.warn);
+if(warns.length>0) msgs.push(‘⚠️ お菓子/スイーツを’+warns.length+‘品摂りました。代わりにプロテインバーやナッツを。’);
+const drinks=allE.filter(e=>e.drink);
+if(drinks.length>0){const dk=drinks.reduce((s,e)=>s+e.kcal,0);msgs.push(‘🍺 お酒で’+dk+‘kcal。ハイボールや焼酎に切り替えると◎’);}
+S.dailyDone[todayIdx] = msgs;
+save(); render();
+}
+function undoComplete(todayIdx) {
+delete S.dailyDone[todayIdx];
+save(); render();
+}
+
+// ═══ Init ═══
+load();
+render();
+
+</script>
 </body>
 </html>
