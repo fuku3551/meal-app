@@ -1045,7 +1045,34 @@
     function upd(k, v) {
   S.d[k] = v;
   save();
-  refreshStep0Button();
+
+  if (S.step === 0) {
+    const btn = document.getElementById("step0next");
+    if (btn) {
+      btn.disabled = !isStep0Complete();
+    }
+
+    const c = calc();
+    const box = document.getElementById("step0-bodybox");
+    if (box) {
+      box.innerHTML =
+        c.nW > 0 && c.nBf > 0
+          ? `
+            <div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">
+              <div style="flex:1;text-align:center">
+                <div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div>
+                <div style="font-size:20px;font-weight:800;color:#2d8a6e">${c.lbm.toFixed(1)}kg</div>
+              </div>
+              <div style="width:1px;background:#c8ddd2"></div>
+              <div style="flex:1;text-align:center">
+                <div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div>
+                <div style="font-size:20px;font-weight:800;color:#c0392b">${c.fatM.toFixed(1)}kg</div>
+              </div>
+            </div>
+          `
+          : "";
+    }
+  }
 }
 
     function updR(k, v) {
@@ -1053,11 +1080,7 @@
       save();
       render();
     }
-　　　function refreshStep0Button() {
-  const btn = document.getElementById("step0next");
-  if (!btn) return;
-  btn.disabled = !isStep0Complete();
-}
+　　　
     function getAllFoods() {
       const all = [];
       Object.entries(FOOD_DB).forEach(([src, cats]) => {
