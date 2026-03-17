@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
@@ -22,450 +23,453 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
-      font-family: "Noto Sans JP", "Hiragino Sans", sans-serif;
-      background: linear-gradient(180deg, #f0f5f2, #e8ede9);
-      min-height: 100vh;
-      min-height: 100dvh;
-      color: #1a2e23;
-    }
+```
+body {
+  font-family: "Noto Sans JP", "Hiragino Sans", sans-serif;
+  background: linear-gradient(180deg, #f0f5f2, #e8ede9);
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: #1a2e23;
+}
 
-    input,
-    select,
-    button,
-    textarea {
-      font-family: "Noto Sans JP", sans-serif;
-      touch-action: manipulation;
-    }
+input,
+select,
+button,
+textarea {
+  font-family: "Noto Sans JP", sans-serif;
+  touch-action: manipulation;
+}
 
-    button {
-      cursor: pointer;
-      -webkit-appearance: none;
-    }
+button {
+  cursor: pointer;
+  -webkit-appearance: none;
+}
 
-    .shell {
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      justify-content: center;
-      background: linear-gradient(180deg, #f0f5f2, #e8ede9);
-    }
+.shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(180deg, #f0f5f2, #e8ede9);
+}
 
-    .app {
-      width: 100%;
-      max-width: 440px;
-      padding: 20px 16px 92px;
-    }
+.app {
+  width: 100%;
+  max-width: 440px;
+  padding: 20px 16px 92px;
+}
 
-    .progress {
-      display: flex;
-      gap: 4px;
-      padding: 0 4px;
-      margin-bottom: 20px;
-    }
+.progress {
+  display: flex;
+  gap: 4px;
+  padding: 0 4px;
+  margin-bottom: 20px;
+}
 
-    .progress div {
-      flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      background: #e0e5e2;
-    }
+.progress div {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #e0e5e2;
+}
 
-    .progress div.active {
-      background: linear-gradient(90deg, #2d8a6e, #3aaf8a);
-    }
+.progress div.active {
+  background: linear-gradient(90deg, #2d8a6e, #3aaf8a);
+}
 
-    .title-icon {
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
+.title-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
 
-    .title-h {
-      font-size: 20px;
-      font-weight: 800;
-      color: #1a2e23;
-      margin: 0 0 4px;
-      letter-spacing: -0.5px;
-    }
+.title-h {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a2e23;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
 
-    .title-sub {
-      font-size: 13px;
-      color: #7a8f82;
-      margin: 0;
-      line-height: 1.6;
-    }
+.title-sub {
+  font-size: 13px;
+  color: #7a8f82;
+  margin: 0;
+  line-height: 1.6;
+}
 
-    .label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: #5a6e62;
-      margin-bottom: 6px;
-    }
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #5a6e62;
+  margin-bottom: 6px;
+}
 
-    .input,
-    .select,
-    .textarea {
-      width: 100%;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 2px solid #e8ece9;
-      font-size: 16px;
-      outline: none;
-      background: #f8faf9;
-      box-sizing: border-box;
-    }
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid #e8ece9;
+  font-size: 16px;
+  outline: none;
+  background: #f8faf9;
+  box-sizing: border-box;
+}
 
-    .textarea {
-      min-height: 92px;
-      resize: vertical;
-    }
+.textarea {
+  min-height: 92px;
+  resize: vertical;
+}
 
-    .input:focus,
-    .select:focus,
-    .textarea:focus {
-      border-color: #2d8a6e;
-    }
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: #2d8a6e;
+}
 
-    .btn-primary {
-      width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, #2d8a6e, #3aaf8a);
-      color: #fff;
-      font-weight: 800;
-      font-size: 16px;
-      box-shadow: 0 4px 16px rgba(45, 138, 110, 0.3);
-      margin-top: 8px;
-    }
+.btn-primary {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #2d8a6e, #3aaf8a);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  box-shadow: 0 4px 16px rgba(45, 138, 110, 0.3);
+  margin-top: 8px;
+}
 
-    .btn-primary:disabled {
-      background: #ccc;
-      box-shadow: none;
-      cursor: default;
-    }
+.btn-primary:disabled {
+  background: #ccc;
+  box-shadow: none;
+  cursor: default;
+}
 
-    .btn-back {
-      flex: 1;
-      padding: 14px;
-      border-radius: 14px;
-      border: 2px solid #e0e5e2;
-      background: #fff;
-      color: #888;
-      font-weight: 700;
-      font-size: 15px;
-    }
+.btn-back {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid #e0e5e2;
+  background: #fff;
+  color: #888;
+  font-weight: 700;
+  font-size: 15px;
+}
 
-    .btn-next {
-      flex: 1;
-      padding: 14px;
-      border-radius: 14px;
-      border: none;
-      background: linear-gradient(135deg, #2d8a6e, #3aaf8a);
-      color: #fff;
-      font-weight: 700;
-      font-size: 15px;
-    }
+.btn-next {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #2d8a6e, #3aaf8a);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
 
-    .btn-next:disabled {
-      background: #ccc;
-      cursor: default;
-    }
+.btn-next:disabled {
+  background: #ccc;
+  cursor: default;
+}
 
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    }
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
 
-    .card-title {
-      font-size: 12px;
-      font-weight: 800;
-      color: #2d8a6e;
-      margin-bottom: 14px;
-    }
+.card-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #2d8a6e;
+  margin-bottom: 14px;
+}
 
-    .gender-btn,
-    .goal-btn,
-    .pace-btn,
-    .split-btn,
-    .cook-btn {
-      width: 100%;
-      background: #fff;
-      border: 2px solid #e8ece9;
-      border-radius: 14px;
-    }
+.gender-btn,
+.goal-btn,
+.pace-btn,
+.split-btn,
+.cook-btn {
+  width: 100%;
+  background: #fff;
+  border: 2px solid #e8ece9;
+  border-radius: 14px;
+}
 
-    .gender-btn {
-      flex: 1;
-      padding: 18px 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
+.gender-btn {
+  flex: 1;
+  padding: 18px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
 
-    .goal-btn {
-      padding: 20px 18px;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border-radius: 16px;
-    }
+.goal-btn {
+  padding: 20px 18px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 16px;
+}
 
-    .pace-btn {
-      padding: 16px 18px;
-      text-align: left;
-      font-size: 14px;
-      font-weight: 700;
-    }
+.pace-btn {
+  padding: 16px 18px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+}
 
-    .split-btn {
-      padding: 14px 16px;
-      text-align: left;
-      font-size: 14px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+.split-btn {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    .cook-btn {
-      padding: 14px 16px;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+.cook-btn {
+  padding: 14px 16px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-    .active-card {
-      border-color: #2d8a6e !important;
-      background: #edf7f2 !important;
-    }
+.active-card {
+  border-color: #2d8a6e !important;
+  background: #edf7f2 !important;
+}
 
-    .s2-badge {
-      display: inline-block;
-      background: #2d8a6e;
-      color: #fff;
-      padding: 4px 12px;
-      border-radius: 8px;
-      font-size: 10px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-    }
+.s2-badge {
+  display: inline-block;
+  background: #2d8a6e;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
 
-    .tab-bar {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 440px;
-      background: #fff;
-      border-top: 1px solid #eee;
-      display: flex;
-      justify-content: space-around;
-      padding: 6px 0;
-      padding-bottom: max(6px, env(safe-area-inset-bottom));
-      z-index: 500;
-      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
-    }
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-around;
+  padding: 6px 0;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  z-index: 500;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
+}
 
-    .tab-btn {
-      flex: 1;
-      background: none;
-      border: none;
-      padding: 4px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1px;
-    }
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
 
-    .tab-icon {
-      font-size: 20px;
-      opacity: 0.4;
-    }
+.tab-icon {
+  font-size: 20px;
+  opacity: 0.4;
+}
 
-    .tab-icon.active {
-      opacity: 1;
-    }
+.tab-icon.active {
+  opacity: 1;
+}
 
-    .tab-label {
-      font-size: 9px;
-      font-weight: 500;
-      color: #999;
-    }
+.tab-label {
+  font-size: 9px;
+  font-weight: 500;
+  color: #999;
+}
 
-    .tab-label.active {
-      font-weight: 800;
-      color: #2d8a6e;
-    }
+.tab-label.active {
+  font-weight: 800;
+  color: #2d8a6e;
+}
 
-    .tab-dot {
-      width: 16px;
-      height: 2.5px;
-      border-radius: 2px;
-      background: #2d8a6e;
-      margin-top: 1px;
-    }
+.tab-dot {
+  width: 16px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: #2d8a6e;
+  margin-top: 1px;
+}
 
-    .pfc-bar {
-      display: flex;
-      height: 12px;
-      border-radius: 6px;
-      overflow: hidden;
-      margin-bottom: 14px;
-    }
+.pfc-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
 
-    .day-btn {
-      flex: 0 0 auto;
-      padding: 8px 14px;
-      border-radius: 10px;
-      border: none;
-      font-weight: 700;
-      font-size: 12px;
-      white-space: nowrap;
-    }
+.day-btn {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+}
 
-    .day-btn.active {
-      background: #2d8a6e;
-      color: #fff;
-    }
+.day-btn.active {
+  background: #2d8a6e;
+  color: #fff;
+}
 
-    .day-btn.inactive {
-      background: #fff;
-      color: #555;
-    }
+.day-btn.inactive {
+  background: #fff;
+  color: #555;
+}
 
-    .meal-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 8px;
-      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
-    }
+.meal-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+}
 
-    .item-line {
-      font-size: 13px;
-      color: #444;
-      padding-left: 8px;
-      border-left: 3px solid rgba(45, 138, 110, 0.25);
-      line-height: 1.5;
-      margin-bottom: 4px;
-    }
+.item-line {
+  font-size: 13px;
+  color: #444;
+  padding-left: 8px;
+  border-left: 3px solid rgba(45, 138, 110, 0.25);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
 
-    .item-src {
-      font-size: 11px;
-      color: #2d8a6e;
-      font-weight: 700;
-      margin-bottom: 4px;
-      padding: 3px 8px;
-      background: #edf7f2;
-      border-radius: 6px;
-      display: inline-block;
-    }
+.item-src {
+  font-size: 11px;
+  color: #2d8a6e;
+  font-weight: 700;
+  margin-bottom: 4px;
+  padding: 3px 8px;
+  background: #edf7f2;
+  border-radius: 6px;
+  display: inline-block;
+}
 
-    .tip-box {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #2d8a6e;
-      background: #edf7f2;
-      border-radius: 8px;
-      padding: 6px 10px;
-    }
+.tip-box {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #2d8a6e;
+  background: #edf7f2;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
 
-    .notice-box {
-      background: linear-gradient(135deg, #fff8e8, #fff3cf);
-      border: 1px solid #ffe08a;
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
+.notice-box {
+  background: linear-gradient(135deg, #fff8e8, #fff3cf);
+  border: 1px solid #ffe08a;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
 
-    .success-box {
-      background: linear-gradient(135deg, #edf7f2, #e3f1ec);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 10px;
-    }
+.success-box {
+  background: linear-gradient(135deg, #edf7f2, #e3f1ec);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
 
-    .water-bar {
-      flex: 1;
-      height: 24px;
-      border-radius: 6px;
-      background: #e8ece9;
-      transition: background 0.3s;
-    }
+.water-bar {
+  flex: 1;
+  height: 24px;
+  border-radius: 6px;
+  background: #e8ece9;
+  transition: background 0.3s;
+}
 
-    .water-bar.filled {
-      background: linear-gradient(180deg, #5bc0de, #3498db);
-    }
+.water-bar.filled {
+  background: linear-gradient(180deg, #5bc0de, #3498db);
+}
 
-    .fav-tag {
-      padding: 4px 10px;
-      border-radius: 8px;
-      border: 1px solid #ffe082;
-      background: #fffde7;
-      font-size: 11px;
-      font-weight: 600;
-      color: #e65100;
-    }
+.fav-tag {
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid #ffe082;
+  background: #fffde7;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e65100;
+}
 
-    .search-result {
-      width: 100%;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: none;
-      text-align: left;
-      margin-bottom: 4px;
-    }
+.search-result {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  text-align: left;
+  margin-bottom: 4px;
+}
 
-    .check-btn {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      border: 2px solid #e8ece9;
-      font-size: 16px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fff;
-    }
+.check-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 2px solid #e8ece9;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
 
-    .timeline-dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      z-index: 1;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
+.timeline-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
 
-    .timeline-line {
-      flex: 1;
-      width: 2px;
-      background: #e0e5e2;
-    }
+.timeline-line {
+  flex: 1;
+  width: 2px;
+  background: #e0e5e2;
+}
 
-    .goal-header {
-      background: linear-gradient(135deg, #1a2e23, #2d8a6e);
-      border-radius: 20px;
-      padding: 24px 20px;
-      margin-bottom: 16px;
-      color: #fff;
-      text-align: center;
-    }
+.goal-header {
+  background: linear-gradient(135deg, #1a2e23, #2d8a6e);
+  border-radius: 20px;
+  padding: 24px 20px;
+  margin-bottom: 16px;
+  color: #fff;
+  text-align: center;
+}
 
-    .mini-muted {
-      font-size: 10px;
-      color: #888;
-    }
+.mini-muted {
+  font-size: 10px;
+  color: #888;
+}
+```
+
   </style>
 </head>
 <body>
@@ -1052,15 +1056,17 @@
       render();
     }
 
+    /* ── INPUT HELPERS (no-render for text inputs) ── */
+
+    // Save data only, no render — for text/number inputs (prevents jumping)
     function upd(k, v) {
       S.d[k] = v;
       save();
 
+      // Step 0: partial DOM updates for live feedback
       if (S.step === 0) {
         const btn = document.getElementById("step0next");
-        if (btn) {
-          btn.disabled = !isStep0Complete();
-        }
+        if (btn) btn.disabled = !isStep0Complete();
 
         const c = calc();
         const box = document.getElementById("step0-bodybox");
@@ -1085,13 +1091,46 @@
         return;
       }
 
-      render();
+      // Other steps: update nav button state without full render
+      updateNavState();
     }
 
+    // Save + full render — for select/button choices where UI must change
     function updR(k, v) {
       S.d[k] = v;
       save();
       render();
+    }
+
+    // Update disabled state of the nav button for the current step
+    function updateNavState() {
+      const btn = document.querySelector('.btn-next') || document.querySelector('.btn-primary');
+      if (!btn) return;
+
+      let enabled = false;
+      switch (S.step) {
+        case 3: {
+          const iM = S.d.goal === "maintain";
+          enabled = iM || (S.d.targetWeight && S.d.targetBf);
+          break;
+        }
+        case 7: {
+          const nD = S.d.drinkFreq === "飲まない";
+          const cn = S.d.drinkFreq && (nD || (S.d.drinkType && parseInt(S.d.drinkAmount) > 0));
+          const nAD = S.d.drinkAllowFreq === "飲まない";
+          enabled = nD || (cn && S.d.drinkAllowFreq && (nAD || (S.d.drinkAllowType && parseInt(S.d.drinkAllowAmount) > 0)));
+          break;
+        }
+        case 8:
+          enabled = !!S.d.canCook;
+          break;
+        case 9:
+          enabled = true;
+          break;
+        default:
+          return; // don't touch
+      }
+      btn.disabled = !enabled;
     }
 
     function getAllFoods() {
@@ -1721,7 +1760,42 @@
       if (!S.log.goalActuals) S.log.goalActuals = {};
       S.log.goalActuals[idx] = val;
       save();
-      render();
+      // Partial update: only refresh the comment for this milestone
+      const commentEl = document.getElementById('goal-comment-' + idx);
+      if (commentEl) {
+        const plan = S.plan;
+        const startW = plan?.currentWeight || 70;
+        const tgtW = plan?.targetWeight || startW;
+        const months = plan?.months || 1;
+        const pace = plan?.pace || 0;
+        const isCut = plan?.isCut;
+        const now = new Date();
+        const mDate = new Date(now.getFullYear(), now.getMonth() + idx, 30);
+        const expectedW = isCut ? Math.max(startW - pace * idx, tgtW) : Math.min(startW + pace * idx, tgtW);
+        const eW = Math.round(expectedW * 10) / 10;
+        const isLast = idx === Math.min(months, 12);
+        const comment = getGoalComment(eW, val, isCut, isLast);
+        const hasActual = val !== undefined && val !== "";
+        const diff = hasActual ? parseFloat(val) - eW : null;
+
+        // Update diff display
+        const diffEl = document.getElementById('goal-diff-' + idx);
+        if (diffEl) {
+          if (diff !== null) {
+            diffEl.innerHTML = `<span style="font-size:11px;font-weight:700;color:${(isCut && diff <= 0) || (!isCut && diff >= 0) ? "#2d8a6e" : "#c0392b"};margin-left:4px">${diff > 0 ? "+" : ""}${diff.toFixed(1)}kg</span>`;
+          } else {
+            diffEl.innerHTML = '';
+          }
+        }
+
+        if (comment) {
+          commentEl.innerHTML = `<div style="margin-top:10px;background:#f8faf9;border-radius:10px;padding:10px;font-size:11px;line-height:1.7;color:#3d5c4a">💬 ${comment}</div>`;
+        } else {
+          commentEl.innerHTML = `<div style="margin-top:10px;background:#fff8e8;border-radius:10px;padding:10px;font-size:11px;line-height:1.7;color:#8a6a1d">📝 実績体重を入力すると、その月の成果コメントが表示されます。</div>`;
+        }
+      } else {
+        render();
+      }
     }
 
     function genDailyFeedback(eK, eP, eF, eC, plan, allEaten) {
@@ -1963,18 +2037,20 @@
                   style="width:88px;padding:6px 10px;border-radius:8px;border:1.5px solid #e8ece9;font-size:14px;font-weight:800;outline:none;background:#f8faf9;text-align:center"
                 />
                 <span style="font-size:12px;color:#888">kg</span>
-                ${
+                <span id="goal-diff-${i}">${
                   diff !== null
                     ? `<span style="font-size:11px;font-weight:700;color:${(isCut && diff <= 0) || (!isCut && diff >= 0) ? "#2d8a6e" : "#c0392b"};margin-left:4px">${diff > 0 ? "+" : ""}${diff.toFixed(1)}kg</span>`
                     : ""
-                }
+                }</span>
               </div>
 
+              <div id="goal-comment-${i}">
               ${
                 comment
                   ? `<div style="margin-top:10px;background:#f8faf9;border-radius:10px;padding:10px;font-size:11px;line-height:1.7;color:#3d5c4a">💬 ${comment}</div>`
                   : `<div style="margin-top:10px;background:#fff8e8;border-radius:10px;padding:10px;font-size:11px;line-height:1.7;color:#8a6a1d">📝 実績体重を入力すると、その月の成果コメントが表示されます。</div>`
               }
+              </div>
             </div>
           </div>
         `;
@@ -2860,5 +2936,6 @@
     load();
     render();
   </script>
+
 </body>
 </html>
