@@ -1043,16 +1043,21 @@
     }
 
     function upd(k, v) {
-      S.d[k] = v;
-      save();
-    }
+  S.d[k] = v;
+  save();
+  refreshStep0Button();
+}
 
     function updR(k, v) {
       S.d[k] = v;
       save();
       render();
     }
-
+　　　function refreshStep0Button() {
+  const btn = document.getElementById("step0next");
+  if (!btn) return;
+  btn.disabled = !isStep0Complete();
+}
     function getAllFoods() {
       const all = [];
       Object.entries(FOOD_DB).forEach(([src, cats]) => {
@@ -2347,11 +2352,11 @@
               </div>
             </div>
 
-           
-　　　　　　　　<div><span class="label">年齢</span><input class="input" type="number" value="${esc(d.age)}" oninput="updR('age', this.value)" placeholder="例：35" /></div>
-　　　　　　　　<div><span class="label">身長（cm）</span><input class="input" type="number" value="${esc(d.height)}" oninput="updR('height', this.value)" placeholder="例：170" step="0.1" /></div>
-　　　　　　　　<div><span class="label">体重（kg）</span><input class="input" type="number" value="${esc(d.weight)}" oninput="updR('weight', this.value)" placeholder="例：75" step="0.1" /></div>
-　　　　　　　　<div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="${esc(d.bodyFat)}" oninput="updR('bodyFat', this.value)" placeholder="例：25" step="0.1" /></div>
+
+<div><span class="label">年齢</span><input class="input" type="number" value="${esc(d.age)}" oninput="upd('age', this.value)" placeholder="例：35" /></div>
+<div><span class="label">身長（cm）</span><input class="input" type="number" value="${esc(d.height)}" oninput="upd('height', this.value)" placeholder="例：170" step="0.1" /></div>
+<div><span class="label">体重（kg）</span><input class="input" type="number" value="${esc(d.weight)}" oninput="upd('weight', this.value)" placeholder="例：75" step="0.1" /></div>
+<div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="${esc(d.bodyFat)}" oninput="upd('bodyFat', this.value)" placeholder="例：25" step="0.1" /></div>
             ${
               c.nW > 0 && c.nBf > 0
                 ? `
@@ -2370,7 +2375,7 @@
                 : ""
             }
 
-            <button class="btn-primary" ${cn ? "" : "disabled"} onclick="setStep(1)">次へ →</button>
+           <button id="step0next" class="btn-primary" ${cn ? "" : "disabled"} onclick="if(isStep0Complete()) setStep(1)">次へ →</button>
           </div>
         `;
         return;
