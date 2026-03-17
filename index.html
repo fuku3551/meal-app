@@ -887,6 +887,7 @@
         localStorage.setItem(
           "meal-app",
           JSON.stringify({
+            step: S.step,
             d: S.d,
             plan: S.plan,
             meal: S.meal,
@@ -922,11 +923,19 @@
         if (r.announceSeenMonth) S.announceSeenMonth = r.announceSeenMonth;
         if (typeof r.onboardingDone === "boolean") S.onboardingDone = r.onboardingDone;
 
-        if (S.plan && S.meal) {
+        if (typeof r.step === "number") {
+          S.step = r.step;
+        } else if (S.plan && S.meal) {
           S.step = 10;
           S.tab = "today";
+        } else if (S.plan) {
+          S.step = 5;
         } else {
           S.step = 0;
+        }
+
+        if (S.step === 10 && !S.meal) {
+          S.step = S.plan ? 5 : 0;
         }
       } catch (e) {}
     }
@@ -1032,6 +1041,7 @@
 
     function setStep(n) {
       S.step = n;
+      save();
       render();
     }
 
@@ -1043,48 +1053,47 @@
     }
 
     function upd(k, v) {
-  S.d[k] = v;
-  save();
+      S.d[k] = v;
+      save();
 
-  if (S.step === 0) {
-    const btn = document.getElementById("step0next");
-    if (btn) {
-      btn.disabled = !isStep0Complete();
+      if (S.step === 0) {
+        const btn = document.getElementById("step0next");
+        if (btn) {
+          btn.disabled = !isStep0Complete();
+        }
+
+        const c = calc();
+        const box = document.getElementById("step0-bodybox");
+        if (box) {
+          box.innerHTML =
+            c.nW > 0 && c.nBf > 0
+              ? `
+                <div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">
+                  <div style="flex:1;text-align:center">
+                    <div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div>
+                    <div style="font-size:20px;font-weight:800;color:#2d8a6e">${c.lbm.toFixed(1)}kg</div>
+                  </div>
+                  <div style="width:1px;background:#c8ddd2"></div>
+                  <div style="flex:1;text-align:center">
+                    <div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div>
+                    <div style="font-size:20px;font-weight:800;color:#c0392b">${c.fatM.toFixed(1)}kg</div>
+                  </div>
+                </div>
+              `
+              : "";
+        }
+        return;
+      }
+
+      render();
     }
-
-    const c = calc();
-    const box = document.getElementById("step0-bodybox");
-    if (box) {
-      box.innerHTML =
-        c.nW > 0 && c.nBf > 0
-          ? `
-            <div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">
-              <div style="flex:1;text-align:center">
-                <div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div>
-                <div style="font-size:20px;font-weight:800;color:#2d8a6e">${c.lbm.toFixed(1)}kg</div>
-              </div>
-              <div style="width:1px;background:#c8ddd2"></div>
-              <div style="flex:1;text-align:center">
-                <div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div>
-                <div style="font-size:20px;font-weight:800;color:#c0392b">${c.fatM.toFixed(1)}kg</div>
-              </div>
-            </div>
-          `
-          : "";
-    }
-
-    return;
-  }
-
-  render();
-}
 
     function updR(k, v) {
       S.d[k] = v;
       save();
       render();
     }
-　　　
+
     function getAllFoods() {
       const all = [];
       Object.entries(FOOD_DB).forEach(([src, cats]) => {
@@ -1200,13 +1209,15 @@
     }
 
     function genMealLocal(plan, d, alDK) {
-      const foodCal = plan.dailyCal - alDK;
+      const foodCal = Math.max(plan.dailyCal - alDK, 1000);
       const srcs = [];
 
       if (d.canCook === "yes" || d.canCook === "some") srcs.push("自炊");
+
       [d.conv1, d.conv2]
         .filter((s) => s && s !== "使わない" && FOOD_DB[s])
         .forEach((s) => srcs.push(s));
+
       [d.restaurant1, d.restaurant2]
         .filter(Boolean)
         .forEach((r) => {
@@ -1232,7 +1243,7 @@
           }
         });
 
-        ["セブンイレブン", "ファミリーマート", "ローソン"].forEach((s) => {
+        ["セブンイレブン", "ファミリーマート", "ローソン", "自炊"].forEach((s) => {
           if (!byS[s] && FOOD_DB[s]?.[mt]) {
             const items = FOOD_DB[s][mt].filter(ok).map((i) => ({ ...i, src: s }));
             if (items.length) byS[s] = items;
@@ -1248,16 +1259,18 @@
       const snackEach = snackNum > 0 ? Math.round(foodCal * 0.08) : 0;
       const mealCal = foodCal - snackEach * snackNum;
       const bC = Math.round(mealCal * 0.28);
-      const lC = Math.round(mealCal * 0.4);
+      const lC = Math.round(mealCal * 0.40);
       const dC = mealCal - bC - lC;
 
       const w = parseInt(d.wakeTime) || 7;
       const sl = parseInt(d.sleepTime) || 23;
-      const bT = `${String(w + 1).padStart(2, "0")}:00`;
-      const lT = `${String(Math.max(w + 5, 12)).padStart(2, "0")}:00`;
-      const dT = `${String(Math.min(sl - 2, 20)).padStart(2, "0")}:00`;
-      const s1T = `${String(Math.max(w + 3, 10)).padStart(2, "0")}:00`;
-      const s2T = `${String(Math.round((parseInt(lT, 10) + parseInt(dT, 10)) / 2)).padStart(2, "0")}:00`;
+
+      const bT = `${String((w + 1) % 24).padStart(2, "0")}:00`;
+      const lT = `${String(Math.max(w + 5, 12) % 24).padStart(2, "0")}:00`;
+      const dT = `${String(((sl - 2 + 24) % 24) || 20).padStart(2, "0")}:00`;
+      const s1T = `${String(Math.max(w + 3, 10) % 24).padStart(2, "0")}:00`;
+      const s2Base = Math.round((parseInt(lT, 10) + parseInt(dT, 10)) / 2);
+      const s2T = `${String((s2Base + 24) % 24).padStart(2, "0")}:00`;
 
       const tips = [
         "野菜→タンパク質→炭水化物の順で",
@@ -1492,6 +1505,7 @@
       if (!f) return;
       const isW = (f.cat || f.src || "").includes("🚨");
       const isD = (f.cat || "").includes("🍺");
+
       addFoodItem(cat, {
         name: f.name,
         kcal: f.kcal,
@@ -1513,6 +1527,7 @@
     function addCustomFood(cat) {
       const name = document.getElementById("cf-name")?.value;
       if (!name) return;
+
       const kcal = parseFloat(document.getElementById("cf-kcal")?.value) || 0;
       const p = parseFloat(document.getElementById("cf-p")?.value) || 0;
       const f = parseFloat(document.getElementById("cf-f")?.value) || 0;
@@ -1767,6 +1782,7 @@
       const tLog = S.log[todayIdx] || {};
       const tEaten = tLog.eaten || {};
       const allE = [];
+
       MO.forEach((k) => {
         (tEaten[k] || []).forEach((e) => allE.push(e));
       });
@@ -2277,12 +2293,16 @@
               })
               .join("")}
 
-            ${S.addMode && S.addCat === k ? renderAddPanel(k) : `
+            ${
+              S.addMode && S.addCat === k
+                ? renderAddPanel(k)
+                : `
               <button
                 style="width:100%;padding:8px;border-radius:8px;border:1.5px dashed #c8ddd2;background:transparent;color:#2d8a6e;font-weight:700;font-size:11px;margin-top:6px"
                 onclick="openAddFood('${k}')"
               >＋ 食べたものを追加</button>
-            `}
+            `
+            }
           </div>
         `;
       });
@@ -2367,44 +2387,44 @@
             <div>
               <span class="label">性別</span>
               <div style="display:flex;gap:10px">
-                <button class="gender-btn ${d.gender === 'male' ? 'active-card' : ''}" onclick="updR('gender','male')">
+                <button class="gender-btn ${d.gender === "male" ? "active-card" : ""}" onclick="updR('gender','male')">
                   <span style="font-size:28px">🙋‍♂️</span>
-                  <span style="font-size:14px;font-weight:700;color:${d.gender === 'male' ? '#2d8a6e' : '#888'}">男性</span>
+                  <span style="font-size:14px;font-weight:700;color:${d.gender === "male" ? "#2d8a6e" : "#888"}">男性</span>
                 </button>
 
-                <button class="gender-btn ${d.gender === 'female' ? 'active-card' : ''}" onclick="updR('gender','female')">
+                <button class="gender-btn ${d.gender === "female" ? "active-card" : ""}" onclick="updR('gender','female')">
                   <span style="font-size:28px">🙋‍♀️</span>
-                  <span style="font-size:14px;font-weight:700;color:${d.gender === 'female' ? '#2d8a6e' : '#888'}">女性</span>
+                  <span style="font-size:14px;font-weight:700;color:${d.gender === "female" ? "#2d8a6e" : "#888"}">女性</span>
                 </button>
               </div>
             </div>
 
+            <div><span class="label">年齢</span><input class="input" type="number" value="${esc(d.age)}" oninput="upd('age', this.value)" placeholder="例：35" /></div>
+            <div><span class="label">身長（cm）</span><input class="input" type="number" value="${esc(d.height)}" oninput="upd('height', this.value)" placeholder="例：170" step="0.1" /></div>
+            <div><span class="label">体重（kg）</span><input class="input" type="number" value="${esc(d.weight)}" oninput="upd('weight', this.value)" placeholder="例：75" step="0.1" /></div>
+            <div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="${esc(d.bodyFat)}" oninput="upd('bodyFat', this.value)" placeholder="例：25" step="0.1" /></div>
 
-<div><span class="label">年齢</span><input class="input" type="number" value="${esc(d.age)}" oninput="upd('age', this.value)" placeholder="例：35" /></div>
-<div><span class="label">身長（cm）</span><input class="input" type="number" value="${esc(d.height)}" oninput="upd('height', this.value)" placeholder="例：170" step="0.1" /></div>
-<div><span class="label">体重（kg）</span><input class="input" type="number" value="${esc(d.weight)}" oninput="upd('weight', this.value)" placeholder="例：75" step="0.1" /></div>
-<div><span class="label">体脂肪率（%）</span><input class="input" type="number" value="${esc(d.bodyFat)}" oninput="upd('bodyFat', this.value)" placeholder="例：25" step="0.1" /></div>
             <div id="step0-bodybox">
-  ${
-    c.nW > 0 && c.nBf > 0
-      ? `
-    <div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">
-      <div style="flex:1;text-align:center">
-        <div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div>
-        <div style="font-size:20px;font-weight:800;color:#2d8a6e">${c.lbm.toFixed(1)}kg</div>
-      </div>
-      <div style="width:1px;background:#c8ddd2"></div>
-      <div style="flex:1;text-align:center">
-        <div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div>
-        <div style="font-size:20px;font-weight:800;color:#c0392b">${c.fatM.toFixed(1)}kg</div>
-      </div>
-    </div>
-  `
-      : ""
-  }
-</div>
+              ${
+                c.nW > 0 && c.nBf > 0
+                  ? `
+                <div style="background:#edf7f2;border-radius:14px;padding:14px 16px;display:flex;gap:12px">
+                  <div style="flex:1;text-align:center">
+                    <div style="font-size:10px;color:#5a6e62;font-weight:600">除脂肪体重</div>
+                    <div style="font-size:20px;font-weight:800;color:#2d8a6e">${c.lbm.toFixed(1)}kg</div>
+                  </div>
+                  <div style="width:1px;background:#c8ddd2"></div>
+                  <div style="flex:1;text-align:center">
+                    <div style="font-size:10px;color:#5a6e62;font-weight:600">体脂肪量</div>
+                    <div style="font-size:20px;font-weight:800;color:#c0392b">${c.fatM.toFixed(1)}kg</div>
+                  </div>
+                </div>
+              `
+                  : ""
+              }
+            </div>
 
-           <button id="step0next" class="btn-primary" ${cn ? "" : "disabled"} onclick="if(isStep0Complete()) setStep(1)">次へ →</button>
+            <button id="step0next" class="btn-primary" ${cn ? "" : "disabled"} onclick="if(isStep0Complete()) setStep(1)">次へ →</button>
           </div>
         `;
         return;
